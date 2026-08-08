@@ -18,13 +18,17 @@ syntax — a mapping to SysML v2 textual notation, for export and interoperabili
 ├── brief.yaml
 ├── requirements.yaml
 ├── logical.yaml
-└── physical.yaml
+├── physical.yaml
+└── decisions.yaml     # optional
 ```
 
 One file per layer rather than one file per project, because the layers are written at different times by
 different people. The brief is captured during the first phone call; the physical design is finished the
 week before the event and revised on site. Keeping them apart means a change to the truck pack does not
 touch the file recording what the client asked for.
+
+`decisions.yaml` is the one project file that is not a layer. It is present only when the project records
+decisions, and it is absent from a model that records none — see `07-decisions.md`.
 
 **A library domain is a directory of four files, one per entity kind.**
 
@@ -80,14 +84,16 @@ brief:
 | Key | Files | Values |
 |---|---|---|
 | `eventml` | all | The language version the file is written against. `"0.1"` in this release — quoted, so it stays a string |
-| `kind` | library | `items` \| `ports` \| `parts` \| `requirements` |
+| `kind` | library, decisions | Library: `items` \| `ports` \| `parts` \| `requirements`. Decisions file: `decisions` |
 | `domain` | library | `audio` \| `lighting` \| `video` \| `network` \| `power` |
 | `layer` | model | `brief` \| `requirement` \| `logical` \| `physical`, exactly as in `01-layers.md` |
-| `project` | model | Short kebab-case project identifier, the same in all four files |
+| `project` | model, decisions | Short kebab-case project identifier, the same in all files of the project |
 
 A library file carries `kind` and `domain` and never `layer` or `project`. A model file carries `layer` and
-`project` and never `kind` or `domain`. The content document's single top-level key matches the header: a
-file with `kind: items` opens its body with `items:`, a file with `layer: brief` opens with `brief:`.
+`project` and never `kind` or `domain`. `decisions.yaml` carries `kind: decisions` and `project` and never
+`layer` or `domain` — see `07-decisions.md`. The content document's single top-level key matches the header:
+a file with `kind: items` opens its body with `items:`, a file with `layer: brief` opens with `brief:`, and
+a file with `kind: decisions` opens with `decisions:`.
 
 ## 3. Identifiers
 
