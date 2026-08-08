@@ -117,7 +117,7 @@ one kind cannot silently resolve as the other.
 
 ## 4. References
 
-Four reference forms, and no others.
+Five reference forms, and no others.
 
 | Form | Syntax | Example |
 |---|---|---|
@@ -125,6 +125,7 @@ Four reference forms, and no others.
 | Instance | bare short id | `sb1` |
 | Port | `<part_id>:<port_id>[<index>]` | `sb1:analog_in[3]` |
 | Brief path | dotted path from the `brief` root | `brief.program[1].size` |
+| Source | bare id under `src:` | `src: s-client-brief` |
 
 ```yaml
 parts:
@@ -156,6 +157,12 @@ two specific ports.
 `brief.program[1].size` is the `size` field of the second entry in the brief's `program` list. This is the
 only form that reaches inside a document rather than naming a top-level element, and it exists because L0
 has no entities — see `01-layers.md`.
+
+**Source references** name an entry in the brief's `sources` list, defined in `01-layers.md`. A source
+reference is an instance reference like any other — no dots, resolved within the project — and it carries
+nothing but the handle. Everything worth knowing about a source is a key on the source entry, never a
+decoration on the reference to it: `src: "s-venue-call, production manager"` is not a reference but a
+sentence, and nothing can resolve it.
 
 ## 5. Conventions
 

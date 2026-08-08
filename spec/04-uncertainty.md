@@ -16,7 +16,7 @@ ordinary YAML. Everything else expands into an object that says what kind of kno
 | `value` | any | no | Absent when `state: unknown` |
 | `state` | see §2 | yes | What kind of knowledge this is |
 | `why` | string | when `assumed` or `derived` | The reasoning |
-| `src` | string | when `stated` or `conflicting` | Where it came from |
+| `src` | source ref | when `stated` or `conflicting` | The `sources` entry it came from — see `01-layers.md` |
 | `ask` | bool | no | Force this into the question list |
 | `alternatives` | list | when `conflicting` | The competing values with their sources |
 
@@ -78,8 +78,8 @@ band:
   load_in_time:
     state: conflicting
     alternatives:
-      - { value: "16:00", src: "s-email-2026-08-01" }
-      - { value: "14:00", src: "s-call-2026-08-05, production manager" }
+      - { value: "16:00", src: s-client-brief }
+      - { value: "14:00", src: s-venue-call }
 ```
 
 ## 3. Question rules

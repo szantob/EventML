@@ -12,8 +12,8 @@ requirements:
       audience:
         state: conflicting
         alternatives:
-          - { value: 300, src: s-email-2026-08-01 }
-          - { value: 450, src: s-email-2026-08-05 }
+          - { value: 300, src: s-client-brief }
+          - { value: 450, src: s-client-update }
     refines: brief.program[1]
     satisfied_by: [main-pa, front-fill]
 

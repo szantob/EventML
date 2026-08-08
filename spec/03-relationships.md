@@ -114,11 +114,20 @@ the device was never written down. Either way it needs fixing rather than asking
 
 ## trace
 
-**YAML form.** `src` inside a value wrapper, holding a reference to where the value came from. The wrapper
-is defined in `04-uncertainty.md`; here only the `src` attribute matters.
+**YAML form.** `src` inside a value wrapper, naming an entry in the brief's `sources` list. The wrapper is
+defined in `04-uncertainty.md` and the source entry in `01-layers.md`; here only the `src` attribute matters.
 
 ```yaml
 brief:
+  sources:
+    - id: s-site-visit
+      kind: site_visit
+      date: 2026-08-04
+      from: production
+      sender: "technical contact, venue"
+      excerpt: >-
+        Confirmed the CEE outlet by the service door — 32 A three-phase, on its own RCD.
+
   audience: 300                       # bare scalar: stated, source is the brief itself
   venue:
     covered:
@@ -129,7 +138,7 @@ brief:
     power_available:
       value: "32 A three-phase"
       state: stated
-      src: "site visit note, 2026-08-04, technical contact confirmed the CEE outlet"
+      src: s-site-visit
 ```
 
 **Cardinality.** Every non-`stated` value carries one `src` or one `why`, depending on its state. A single
