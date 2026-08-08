@@ -1,0 +1,176 @@
+eventml: "0.1"
+layer: physical
+project: garden-party
+---
+physical:
+  parts:
+    # --- Capture -------------------------------------------------------------
+    - { id: vox1,         label: "Handheld — speech",      def: audio.part.microphone, layer: physical, allocate: microphone-pool }
+    - { id: vox2,         label: "Vocal — band",           def: audio.part.microphone, layer: physical, allocate: microphone-pool }
+    - { id: di-playback,  label: "DI — laptop playlist",   def: audio.part.di_box,     layer: physical, allocate: playback }
+
+    # --- Transport and mixing ------------------------------------------------
+    # These three allocate to mix-position. The L2 model has no transport block,
+    # because at L2 nothing has decided that the signal travels digitally at all —
+    # a 16-way analogue multicore would satisfy the same logical connection. The
+    # stage box and the switches exist only to serve the mix position, so that is
+    # what they are allocated to. See README §Layer boundary.
+    - id: sb1
+      label: "Stage box — stage left"
+      def: audio.part.stage_box
+      layer: physical
+      allocate: mix-position
+      properties:
+        electrical_load_w: 90
+
+    - { id: sw-stage, label: "Switch — stage",         def: network.part.switch_managed, layer: physical, allocate: mix-position }
+    - { id: sw-foh,   label: "Switch — front of house", def: network.part.switch_managed, layer: physical, allocate: mix-position }
+
+    - id: fohm
+      label: "Console — front of house"
+      def: audio.part.mixing_console
+      layer: physical
+      allocate: mix-position
+      properties:
+        clock_master: true          # network.constraint.single_clock_master: one, and it is this one
+
+    # --- Reinforcement -------------------------------------------------------
+    - { id: amp-pa,   label: "Amplifier — main PA",  def: audio.part.amplifier,   layer: physical, allocate: main-pa }
+    - { id: pa-left,  label: "Main PA — left",       def: audio.part.loudspeaker, layer: physical, allocate: main-pa }
+    - { id: pa-right, label: "Main PA — right",      def: audio.part.loudspeaker, layer: physical, allocate: main-pa }
+
+    - { id: fill-left,  label: "Front fill — left",  def: audio.part.powered_loudspeaker, layer: physical, allocate: front-fill }
+    - { id: fill-right, label: "Front fill — right", def: audio.part.powered_loudspeaker, layer: physical, allocate: front-fill }
+
+    - { id: wedge-1, label: "Wedge — stage left",  def: audio.part.powered_loudspeaker, layer: physical, allocate: monitor-world }
+    - { id: wedge-2, label: "Wedge — stage right", def: audio.part.powered_loudspeaker, layer: physical, allocate: monitor-world }
+
+    # --- Power ---------------------------------------------------------------
+    # power-supply has no L3 allocation: nobody knows yet what the terrace socket
+    # is rated at, so no supply has been chosen. An L2 block with no L3 part is
+    # legitimate and is the visible form of an undecided design.
+    - { id: rcd-1,   label: "RCD — incoming",        def: power.part.rcd_unit, layer: physical, allocate: power-dist }
+    - { id: distro-1, label: "Distro — stage right", def: power.part.distro,   layer: physical, allocate: power-dist }
+
+  connections:
+    # --- Analogue capture into the stage box ---------------------------------
+    - { id: c-vox1-sb1, from: "vox1:out",        to: "sb1:analog_in[0]", interface: audio.interface.xlr_mic,  properties: { length_m: 20 } }
+    - { id: c-vox2-sb1, from: "vox2:out",        to: "sb1:analog_in[1]", interface: audio.interface.xlr_mic,  properties: { length_m: 15 } }
+    - { id: c-di-sb1,   from: "di-playback:out", to: "sb1:analog_in[8]", interface: audio.interface.xlr_mic,  properties: { length_m: 25 } }
+
+    # --- The networked chain: three connections, one flow ---------------------
+    - { id: c-sb1-swstage,   from: "sb1:net[0]",       to: "sw-stage:port[0]", interface: network.interface.cat6a_link, redundancy: primary, properties: { length_m: 12 } }
+    - { id: c-swstage-swfoh, from: "sw-stage:port[8]", to: "sw-foh:port[0]",   interface: network.interface.cat6a_link, redundancy: primary, properties: { length_m: 60 } }
+    - { id: c-swfoh-fohm,    from: "sw-foh:port[4]",   to: "fohm:net[0]",      interface: network.interface.cat6a_link, redundancy: primary, properties: { length_m: 5 } }
+
+    # --- Console out to the PA ------------------------------------------------
+    - { id: c-fohm-amp-l, from: "fohm:analog_out[0]", to: "amp-pa:analog_in[0]", interface: audio.interface.xlr_line, properties: { length_m: 2 } }
+    - { id: c-fohm-amp-r, from: "fohm:analog_out[1]", to: "amp-pa:analog_in[1]", interface: audio.interface.xlr_line, properties: { length_m: 2 } }
+    - { id: c-amp-pa-l,   from: "amp-pa:spk_out[0]",  to: "pa-left:spk_in",      interface: audio.interface.speaker_nl4, properties: { length_m: 15 } }
+    - { id: c-amp-pa-r,   from: "amp-pa:spk_out[1]",  to: "pa-right:spk_in",     interface: audio.interface.speaker_nl4, properties: { length_m: 15 } }
+
+    # --- Front fill and monitors, daisy-chained through their thru ports ------
+    - { id: c-fohm-fill,   from: "fohm:analog_out[2]", to: "fill-left:in",  interface: audio.interface.xlr_line, properties: { length_m: 30 } }
+    - { id: c-fill-l-r,    from: "fill-left:thru",     to: "fill-right:in", interface: audio.interface.xlr_line, properties: { length_m: 8 } }
+    - { id: c-fohm-wedge,  from: "fohm:analog_out[4]", to: "wedge-1:in",    interface: audio.interface.xlr_line, properties: { length_m: 35 } }
+    - { id: c-wedge-1-2,   from: "wedge-1:thru",       to: "wedge-2:in",    interface: audio.interface.xlr_line, properties: { length_m: 6 } }
+
+    # --- Power ---------------------------------------------------------------
+    - { id: c-rcd-distro, from: "rcd-1:out", to: "distro-1:in", interface: power.interface.ac_3p_cable, properties: { length_m: 5 } }
+
+    - { id: c-distro-amp,     from: "distro-1:out_true1[0]", to: "amp-pa:pwr",   interface: power.interface.ac_1p_cable, properties: { length_m: 3 } }
+    - { id: c-distro-sb1,     from: "distro-1:out_true1[1]", to: "sb1:pwr",      interface: power.interface.ac_1p_cable, properties: { length_m: 10 } }
+    - { id: c-distro-fohm,    from: "distro-1:out_true1[2]", to: "fohm:pwr",     interface: power.interface.ac_1p_cable, properties: { length_m: 60 } }
+    - { id: c-distro-swstage, from: "distro-1:out_true1[3]", to: "sw-stage:pwr", interface: power.interface.ac_1p_cable, properties: { length_m: 10 } }
+    - { id: c-distro-swfoh,   from: "distro-1:out_true1[4]", to: "sw-foh:pwr",   interface: power.interface.ac_1p_cable, properties: { length_m: 60 } }
+    # The four below run from schuko outlets into TRUE1 inlets: both carry
+    # power.item.ac_230v_1p, so the connection is valid, and the connector
+    # difference is what the cable's ends are. A model that only matched
+    # connectors could not express an adapter lead.
+    - { id: c-distro-fill-l, from: "distro-1:out_1p[0]", to: "fill-left:pwr",  interface: power.interface.ac_1p_cable, properties: { length_m: 32 } }
+    - { id: c-distro-fill-r, from: "distro-1:out_1p[1]", to: "fill-right:pwr", interface: power.interface.ac_1p_cable, properties: { length_m: 38 } }
+    - { id: c-distro-wedge1, from: "distro-1:out_1p[2]", to: "wedge-1:pwr",    interface: power.interface.ac_1p_cable, properties: { length_m: 35 } }
+    - { id: c-distro-wedge2, from: "distro-1:out_1p[3]", to: "wedge-2:pwr",    interface: power.interface.ac_1p_cable, properties: { length_m: 40 } }
+
+  flows:
+    # Four flows, not one, because the item changes at each transform. The
+    # end-to-end path from vox1 to pa-left is these four joined by the internal
+    # edges of sb1, fohm and amp-pa — which is what PartDef.internal is for.
+    - id: f-vox-to-sb1
+      item: audio.item.analog_mic
+      from: vox1
+      to: sb1
+      over: [c-vox1-sb1]
+      properties:
+        channels: 1
+
+    - id: f-stage-inputs
+      item: audio.item.dante_flow
+      from: sb1
+      to: fohm
+      over: [c-sb1-swstage, c-swstage-swfoh, c-swfoh-fohm]
+      properties:
+        channels:
+          state: unknown
+          notes: "one per input; blocked on brief.program[3].instruments"
+        bandwidth_mbit:
+          value: 40
+          state: derived
+          why: "16 channels at 48 kHz/24-bit with Dante overhead, taking the stage box's full preamp count as the worst case"
+
+    - id: f-pa-drive-left
+      item: audio.item.analog_line
+      from: fohm
+      to: amp-pa
+      over: [c-fohm-amp-l]
+      properties:
+        channels: 1
+
+    - id: f-amp-to-pa-left
+      item: audio.item.speaker_level
+      from: amp-pa
+      to: pa-left
+      over: [c-amp-pa-l]
+      properties:
+        channels: 1
+
+    - id: f-fill-chain
+      item: audio.item.analog_line
+      from: fohm
+      to: fill-right
+      over: [c-fohm-fill, c-fill-l-r]
+      properties:
+        channels: 1
+      notes: >-
+        Runs through fill-left rather than around it, via that part's in → thru internal edge. Without
+        that edge the walk would stop at fill-left and fill-right would appear unfed.
+
+    - id: f-monitor-chain
+      item: audio.item.analog_line
+      from: fohm
+      to: wedge-2
+      over: [c-fohm-wedge, c-wedge-1-2]
+      properties:
+        channels: 1
+
+    - id: f-clock
+      item: network.item.ptp_clock
+      from: fohm
+      to: sb1
+      over: [c-swfoh-fohm, c-swstage-swfoh, c-sb1-swstage]
+      properties:
+        role: "master to follower"
+      notes: >-
+        The same three connections as f-stage-inputs, traversed in the opposite order. Two flows over
+        one set of cables, in opposite directions — the plainest case for keeping Connection and Flow
+        apart.
+
+    - id: f-site-power
+      item: power.item.ac_400v_3p
+      from: rcd-1
+      to: distro-1
+      over: [c-rcd-distro]
+      properties:
+        current_a:
+          state: unknown
+          notes: "demand is computable from the parts; supply is not, and is the open question"
