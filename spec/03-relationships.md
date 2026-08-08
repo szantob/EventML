@@ -7,14 +7,22 @@ for any statement in the model, where did it come from and what depends on it.
 |---|---|---|---|
 | `refine` | L0 → L1 | `Requirement.refines` | A brief element becomes a requirement |
 | `derive` | L1 → L1 | `Requirement.derived_from` | A requirement decomposes into sub-requirements |
-| `satisfy` | L2/L3 → L1 | `Requirement.satisfied_by` | This block or device meets that requirement |
+| `satisfy` | L2/L3 → L1 | `Part.satisfies` | This block or device meets that requirement |
 | `allocate` | L2 → L3 | `Part.allocate` | A logical block is realised by a concrete device |
 | `trace` | any → source | `Value.src` | Which client sentence, PM decision or default |
 
 None of the five is a standalone entity. Each is an attribute on the element at the lower end of the edge —
-the requirement knows which brief element it refines, the device knows which block it realises. This is what
-boundary rule 1 in `01-layers.md` requires: a layer never references downward, so an L1 requirement stays
-valid no matter which L2 or L3 design ends up meeting it.
+the requirement knows which brief element it refines, the device knows which block it realises, the block
+knows which requirement it meets. This holds without exception, and it is what boundary rule 1 in
+`01-layers.md` requires: a layer never references downward, so an L1 requirement stays valid no matter which
+L2 or L3 design ends up meeting it.
+
+The rule has a consequence worth stating plainly, because it is what makes the model readable backwards.
+Every edge points from the concrete toward the abstract, so tracing *back* from a cable to the sentence that
+caused it is a chain of field reads — `allocate`, then `satisfies`, then `refines`, then `src` — with no
+search at any step. Tracing *forward*, from a client sentence to the equipment it produced, is the direction
+that requires a scan. That asymmetry is deliberate: the backward question is the one asked under pressure,
+on site, about a device somebody is holding.
 
 The worked examples throughout this file use one scenario: a garden party for 300 on a terrace, with a
 welcome speech at 19:00 and a live band from 21:00, where nobody has yet said how many musicians there are.
@@ -63,24 +71,39 @@ technical consequences the client does not need to see.
 
 ## satisfy
 
-**YAML form.** `Requirement.satisfied_by`, holding a list of `Part` ids at L2, L3, or both.
+**YAML form.** `Part.satisfies` on the L2 or L3 part, holding a list of `Requirement` ids.
 
 ```yaml
-- id: r-speech-terrace
-  def: audio.req.speech_intelligibility
-  params: { area: "the terrace seating area", audience: 300 }
-  refines: brief.program.welcome_speech
-  satisfied_by: [main-pa, delay-line, pa-left, pa-right]
+# L2 — the logical blocks that meet the speech requirement
+- id: main-pa
+  def: audio.part.main_pa
+  layer: logical
+  satisfies: [r-speech-terrace]
+
+- id: delay-line
+  def: audio.part.delay_line
+  layer: logical
+  satisfies: [r-speech-terrace]
 ```
 
 **Cardinality.** Many-to-many. One requirement may need several parts to meet it — a speech is intelligible
 because of the main hang *and* the delay line — and one part may satisfy several requirements, which is what
 makes a piece of equipment worth its truck space.
 
-**When the edge is absent.** Nothing in the design meets this requirement yet. An empty `satisfied_by` is
-not a modelling error; it is the normal state of a requirement that has been captured but not yet designed
-for, and it is exactly what question rule 3 in `04-uncertainty.md` fires on. A model is expected to hold
-requirements in this state, sometimes for weeks.
+**Where SysML v2 puts it.** On the satisfying element, not on the requirement: `part def Drone { satisfy
+requirement : CargoCapacity; }` binds the requirement's subject to the enclosing part. The standalone form,
+`satisfy R1 by vehicle;`, names both ends explicitly. In neither does the requirement hold a list of the
+things that meet it, and EventML follows the standard here — see `06-sysml-mapping.md`.
+
+**When the edge is absent.** Read from the requirement's side, nothing in the design meets it yet. That is
+not a modelling error; it is the normal state of a requirement captured but not yet designed for, and it is
+exactly what question rule 3 in `04-uncertainty.md` fires on. A model is expected to hold requirements in
+this state, sometimes for weeks.
+
+Read from the part's side, a part with no `satisfies` is a block or device that nothing in the model asks
+for. On an L3 part this is usually harmless, because the requirement is met by the L2 block it is allocated
+from and the edge sits there. On an L2 part it is worth attention: a logical block no requirement calls for
+is either unnecessary, or evidence of a requirement nobody wrote down.
 
 ## allocate
 
@@ -166,6 +189,23 @@ Nobody has said how many musicians are in the band. That single unknown at L0 re
 for monitor coverage, which is satisfied by a logical monitor world, which is allocated to four wedges,
 which are connected to an amplifier. Every element below the unknown is provisional: four wedges is a guess
 that follows from a guess about the band's size.
+
+The diagram reads downward, but every edge on it is stored at its lower end, so the chain is walked upward
+by reading one field at a time. Standing on site holding a wedge, the walk back to the client's own words is
+four reads and no searching:
+
+```
+wedge_1        .allocate  → monitor-world        (L3 → L2)
+monitor-world  .satisfies → r-monitor-coverage   (L2 → L1)
+r-monitor-coverage .refines → brief.program[1].size  (L1 → L0)
+brief.program[1].size .src → s-client-brief      (L0 → the email itself)
+```
+
+This is the only traversal v0.1 supports without a scan, and it is deliberately the one that matters when
+somebody asks why a piece of equipment is on the truck. The opposite direction — from a brief sentence
+forward to everything it caused — has no stored edge to follow and requires examining every part in the
+model. `04-uncertainty.md` needs exactly that direction to compute `blocks`, which is one reason the
+question list is hand-written in v0.1.
 
 **The rule that makes the language pay off: any node on this chain that is missing, unknown or unsatisfied
 propagates upward into a question, and the number of requirements downstream of it is its rank.** The band's

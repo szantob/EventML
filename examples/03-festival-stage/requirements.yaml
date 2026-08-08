@@ -11,7 +11,6 @@ requirements:
       area: "the audience area out to the sound-desk position"
       level: "concert level"
     refines: brief.program[0]
-    satisfied_by: [main-pa, delay-pa, system-processing]
 
   - id: r-coverage-depth
     def: audio.req.coverage_uniformity
@@ -19,7 +18,6 @@ requirements:
       area: "from the barrier to 60 m back"
       tolerance_db: 6
     derived_from: r-music-park
-    satisfied_by: [delay-pa]
     notes: >-
       The child requirement that makes a delay line necessary. The parent says the music must be
       reproduced; this one says it must be as loud at the back as at the front, and no single hang does
@@ -31,7 +29,6 @@ requirements:
       performers: 6
       mixes: 6
     refines: brief.program[1]
-    satisfied_by: [monitor-world]
 
   - id: r-wireless-capacity
     def: audio.req.input_capacity
@@ -41,7 +38,6 @@ requirements:
         notes: "brief.program[1].wireless_channels — the rider has not arrived"
       position: "the stage"
     derived_from: r-band-monitoring
-    satisfied_by: []
     notes: >-
       Unsatisfied because the rider is missing. Frequency coordination for an unknown number of channels
       cannot be done, and it is the one item here with a hard deadline before the day.
@@ -52,7 +48,6 @@ requirements:
       inputs: 32
       position: "the stage, patched for all four bands at once"
     refines: brief.program[0]
-    satisfied_by: [stage-inputs]
     notes: >-
       A 20-minute changeover is what turns input capacity into a real requirement: every band's inputs
       stay patched, so the stage must carry all of them simultaneously rather than in turn.
@@ -67,7 +62,6 @@ requirements:
         state: derived
         why: "sum of electrical_load_w across the physical parts, LED wall included"
     refines: brief.power
-    satisfied_by: [gen-1, distro-stage]
 
   - id: r-phase-balance
     def: power.req.phase_balance
@@ -75,7 +69,6 @@ requirements:
       distribution_point: "the stage distro"
       tolerance: 0.2
     derived_from: r-supply-capacity
-    satisfied_by: [distro-stage]
     notes: >-
       Only matters because the supply is a generator. On a house supply an imbalance is absorbed; on a
       20 kVA set it costs usable output, and the dimmer rack is the largest single-phase load on site.
@@ -86,14 +79,12 @@ requirements:
       area: "the audience area"
       period: "the whole programme"
     refines: brief.power
-    satisfied_by: [gen-1]
 
   - id: r-console-continuity
     def: power.req.residual_current_protection
     params:
       area: "the stage and the sound-desk position, all outdoors"
       trip_ma: 30
-    satisfied_by: [rcd-stage]
     notes: "No refine edge: professional judgement, and non-negotiable on a wet field."
 
   # --- Network --------------------------------------------------------------
@@ -103,7 +94,6 @@ requirements:
       traffic: "the stage-to-front-of-house audio and control network"
       headroom: 0.7
     refines: brief.venue.foh_distance_m
-    satisfied_by: [stage-backbone]
     notes: >-
       Refines a distance, not a programme item. 45 m of copper is inside the limit; the generator run at
       70 m is not, which is what puts fibre in the design.
@@ -114,7 +104,6 @@ requirements:
       media: "networked audio between the stage and front of house"
       period: "the whole programme, including four changeovers"
     derived_from: r-long-haul
-    satisfied_by: [clock-master]
 
   # --- Lighting -------------------------------------------------------------
   - id: r-stage-wash
@@ -124,7 +113,6 @@ requirements:
       activity: "a band seen by a standing audience and photographed"
       colour: "warm white, with colour available for the headliner"
     refines: brief.program[2]
-    satisfied_by: [stage-wash, effect-rig]
 
   - id: r-face-lighting
     def: lighting.req.face_lighting
@@ -132,7 +120,6 @@ requirements:
       position: "the front line of the stage, across its full width"
       purpose: "the audience and the photographers to see the performers' faces"
     refines: brief.program[2]
-    satisfied_by: [key-light]
     notes: >-
       The requirement behind "the stage looked flat on the photos". Flatness in a photograph is the
       absence of front light at an angle, and the client described the symptom rather than the cause.
@@ -144,7 +131,6 @@ requirements:
       universes: 3
       position: "the front-of-house position, beside the sound desk"
     derived_from: r-stage-wash
-    satisfied_by: [lx-control, dmx-dist]
 
   # --- Video ----------------------------------------------------------------
   - id: r-screen-visible
@@ -154,7 +140,6 @@ requirements:
       area: "the audience area"
       content_detail: "camera of the stage, at a distance"
     refines: brief.program[3]
-    satisfied_by: [screen-wall]
 
   - id: r-screen-content
     def: video.req.source_switching
@@ -164,5 +149,4 @@ requirements:
         notes: "brief.program[3].content — camera, sponsor loops, or both"
       period: "the whole programme"
     refines: brief.program[3]
-    satisfied_by: []
     notes: "Unsatisfied: nobody has said what goes on the screen, so nothing can be designed to switch it."

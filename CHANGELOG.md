@@ -28,7 +28,11 @@ First release. A specification only: prose and data, nothing executable.
   table and a worked example. Includes the two rules the model cannot work without: `Connection` and
   `Flow` are separate entities, and `PartDef` carries internal traversability.
 - **Five traceability relations** (`spec/03-relationships.md`): `refine`, `derive`, `satisfy`,
-  `allocate`, `trace`, with cardinalities and the meaning of an absent edge.
+  `allocate`, `trace`, with cardinalities and the meaning of an absent edge. All five are stored on the
+  element at the lower end of the edge, `satisfy` included — it is carried by `Part.satisfies`, which is
+  where SysML v2 puts it and what makes boundary rule 1 hold without exception. The consequence is that
+  tracing back from a device to the client sentence that caused it is a chain of field reads with no
+  search: `allocate`, `satisfies`, `refines`, `src`.
 - **The uncertainty model** (`spec/04-uncertainty.md`): progressive wrapping, the five value states
   (`stated`, `derived`, `assumed`, `unknown`, `conflicting`), the five question rules, and the ranking
   by how many requirements each open point blocks.
@@ -68,10 +72,10 @@ v0.1 has no validator, so the examples carry the verification burden. Both rules
 - **Every example is walkable across all four layers.** All catalogue references, port references, flow
   routes and allocations resolve.
 
-Three requirements across the three examples have no upward trace, and six have an empty `satisfied_by`.
-These are deliberate and are the language working as designed: a requirement from professional judgement
-has no client statement to refine, and an unsatisfied requirement is question rule 3 firing. Each is
-annotated in place.
+Three requirements across the three examples have no upward trace, and six are satisfied by no part. These
+are deliberate and are the language working as designed: a requirement from professional judgement has no
+client statement to refine, and an unsatisfied requirement is question rule 3 firing. Each is annotated in
+place.
 
 ### Not in this release
 

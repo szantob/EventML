@@ -8,6 +8,7 @@ logical:
       label: "Sources — speech, band, playback"
       def: audio.part.microphone_pool
       layer: logical
+      satisfies: [r-input-capacity]
       properties:
         channels:
           state: unknown
@@ -27,6 +28,7 @@ logical:
       label: "Main PA — terrace"
       def: audio.part.main_pa
       layer: logical
+      satisfies: [r-speech-intelligible, r-music-reproduction, r-coverage-uniformity]
       properties:
         covers: "the seated audience area"
 
@@ -34,6 +36,7 @@ logical:
       label: "Front fill — front tables"
       def: audio.part.front_fill
       layer: logical
+      satisfies: [r-speech-intelligible, r-coverage-uniformity]
       properties:
         covers: "the two front table rows, inside the main PA's pattern"
 
@@ -50,6 +53,7 @@ logical:
       label: "Site supply"
       def: power.part.power_source
       layer: logical
+      satisfies: [r-supply-capacity, r-silent-supply]
       properties:
         rated_current_a:
           state: unknown
@@ -59,6 +63,7 @@ logical:
       label: "Terrace distribution"
       def: power.part.power_distribution
       layer: logical
+      satisfies: [r-supply-capacity]
 
   connections:
     - { id: lc-mics-mix,     from: "microphone-pool:out[0]", to: "mix-position:in[0]",  interface: audio.interface.xlr_mic }

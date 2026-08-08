@@ -237,10 +237,15 @@ logical architecture.
 | `layer` | `logical` \| `physical` | yes | Which layer this usage belongs to |
 | `properties` | map | no | Overrides the definition's `properties` |
 | `allocate` | Part id | L3 only | The L2 `Part` this one realises |
+| `satisfies` | list of Requirement ids | no | The requirements this part meets — **may be empty** |
 
-**Relations.** References one `PartDef`. An L3 `Part` references exactly one L2 `Part` through `allocate`
-— boundary rule 3 in `01-layers.md`. Referenced by `Connection` port references, `Flow.from` and `Flow.to`,
-and `Requirement.satisfied_by`.
+**Relations.** References one `PartDef`, optionally one L2 `Part` through `allocate`, and any number of
+`Requirement`s through `satisfies`. An L3 `Part` references exactly one L2 `Part` — boundary rule 3 in
+`01-layers.md`. Referenced by `Connection` port references, `Flow.from` and `Flow.to`.
+
+The `satisfy` edge is carried here rather than on the `Requirement` for two reasons, set out in
+`03-relationships.md`: it is where SysML v2 puts it, and it is what keeps boundary rule 1 true without
+exception — no L1 element names an L2 or L3 one.
 
 ```yaml
 - id: sb1
@@ -248,6 +253,7 @@ and `Requirement.satisfied_by`.
   label: "Stage box — drum riser"
   layer: physical
   allocate: stage-input-block
+  satisfies: [r-input-capacity]
   properties:
     electrical_load_w: 90
 ```
@@ -320,15 +326,16 @@ traceability recorded.
 | `params` | map | yes | Fills the template's placeholders |
 | `refines` | L0 path | no | The brief element this requirement refines |
 | `derived_from` | Requirement id | no | The parent requirement, when decomposed |
-| `satisfied_by` | list of Part ids | no | What meets it — **may be empty** |
 
-**Relations.** References one `RequirementDef`, optionally one L0 brief element, optionally one parent
-`Requirement`, and any number of `Part`s.
+**Relations.** References one `RequirementDef`, optionally one L0 brief element, and optionally one parent
+`Requirement`. A `Requirement` never names a `Part` — the `satisfy` edge is carried by `Part.satisfies`,
+pointing upward.
 
-`satisfied_by` may legitimately be empty, and an empty list is not a modelling error — it is the normal
-state of a requirement that has been captured but not yet designed for. It is question rule 3 in
-`04-uncertainty.md`: a requirement nothing satisfies is a question waiting to be asked, and the model is
-expected to hold it in that state.
+A requirement that no part satisfies is not a modelling error; it is the normal state of one that has been
+captured but not yet designed for. It is question rule 3 in `04-uncertainty.md`, and the model is expected
+to hold requirements in that state, sometimes for weeks. Because the edge lives on the part, the condition
+is *no part lists this requirement* rather than *this requirement has an empty list* — the same fact,
+established by looking at the parts.
 
 ```yaml
 - id: r-speech-terrace
@@ -337,7 +344,6 @@ expected to hold it in that state.
     area: "the terrace seating area"
     audience: 300
   refines: brief.program.welcome_speech
-  satisfied_by: [main-pa, delay-line]
 ```
 
 ## 4. Connection and Flow are separate

@@ -15,7 +15,6 @@ requirements:
           - { value: 300, src: s-client-brief }
           - { value: 450, src: s-client-update }
     refines: brief.program[1]
-    satisfied_by: [main-pa, front-fill]
 
   - id: r-music-reproduction
     def: audio.req.music_reproduction
@@ -29,7 +28,6 @@ requirements:
         why: "'nothing fancy, but it should sound good' plus a 21:00 band slot"
         ask: true
     refines: brief.program[3]
-    satisfied_by: [main-pa]
 
   - id: r-band-monitoring
     def: audio.req.stage_monitoring
@@ -39,10 +37,9 @@ requirements:
         notes: "waiting on brief.program[3].size"
       content: "their own instrument and the vocals"
     refines: brief.program[3].size
-    satisfied_by: []
     notes: >-
-      Deliberately unsatisfied. Nothing can be designed until the band's size is known, and the empty
-      satisfied_by is what makes that visible — question rule 3.
+      Deliberately unsatisfied. Nothing can be designed until the band's size is known, and the fact that
+      no part lists this requirement in its `satisfies` is what makes that visible — question rule 3.
 
   - id: r-input-capacity
     def: audio.req.input_capacity
@@ -52,7 +49,6 @@ requirements:
         notes: "derived once brief.program[3].instruments is answered"
       position: "the stage end of the terrace"
     derived_from: r-band-monitoring
-    satisfied_by: [microphone-pool]
 
   - id: r-coverage-uniformity
     def: audio.req.coverage_uniformity
@@ -62,7 +58,6 @@ requirements:
       tolerance_db: 6
     refines: brief.program[1]
     derived_from: r-speech-intelligible
-    satisfied_by: [main-pa, front-fill]
 
   - id: r-supply-capacity
     def: power.req.supply_capacity
@@ -72,7 +67,6 @@ requirements:
         state: unknown
         notes: "waiting on brief.power.rating; the model can compute demand, not supply"
     refines: brief.power
-    satisfied_by: [power-supply, power-dist]
 
   - id: r-weather-protection
     def: audio.req.weather_protection
@@ -80,7 +74,6 @@ requirements:
       location: "the terrace"
       conditions: "light rain and wind"
     refines: brief.venue.covered
-    satisfied_by: []
     notes: >-
       Also unsatisfied, and for a different reason from r-band-monitoring: here the information exists
       but the decision has not been made. Nobody has said whether the event moves indoors, so no cover
@@ -91,7 +84,6 @@ requirements:
     params:
       area: "the whole terrace, all equipment outdoors"
       trip_ma: 30
-    satisfied_by: [rcd-1]
     notes: >-
       No `refines`. The client never asked for this and never will. An absent refine edge is legitimate
       and worth seeing in review — see spec/03-relationships.md.
@@ -102,7 +94,6 @@ requirements:
       area: "the terrace"
       period: "the welcome speech at 19:00"
     refines: brief.program[1]
-    satisfied_by: [power-supply]
     notes: >-
       The requirement that decides whether a generator is viable at all. It exists only because someone
       asked what happens during the speech.

@@ -37,8 +37,8 @@ per-event, and a clean statement of which is which on every element.
 |---|---|---|
 | `refine` | `refine` | Direct. EventML's source is an L0 brief path rather than a model element, because L0 has no entities |
 | `derive` | `derive` | Direct |
-| `satisfy` | `satisfy` | Direct |
-| `allocate` | `allocate` | Direct |
+| `satisfy` | `satisfy` | Direct, including which end carries it. SysML v2 nests `satisfy requirement : SomeReq;` inside the satisfying part, binding the requirement's subject to the enclosing element; the standalone form `satisfy R1 by vehicle;` names both ends. EventML's `Part.satisfies` is the first form with the reference written out |
+| `allocate` | `allocate` | Direct in meaning. SysML v2 reifies it as an `AllocationUsage` connecting two elements; EventML stores it as an attribute on the L3 part, which fixes the direction the SysML form leaves open |
 | `trace` | metadata annotation | No first-class SysML relation. Nearest is a metadata definition carrying a source reference, applied to the annotated element |
 
 SysML v2 has no equivalent of the value-state model. A `stated` value and an `assumed` value both become

@@ -6,31 +6,60 @@ logical:
   parts:
     # --- Audio ---------------------------------------------------------------
     - { id: microphone-pool, label: "Lectern, panel and handheld microphones", def: audio.part.microphone_pool, layer: logical }
-    - { id: mix-position,    label: "Mix position — back of room",             def: audio.part.mix_position,    layer: logical }
-    - { id: room-pa,         label: "Room PA",                                 def: audio.part.main_pa,         layer: logical }
+    - id: mix-position
+      label: "Mix position — back of room"
+      def: audio.part.mix_position
+      layer: logical
+      satisfies: [r-speech-room, r-panel-inputs]
+    - id: room-pa
+      label: "Room PA"
+      def: audio.part.main_pa
+      layer: logical
+      satisfies: [r-speech-room, r-remote-participation]
 
     # --- Video ---------------------------------------------------------------
     - { id: presenter-source, label: "Presenter laptop feed", def: video.part.image_source,     layer: logical }
-    - { id: camera-1,         label: "Room camera",           def: video.part.image_source,     layer: logical }
-    - { id: video-processing, label: "Switching and streaming", def: video.part.image_processing, layer: logical }
+    - id: camera-1
+      label: "Room camera"
+      def: video.part.image_source
+      layer: logical
+      satisfies: [r-remote-participation]
+    - id: video-processing
+      label: "Switching and streaming"
+      def: video.part.image_processing
+      layer: logical
+      satisfies: [r-remote-participation, r-source-switching]
     - id: main-display
       label: "Main screen"
       def: video.part.image_display
       layer: logical
+      satisfies: [r-slides-visible, r-sightlines]
       properties:
         image_height_m:
           state: unknown
           notes: "brief.venue.existing_screen_size — the hotel has not measured it"
 
     # --- Network -------------------------------------------------------------
-    - { id: room-network, label: "Room network", def: network.part.network_edge, layer: logical }
+    - id: room-network
+      label: "Room network"
+      def: network.part.network_edge
+      layer: logical
+      satisfies: [r-stream-bandwidth, r-stream-segregation]
 
     # --- Lighting ------------------------------------------------------------
-    - { id: key-light,      label: "Key light — lectern and panel", def: lighting.part.key_light,        layer: logical }
+    - id: key-light
+      label: "Key light — lectern and panel"
+      def: lighting.part.key_light
+      layer: logical
+      satisfies: [r-face-lighting]
     - { id: light-control,  label: "Lighting control",              def: lighting.part.control_surface,  layer: logical }
 
     # --- Power ---------------------------------------------------------------
-    - { id: room-power, label: "Room supply and distribution", def: power.part.power_distribution, layer: logical }
+    - id: room-power
+      label: "Room supply and distribution"
+      def: power.part.power_distribution
+      layer: logical
+      satisfies: [r-room-power]
 
   connections:
     # Audio

@@ -120,9 +120,9 @@ by the only person in a position to make it.
   blocks: 4
 ```
 
-#### Rule 3 — a `Requirement` with an empty `satisfied_by`
+#### Rule 3 — a `Requirement` no `Part` satisfies
 
-**Trigger.** A `Requirement` that no `Part` satisfies.
+**Trigger.** A `Requirement` whose id appears in no part's `satisfies` list.
 
 This one is not addressed to the client. It is the model telling the project manager that something has been
 promised and nothing yet delivers it — the design gap, as opposed to the information gap. It appears in the

@@ -49,7 +49,12 @@ physical:
     # power-supply has no L3 allocation: nobody knows yet what the terrace socket
     # is rated at, so no supply has been chosen. An L2 block with no L3 part is
     # legitimate and is the visible form of an undecided design.
-    - { id: rcd-1,   label: "RCD — incoming",        def: power.part.rcd_unit, layer: physical, allocate: power-dist }
+    - id: rcd-1
+      label: "RCD — incoming"
+      def: power.part.rcd_unit
+      layer: physical
+      allocate: power-dist
+      satisfies: [r-rcd-protection]
     - { id: distro-1, label: "Distro — stage right", def: power.part.distro,   layer: physical, allocate: power-dist }
 
   connections:

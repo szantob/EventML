@@ -65,14 +65,25 @@ physical:
       def: power.part.generator
       layer: physical
       allocate: site-supply
+      satisfies: [r-supply-capacity, r-silent-supply]
       properties:
         rated_kva:
           value: 20
           state: assumed
           why: "what was hired last year; the LED wall is new"
           ask: true
-    - { id: rcd-stage,    label: "RCD — incoming",          def: power.part.rcd_unit,   layer: physical, allocate: stage-power }
-    - { id: distro-stage, label: "Distro — stage right",    def: power.part.distro,     layer: physical, allocate: stage-power }
+    - id: rcd-stage
+      label: "RCD — incoming"
+      def: power.part.rcd_unit
+      layer: physical
+      allocate: stage-power
+      satisfies: [r-console-continuity]
+    - id: distro-stage
+      label: "Distro — stage right"
+      def: power.part.distro
+      layer: physical
+      allocate: stage-power
+      satisfies: [r-supply-capacity, r-phase-balance]
     - { id: drum-1,       label: "Cable drum — FOH feed",   def: power.part.cable_drum, layer: physical, allocate: stage-power }
     - { id: ups-1,        label: "UPS — consoles and network core", def: power.part.ups, layer: physical, allocate: stage-power }
 

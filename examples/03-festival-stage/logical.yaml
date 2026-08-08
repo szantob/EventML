@@ -5,28 +5,80 @@ project: festival-stage
 logical:
   parts:
     # --- Audio ---------------------------------------------------------------
-    - { id: stage-inputs,      label: "Stage input pool — all four bands", def: audio.part.microphone_pool, layer: logical }
-    - { id: monitor-world,     label: "Monitor world",                     def: audio.part.monitor_world,   layer: logical }
+    - id: stage-inputs
+      label: "Stage input pool — all four bands"
+      def: audio.part.microphone_pool
+      layer: logical
+      satisfies: [r-changeover-speed]
+    - id: monitor-world
+      label: "Monitor world"
+      def: audio.part.monitor_world
+      layer: logical
+      satisfies: [r-band-monitoring]
     - { id: mix-position,      label: "Front of house",                    def: audio.part.mix_position,    layer: logical }
-    - { id: system-processing, label: "System processing",                 def: audio.part.dsp_processor,   layer: logical }
-    - { id: main-pa,           label: "Main PA",                           def: audio.part.main_pa,         layer: logical }
-    - { id: delay-pa,          label: "Delay line — 35 m out",             def: audio.part.delay_line,      layer: logical }
+    - id: system-processing
+      label: "System processing"
+      def: audio.part.dsp_processor
+      layer: logical
+      satisfies: [r-music-park]
+    - id: main-pa
+      label: "Main PA"
+      def: audio.part.main_pa
+      layer: logical
+      satisfies: [r-music-park]
+    - id: delay-pa
+      label: "Delay line — 35 m out"
+      def: audio.part.delay_line
+      layer: logical
+      satisfies: [r-music-park, r-coverage-depth]
 
     # --- Network -------------------------------------------------------------
-    - { id: stage-backbone, label: "Stage to front-of-house backbone", def: network.part.network_backbone, layer: logical }
-    - { id: clock-master,   label: "Clock master",                     def: network.part.clock_master,     layer: logical }
+    - id: stage-backbone
+      label: "Stage to front-of-house backbone"
+      def: network.part.network_backbone
+      layer: logical
+      satisfies: [r-long-haul]
+    - id: clock-master
+      label: "Clock master"
+      def: network.part.clock_master
+      layer: logical
+      satisfies: [r-clock-stability]
 
     # --- Lighting ------------------------------------------------------------
-    - { id: key-light,   label: "Front key light",       def: lighting.part.key_light,        layer: logical }
-    - { id: stage-wash,  label: "Stage wash",            def: lighting.part.wash_light,       layer: logical }
-    - { id: effect-rig,  label: "Effect lighting",       def: lighting.part.effect_light,     layer: logical }
-    - { id: lx-control,  label: "Lighting control",      def: lighting.part.control_surface,  layer: logical }
-    - { id: dmx-dist,    label: "DMX distribution",      def: lighting.part.dmx_distribution, layer: logical }
+    - id: key-light
+      label: "Front key light"
+      def: lighting.part.key_light
+      layer: logical
+      satisfies: [r-face-lighting]
+    - id: stage-wash
+      label: "Stage wash"
+      def: lighting.part.wash_light
+      layer: logical
+      satisfies: [r-stage-wash]
+    - id: effect-rig
+      label: "Effect lighting"
+      def: lighting.part.effect_light
+      layer: logical
+      satisfies: [r-stage-wash]
+    - id: lx-control
+      label: "Lighting control"
+      def: lighting.part.control_surface
+      layer: logical
+      satisfies: [r-control-universes]
+    - id: dmx-dist
+      label: "DMX distribution"
+      def: lighting.part.dmx_distribution
+      layer: logical
+      satisfies: [r-control-universes]
 
     # --- Video ---------------------------------------------------------------
     - { id: screen-source, label: "Screen content source", def: video.part.image_source,     layer: logical }
     - { id: screen-drive,  label: "Screen processing",     def: video.part.image_processing, layer: logical }
-    - { id: screen-wall,   label: "LED wall",              def: video.part.image_display,    layer: logical }
+    - id: screen-wall
+      label: "LED wall"
+      def: video.part.image_display
+      layer: logical
+      satisfies: [r-screen-visible]
 
     # --- Power ---------------------------------------------------------------
     - { id: site-supply,   label: "Site supply",          def: power.part.power_source,       layer: logical }

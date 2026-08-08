@@ -139,12 +139,16 @@ back via `allocate` to an L2 `Part` — see boundary rule 3 below. No lay narrat
 
 ## Boundary rules
 
-1. **A layer never references downward.** A `Requirement` does not name a device. Downward association is
-   expressed by `satisfy` and `allocate` edges, which belong to the lower layer — this keeps an L1
-   requirement valid regardless of which L2 or L3 design ends up meeting it.
+1. **A layer never references downward.** A `Requirement` names neither a block nor a device: it carries
+   `refines` and `derived_from` and nothing else. Downward association is expressed by `satisfy` and
+   `allocate`, both stored on the lower element — `Part.satisfies` and `Part.allocate` — so every
+   traceability edge in the language points from the concrete toward the abstract, with no exception. This
+   is what keeps an L1 requirement valid regardless of which L2 or L3 design ends up meeting it, and what
+   makes the walk back from a device to the client's own words a chain of field reads.
 2. **L2 carries no product names.** If removing the manufacturer would change the meaning of a statement, it
    belongs in L3, not L2 — this is what keeps the logical architecture reusable across different equipment
    choices.
-3. **Every L3 `Part` is allocated from exactly one L2 `Part`.** An unallocated L3 part is a modelling error,
-   and question rule 3 will surface it — this is what keeps the physical design traceable back to a logical
-   decision instead of appearing out of nowhere.
+3. **Every L3 `Part` is allocated from exactly one L2 `Part`.** An unallocated L3 part is a modelling error
+   rather than an open question — a device has appeared in the plan that no logical decision called for, and
+   it needs fixing, not asking. This is what keeps the physical design traceable back to a logical decision
+   instead of appearing out of nowhere.

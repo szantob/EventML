@@ -29,8 +29,8 @@ they fail differently:
 ```
 brief.program[0]                        L0  "Presentations from the floor, slides throughout"
   └─refine→  r-slides-visible           L1  video.req.image_legibility
-               ├─derive→  r-screen-size L1  is the existing screen big enough?      satisfied_by: []
-               └─derive→  r-sightlines  L1  can every seat see it?                  satisfied_by: [main-display]
+               ├─derive→  r-screen-size L1  is the existing screen big enough?      no part satisfies it
+               └─derive→  r-sightlines  L1  can every seat see it?                  main-display satisfies it
 ```
 
 `r-sightlines` is satisfied — one screen at the front, and the L2 block exists. `r-screen-size` is not, and
