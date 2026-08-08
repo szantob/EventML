@@ -75,3 +75,33 @@ Domains reference each other freely, and must: an audio stage box has a power in
 References cross by catalogue ID with no import declaration — `audio.part.stage_box` naming
 `power.port.powercon_true1` is ordinary, not exceptional. The domain segment of an ID says which directory
 defines it.
+
+### Which domain owns a cross-domain part
+
+Nearly every part is cross-domain. Of the parts in this library, all but a handful declare ports from at
+least two domains, and anything that plugs into the wall declares a `power` port. Multi-domain is the
+normal case, not the exception, so the question is not *whether* a part crosses domains but which domain
+gets its ID.
+
+**A part belongs to the domain of the function it performs — not to the domain of its ports.** Power and
+network are almost always supporting: a lighting console needs mains and an Ethernet port, but it exists to
+control lights, so it is `lighting.part.lighting_console`. The rule is stated in terms of function because
+a port-counting rule gives the wrong answer, and the library already contains the case that proves it.
+
+`video.part.led_panel` has **no video port at all** — its ports are two `network.port.rj45` and two power
+connectors, because the panel receives its picture as data from a processor. A rule derived from ports
+would file it under `network`, next to switches and media converters, where nobody designing a screen would
+look for it. It is a video part because showing a picture is what it does.
+
+Three consequences worth stating:
+
+- **The domain is a filing decision, and only that.** It selects a directory and the first segment of an
+  ID. It carries no semantics a model reasons with, and nothing is inferred from it. What a part actually
+  touches is readable from its `ports` list, which is where the cross-domain truth lives.
+- **When two functions are genuinely co-equal, split the definition.** A device sold as one box but used as
+  two unrelated things — a playback machine on one job, a control surface on the next — is two `PartDef`s
+  with distinct IDs, not one with a vague `category`. Definitions are cheap; a model that cannot say which
+  role a machine is filling is not.
+- **A part with no clear owning domain is usually mis-scoped.** If naming the function does not settle the
+  domain, the definition is probably describing a rack or a subsystem rather than a part, and belongs at L2
+  as an abstract block instead.

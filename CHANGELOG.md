@@ -17,6 +17,11 @@ First release. A specification only: prose and data, nothing executable.
 
 - **Four modelling layers** (`spec/01-layers.md`): L0 Brief, L1 Requirement, L2 Logical, L3 Physical,
   each with what belongs in it, what does not, and three boundary rules.
+- **Brief sources** (`spec/01-layers.md`): the `sources` list at L0, holding the communications a brief was
+  built from — each with its own `kind`, `date`, `from`, optional `sender` and `subject`, and a verbatim
+  `excerpt`. This is where `trace` lands: every `src:` in a model resolves to one of these entries, so the
+  chain from a cable back to the sentence that caused it ends in the client's own words. One entry per
+  statement rather than per meeting, so a `conflicting` value can name who said what.
 - **Ten core entities** (`spec/02-metamodel.md`): the `def`/`usage` split taken from SysML v2, with
   `ItemDef`, `PortDef`, `PartDef`, `InterfaceDef`, `RequirementDef` and `ConstraintDef` as definitions,
   and `Part`, `Connection`, `Flow` and `Requirement` as usages. Each documented with a complete attribute
@@ -28,7 +33,8 @@ First release. A specification only: prose and data, nothing executable.
   (`stated`, `derived`, `assumed`, `unknown`, `conflicting`), the five question rules, and the ranking
   by how many requirements each open point blocks.
 - **Canonical YAML syntax** (`spec/05-concrete-syntax.md`): file layout, two-document headers, catalogue
-  and instance identifier formats, and the four reference forms.
+  and instance identifier formats, and the five reference forms — catalogue type, instance, port, brief
+  path and source.
 - **SysML v2 mapping** (`spec/06-sysml-mapping.md`): all ten entities and five relations mapped, with a
   side-by-side translation and an account of what does not survive the round trip.
 
@@ -37,6 +43,10 @@ First release. A specification only: prose and data, nothing executable.
 - Base vocabulary for five domains — audio, power, network, video, lighting — as 172 catalogue entries:
   signal and power items, port and interface definitions, abstract L2 blocks, concrete L3 part
   categories, requirement templates with client-language questions, and computable constraints.
+- **Domain ownership rule for cross-domain parts** (`lib/README.md`): a part belongs to the domain of the
+  function it performs, not to the domain of its ports. Multi-domain is the normal case — almost every
+  part declares ports from two or more domains — and the domain segment of an ID is a filing decision
+  carrying no semantics a model reasons with.
 - Three worked models under `examples/`, spanning 112 parts and 170 connections:
   - **01 garden party** — outdoor event, audio and power, all five value states, question rules 1–4
   - **02 conference room** — hybrid corporate event, video, network and lighting, the `derive` relation,
