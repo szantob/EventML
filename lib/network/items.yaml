@@ -1,0 +1,101 @@
+eventml: "0.1"
+kind: items
+domain: network
+---
+items:
+  - id: network.item.ethernet_1g
+    name: Gigabit Ethernet
+    kind: data
+    form: electrical
+    carries: Ethernet frames at 1000 Mbit/s over balanced copper
+    properties:
+      mbit: 1000
+      duplex: full
+    source: "IEEE 802.3ab (1000BASE-T)"
+
+  - id: network.item.ethernet_10g
+    name: 10 Gigabit Ethernet
+    kind: data
+    form: electrical
+    carries: Ethernet frames at 10 000 Mbit/s over balanced copper or a direct-attach cable
+    properties:
+      mbit: 10000
+      duplex: full
+    source: "IEEE 802.3an (10GBASE-T)"
+
+  - id: network.item.fibre_om3
+    name: OM3 multimode fibre
+    kind: data
+    form: optical
+    carries: Ethernet frames over multimode optical fibre
+    properties:
+      mbit: 10000
+      cores: 2
+      wavelength_nm: 850
+    source: "ISO/IEC 11801 OM3"
+    notes: >-
+      Used on any run past the copper limit, and on any run leaving a building — glass carries no
+      potential difference between two separately earthed structures.
+
+  - id: network.item.dante_transport
+    name: Dante transport
+    kind: data
+    form: digital
+    carries: Audio flows and their control traffic over a standard IP network
+    properties:
+      protocol: "AES67-compatible RTP over UDP/IP"
+      requires_clock: network.item.ptp_clock
+      typical_latency_ms: 1
+    source: "AES67-2018; Audinate Dante"
+    notes: >-
+      The transport, not the audio. The audio riding it is audio.item.dante_flow — the two are separate
+      items because a network engineer and a sound engineer look at the same cable and count different
+      things.
+
+  - id: network.item.ptp_clock
+    name: PTP clock
+    kind: data
+    form: digital
+    carries: Precision Time Protocol synchronisation between a master clock and its followers
+    properties:
+      profile: "IEEE 1588-2008, AES67 media profile"
+    source: "IEEE 1588-2008 (PTPv2)"
+    notes: >-
+      Modelled as an item that flows, because it does: it has a source, it has followers, and losing it
+      silences every audio flow on the network. A design that does not say where the clock comes from
+      is not finished.
+
+  - id: network.item.sacn
+    name: sACN
+    kind: data
+    form: digital
+    carries: DMX512 universes over IP, as multicast
+    properties:
+      protocol: "UDP multicast"
+      universes_per_stream: 1
+    source: "ANSI E1.31 (sACN)"
+
+  - id: network.item.artnet
+    name: Art-Net
+    kind: data
+    form: digital
+    carries: DMX512 universes over IP, historically as broadcast
+    properties:
+      protocol: "UDP"
+      universes_per_stream: 1
+    source: "Art-Net 4, Artistic Licence"
+    notes: >-
+      Kept alongside sACN because both are in daily use and a rig usually has to speak whichever one the
+      console on the day speaks.
+
+  - id: network.item.nmos_is04
+    name: NMOS IS-04 registration
+    kind: data
+    form: digital
+    carries: Device, sender and receiver registration and discovery for networked media
+    properties:
+      protocol: "HTTP + mDNS"
+    source: "AMWA NMOS IS-04"
+    notes: >-
+      Where NMOS is in use, its Node → Device → Sender/Receiver model maps onto EventML's Part → Port →
+      Flow directly, which is why the vocabulary is adopted rather than paraphrased.

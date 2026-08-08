@@ -1,0 +1,121 @@
+eventml: "0.1"
+kind: parts
+domain: network
+---
+parts:
+  # ---------------------------------------------------------------------------
+  # Abstract blocks — L2 Logical.
+  # ---------------------------------------------------------------------------
+
+  - id: network.part.network_backbone
+    name: Network backbone
+    category: backbone
+    abstract: true
+    ports:
+      - { id: trunk, def: network.port.sfp_cage, count: 4 }
+      - { id: edge,  def: network.port.rj45,     count: 8 }
+    internal:
+      - { from: "trunk[*]", to: "edge[*]",  transform: switch }
+      - { from: "edge[*]",  to: "trunk[*]", transform: switch }
+      - { from: "trunk[*]", to: "trunk[*]", transform: switch }
+    notes: The links between locations — stage to front of house, floor to floor — before any switch is chosen.
+
+  - id: network.part.network_edge
+    name: Network edge
+    category: edge
+    abstract: true
+    ports:
+      - { id: uplink, def: network.port.rj45, count: 2, role: primary_secondary }
+      - { id: access, def: network.port.rj45, count: 8 }
+    internal:
+      - { from: "uplink[*]", to: "access[*]", transform: switch }
+      - { from: "access[*]", to: "uplink[*]", transform: switch }
+    notes: Where devices attach — a stage position, a mix position, a control room.
+
+  - id: network.part.clock_master
+    name: Clock master
+    category: clock
+    abstract: true
+    ports:
+      - { id: net, def: network.port.rj45, count: 1 }
+    properties:
+      item: network.item.ptp_clock
+    notes: >-
+      A logical role rather than a box: usually a console or a stage box elected to it. Modelled
+      separately because the design must say who holds it, and because losing it is a single point of
+      failure the model should be able to show.
+
+  # ---------------------------------------------------------------------------
+  # Concrete categories — L3 Physical.
+  # ---------------------------------------------------------------------------
+
+  - id: network.part.switch_managed
+    name: Managed switch
+    category: switch
+    ports:
+      - { id: port, def: network.port.ethercon_a,      count: 16 }
+      - { id: sfp,  def: network.port.sfp_cage,        count: 2 }
+      - { id: pwr,  def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      # Every port reaches every other port, in both directions. This is the case that proves a Flow
+      # cannot be inferred from Connections alone: the Connections say sixteen cables terminate here,
+      # and nothing in them says which of the 240 possible paths any given audio flow actually takes.
+      # Only a Flow, naming its ordered chain of Connections, records the route.
+      - { from: "port[*]", to: "port[*]", transform: switch }
+      - { from: "port[*]", to: "sfp[*]",  transform: switch }
+      - { from: "sfp[*]",  to: "port[*]", transform: switch }
+      - { from: "sfp[*]",  to: "sfp[*]",  transform: switch }
+    properties:
+      electrical_load_w: 45
+      vlan_capable: true
+      qos_capable: true
+      igmp_snooping: true
+      ptp_transparent: true
+    notes: >-
+      Managed is not a preference on a media network. Without IGMP snooping every multicast flow reaches
+      every port, and a network that worked at rehearsal collapses when the second console arrives.
+
+  - id: network.part.switch_unmanaged
+    name: Unmanaged switch
+    category: switch
+    ports:
+      - { id: port, def: network.port.rj45,            count: 8 }
+      - { id: pwr,  def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "port[*]", to: "port[*]", transform: switch }
+    properties:
+      electrical_load_w: 12
+      vlan_capable: false
+      qos_capable: false
+      igmp_snooping: false
+    notes: Acceptable for a control network or a small unicast island; not for multicast media.
+
+  - id: network.part.media_converter
+    name: Media converter
+    category: converter
+    ports:
+      - { id: copper, def: network.port.rj45,            count: 1 }
+      - { id: fibre,  def: network.port.lc_duplex,       count: 1 }
+      - { id: pwr,    def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: copper, to: fibre,  transform: "electrical_to_optical" }
+      - { from: fibre,  to: copper, transform: "optical_to_electrical" }
+    properties:
+      electrical_load_w: 8
+    notes: >-
+      The part that resolves a violated network.constraint.max_copper_run, and the answer question rule
+      5 usually proposes when a run turns out to be too long.
+
+  - id: network.part.wireless_ap
+    name: Wireless access point
+    category: access_point
+    ports:
+      - { id: uplink, def: network.port.rj45_poe, count: 1 }
+    internal:
+      - { from: uplink, to: radio, transform: "wireless_bridge" }
+    properties:
+      electrical_load_w: 15
+      bands: ["2.4 GHz", "5 GHz"]
+    notes: >-
+      `radio` is a sink with no port, the mirror of the generator's `engine`: traffic leaves the wired
+      graph here and the walk ends. Powered over its uplink, so it declares no power port.
