@@ -1,0 +1,72 @@
+eventml: "0.1"
+kind: requirements
+domain: power
+---
+requirements:
+  - id: power.req.supply_capacity
+    name: Supply capacity
+    text: "The supply at {location} must carry a peak demand of {demand_kw} kW."
+    params:
+      - { name: location,  type: string }
+      - { name: demand_kw, type: number }
+      - { name: headroom,  type: number, default: 0.8 }
+    verification: >-
+      Sum of electrical_load_w across every part downstream of the supply, compared against the supply's
+      rated capacity at the stated headroom factor.
+    constraints:
+      - power.constraint.supply_headroom
+    asks:
+      - param: demand_kw
+        question: "Can you send a photo of the distribution board or fuse box we would be plugging into — or tell us what the biggest socket on site looks like, and roughly where it is?"
+      - param: location
+        question: "How far is that socket from where the stage and the speakers will be? A rough pace count is fine."
+    notes: >-
+      The `asks` here are the pattern the whole language exists for. A venue manager cannot answer "what
+      is the service rating", and if pressed will guess. They can photograph a board, and a photograph
+      settles the question completely.
+
+  - id: power.req.phase_balance
+    name: Phase balance
+    text: "Load across the three phases at {distribution_point} must stay within {tolerance} of the mean."
+    params:
+      - { name: distribution_point, type: string }
+      - { name: tolerance,          type: number, default: 0.2 }
+    verification: "Per-phase load sum from the model, or a clamp meter reading at the distro during soundcheck."
+    constraints:
+      - power.constraint.phase_balance
+    asks:
+      - param: distribution_point
+        question: "Is there one place on site where everything can be plugged in, or are we drawing power from several different points?"
+
+  - id: power.req.residual_current_protection
+    name: Residual current protection
+    text: "Every circuit feeding {area} must be protected by an RCD rated at {trip_ma} mA or less."
+    params:
+      - { name: area,     type: string }
+      - { name: trip_ma,  type: number, default: 30 }
+    verification: >-
+      Every path from a supply to a load passes through a part whose properties declare a
+      trip_current_ma at or below the stated figure.
+    asks:
+      - param: area
+        question: "Will any of the equipment be outdoors, or anywhere it could get wet — near a fountain, a bar, or a catering area?"
+    notes: >-
+      Rarely traces back to a brief element, because no client asks for it. That is precisely the case
+      §refine describes: a requirement from professional judgement, which the model should still make
+      visible rather than bury.
+
+  - id: power.req.silent_supply
+    name: Silent supply
+    text: "The supply serving {area} must not raise the ambient noise level during {period}."
+    params:
+      - { name: area,   type: string }
+      - { name: period, type: string, default: "speeches and quiet programme" }
+    verification: >-
+      No generator within earshot of the audience area during the stated period, or a documented
+      noise figure at the audience distance below the venue's ambient level.
+    asks:
+      - param: period
+        question: "Are there moments in the evening that need to be quiet — speeches, a ceremony, a first dance?"
+    notes: >-
+      The requirement that decides whether a generator can be used at all, and it is invisible until
+      someone asks. A 62 dB generator forty metres from a garden-party speech is a ruined speech.

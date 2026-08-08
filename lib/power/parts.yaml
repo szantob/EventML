@@ -1,0 +1,139 @@
+eventml: "0.1"
+kind: parts
+domain: power
+---
+parts:
+  # ---------------------------------------------------------------------------
+  # Abstract blocks — L2 Logical. At L2 the power design is three statements:
+  # where the energy comes from, how it is split, and what consumes it.
+  # ---------------------------------------------------------------------------
+
+  - id: power.part.power_source
+    name: Power source
+    category: source
+    abstract: true
+    ports:
+      - { id: out, def: power.port.cee_32a_3p, count: 1 }
+    properties:
+      rated_current_a: { state: unknown }
+    notes: >-
+      House supply, generator or battery — undecided at L2. Its rated current is very often unknown at
+      the point the block is created, and that unknown is usually the highest-ranked question in the
+      whole model, because everything downstream depends on it.
+
+  - id: power.part.power_distribution
+    name: Power distribution
+    category: distribution
+    abstract: true
+    ports:
+      - { id: in,  def: power.port.cee_32a_3p_in, count: 1 }
+      - { id: out, def: power.port.schuko,        count: 12 }
+    internal:
+      - { from: in, to: "out[*]", transform: "split+protect" }
+    notes: Splits one supply into the circuits the event actually plugs into, with protection on each.
+
+  - id: power.part.load
+    name: Load
+    category: load
+    abstract: true
+    ports:
+      - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      electrical_load_w: { state: unknown }
+    notes: >-
+      Anything that consumes power. Used at L2 to record that a subsystem draws current before anyone
+      has chosen the devices that will draw it.
+
+  # ---------------------------------------------------------------------------
+  # Concrete categories — L3 Physical.
+  # ---------------------------------------------------------------------------
+
+  - id: power.part.distro
+    name: Power distribution unit
+    category: distro
+    ports:
+      - { id: in,       def: power.port.cee_32a_3p_in, count: 1 }
+      - { id: out_cee,  def: power.port.cee_16a_3p,    count: 2 }
+      - { id: out_1p,   def: power.port.schuko,        count: 12 }
+      - { id: out_true1, def: power.port.powercon_true1_out, count: 6 }
+    internal:
+      - { from: in, to: "out_cee[*]",   transform: "split+protect" }
+      - { from: in, to: "out_1p[*]",    transform: "split+phase_select+protect" }
+      - { from: in, to: "out_true1[*]", transform: "split+phase_select+protect" }
+    properties:
+      rated_current_a: 32
+      phases: 3
+      rcd_fitted: true
+      metering: true
+    catalog_ref:
+      rentman: null
+
+  - id: power.part.cable_drum
+    name: Cable drum
+    category: cable_drum
+    ports:
+      - { id: in,  def: power.port.schuko_in, count: 1 }
+      - { id: out, def: power.port.schuko,    count: 4 }
+    internal:
+      - { from: in, to: "out[*]", transform: pass }
+    properties:
+      length_m: 50
+      rated_current_a: 16
+    notes: >-
+      Carries a real derating rule: a drum left coiled must not be loaded to its rated current. Modelled
+      as a part rather than as a Connection because it has sockets of its own that things plug into.
+
+  - id: power.part.rcd_unit
+    name: Residual current device
+    category: protection
+    ports:
+      - { id: in,      def: power.port.cee_32a_3p_in, count: 1 }
+      - { id: out,     def: power.port.cee_32a_3p,    count: 1 }
+      - { id: in_16a,  def: power.port.cee_16a_3p_in, count: 1 }
+      - { id: out_16a, def: power.port.cee_16a_3p,    count: 1 }
+    internal:
+      - { from: in,     to: out,     transform: "protect+disconnect_on_fault" }
+      - { from: in_16a, to: out_16a, transform: "protect+disconnect_on_fault" }
+    properties:
+      rated_current_a: 32
+      trip_current_ma: 30
+    notes: >-
+      Inserted where the incoming supply's protection is unknown or absent, which on outdoor events is
+      most of the time.
+
+  - id: power.part.ups
+    name: Uninterruptible power supply
+    category: ups
+    ports:
+      - { id: in,  def: power.port.schuko_in, count: 1 }
+      - { id: out, def: power.port.schuko,    count: 4 }
+    internal:
+      - { from: in, to: "out[*]", transform: "filter+bridge" }
+    properties:
+      rated_current_a: 10
+      hold_up_minutes: 8
+      electrical_load_w: 40
+    notes: >-
+      Bridges a supply interruption rather than replacing the supply. What it protects is a decision
+      worth recording: usually the mixing console and the network core, not the amplifiers.
+
+  - id: power.part.generator
+    name: Generator
+    category: generator
+    ports:
+      - { id: out_32a, def: power.port.cee_32a_3p, count: 1 }
+      - { id: out_16a, def: power.port.cee_16a_3p, count: 2 }
+      - { id: out_1p,  def: power.port.schuko,     count: 4 }
+    internal:
+      - { from: engine, to: "out_32a[*]", transform: generate }
+      - { from: engine, to: "out_16a[*]", transform: generate }
+      - { from: engine, to: "out_1p[*]",  transform: generate }
+    properties:
+      rated_kva: 20
+      phases: 3
+      fuel: diesel
+      noise_at_7m_db: 62
+    notes: >-
+      `engine` is a source with no port: nothing plugs into it. The internal edges start there to record
+      that the outlets are fed from generation rather than from an inlet, which is what distinguishes a
+      generator from a distro in a graph walk.

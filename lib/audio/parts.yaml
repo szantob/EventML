@@ -1,0 +1,231 @@
+eventml: "0.1"
+kind: parts
+domain: audio
+---
+parts:
+  # ---------------------------------------------------------------------------
+  # Abstract blocks — L2 Logical. No technology chosen. An L2 Part uses one of
+  # these; an L3 Part allocates to it. Their ports are generic on purpose:
+  # what matters at L2 is that the block takes audio in and puts audio out.
+  # ---------------------------------------------------------------------------
+
+  - id: audio.part.main_pa
+    name: Main PA
+    category: reinforcement
+    abstract: true
+    ports:
+      - { id: in,  def: audio.port.xlr3f, count: 2 }
+      - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      covers: audience_area
+    notes: >-
+      The block that makes the main audience area hear the programme. Whether it is two speakers on
+      sticks or a flown line array is an L3 decision.
+
+  - id: audio.part.delay_line
+    name: Delay line
+    category: reinforcement
+    abstract: true
+    ports:
+      - { id: in,  def: audio.port.xlr3f, count: 2 }
+      - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      covers: far_audience_area
+    notes: Extends coverage to an area the main PA cannot reach at a usable level.
+
+  - id: audio.part.front_fill
+    name: Front fill
+    category: reinforcement
+    abstract: true
+    ports:
+      - { id: in,  def: audio.port.xlr3f, count: 2 }
+      - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      covers: front_audience_area
+    notes: Covers the people standing close to the stage, below and inside the main PA's pattern.
+
+  - id: audio.part.monitor_world
+    name: Monitor world
+    category: monitoring
+    abstract: true
+    ports:
+      - { id: in,  def: audio.port.xlr3f, count: 16 }
+      - { id: out, def: audio.port.xlr3m, count: 8 }
+      - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "in[*]", to: "out[*]", transform: mix }
+    properties:
+      mixes: 4
+    notes: Everything that lets the performers hear themselves — wedges, in-ears, and the mixing behind them.
+
+  - id: audio.part.microphone_pool
+    name: Microphone pool
+    category: capture
+    abstract: true
+    ports:
+      - { id: out, def: audio.port.xlr3m_mic, count: 16 }
+    notes: >-
+      The set of sources to be captured, before anyone has decided which microphone model each one gets.
+      Its port count is the input count the rest of the design must carry.
+
+  - id: audio.part.playback_source
+    name: Playback source
+    category: capture
+    abstract: true
+    ports:
+      - { id: out, def: audio.port.xlr3m, count: 2 }
+    notes: Recorded music, video sound, walk-in playlist — anything not produced live on stage.
+
+  - id: audio.part.mix_position
+    name: Mix position
+    category: control
+    abstract: true
+    ports:
+      - { id: in,  def: audio.port.xlr3f, count: 32 }
+      - { id: out, def: audio.port.xlr3m, count: 8 }
+      - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "in[*]", to: "out[*]", transform: mix }
+    notes: Where the show is mixed, and the constraint that it must be able to hear what the audience hears.
+
+  # ---------------------------------------------------------------------------
+  # Concrete categories — L3 Physical. Real devices. Every one declares ports,
+  # and internal wherever signal passes through it.
+  # ---------------------------------------------------------------------------
+
+  - id: audio.part.microphone
+    name: Microphone
+    category: microphone
+    ports:
+      - { id: out, def: audio.port.xlr3m_mic, count: 1 }
+    properties:
+      phantom_required: false
+      pickup_pattern: cardioid
+
+  - id: audio.part.di_box
+    name: DI box
+    category: di_box
+    ports:
+      - { id: in,      def: audio.port.trs_jack,    count: 1 }
+      - { id: out,     def: audio.port.xlr3m_mic,   count: 1 }
+      - { id: thru,    def: audio.port.trs_jack,    count: 1 }
+    internal:
+      - { from: in, to: out,  transform: "balance+attenuate" }
+      - { from: in, to: thru, transform: pass }
+    properties:
+      phantom_required: false
+
+  - id: audio.part.stage_box
+    name: Digital stage box
+    category: stage_box
+    ports:
+      - { id: analog_in,  def: audio.port.xlr3f,          count: 16 }
+      - { id: analog_out, def: audio.port.xlr3m,          count: 8 }
+      - { id: net,        def: network.port.ethercon_a,   count: 2, role: primary_secondary }
+      - { id: pwr,        def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "analog_in[*]", to: net,             transform: adc }
+      - { from: net,            to: "analog_out[*]", transform: dac }
+    properties:
+      electrical_load_w: 100
+      preamps: 16
+
+  - id: audio.part.mixing_console
+    name: Mixing console
+    category: mixing_console
+    ports:
+      - { id: analog_in,  def: audio.port.xlr3f,          count: 8 }
+      - { id: analog_out, def: audio.port.xlr3m,          count: 8 }
+      - { id: aes_out,    def: audio.port.xlr3m_aes3,     count: 2 }
+      - { id: net,        def: network.port.ethercon_a,   count: 2, role: primary_secondary }
+      - { id: pwr,        def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "analog_in[*]", to: "analog_out[*]", transform: mix }
+      - { from: "analog_in[*]", to: "aes_out[*]",    transform: "mix+adc" }
+      - { from: net,            to: "analog_out[*]", transform: mix }
+      - { from: "analog_in[*]", to: net,             transform: mix }
+      - { from: net,            to: net,             transform: mix }
+    properties:
+      electrical_load_w: 300
+      input_channels: 48
+      mix_buses: 16
+
+  - id: audio.part.dsp_processor
+    name: DSP processor
+    category: dsp_processor
+    ports:
+      - { id: analog_in,  def: audio.port.xlr3f,          count: 4 }
+      - { id: aes_in,     def: audio.port.xlr3f_aes3,     count: 2 }
+      - { id: madi,       def: audio.port.bnc_madi,       count: 2, role: primary_secondary }
+      - { id: analog_out, def: audio.port.xlr3m,          count: 8 }
+      - { id: net,        def: network.port.ethercon_a,   count: 2, role: primary_secondary }
+      - { id: pwr,        def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "analog_in[*]", to: "analog_out[*]", transform: "eq+delay+limit" }
+      - { from: "aes_in[*]",    to: "analog_out[*]", transform: "dac+eq+delay+limit" }
+      - { from: "madi[*]",      to: "analog_out[*]", transform: "dac+eq+delay+limit" }
+      - { from: net,            to: "analog_out[*]", transform: "eq+delay+limit" }
+    properties:
+      electrical_load_w: 60
+
+  - id: audio.part.amplifier
+    name: Power amplifier
+    category: amplifier
+    ports:
+      - { id: analog_in, def: audio.port.xlr3f,          count: 4 }
+      - { id: net,       def: network.port.ethercon_a,   count: 2, role: primary_secondary }
+      - { id: spk_out,   def: audio.port.nl4_out,        count: 4 }
+      - { id: spk_out_nl8, def: audio.port.speakon_nl8,   count: 1 }
+      - { id: pwr,       def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "analog_in[*]", to: "spk_out[*]",   transform: amplify }
+      - { from: "analog_in[*]", to: spk_out_nl8,    transform: amplify }
+      - { from: net,            to: "spk_out[*]", transform: "decode+amplify" }
+    properties:
+      electrical_load_w: 2400
+      output_channels: 4
+
+  - id: audio.part.loudspeaker
+    name: Loudspeaker
+    category: loudspeaker
+    ports:
+      - { id: spk_in,  def: audio.port.nl4_in,  count: 1 }
+      - { id: spk_thru, def: audio.port.nl4_out, count: 1 }
+    internal:
+      - { from: spk_in, to: spk_thru, transform: pass }
+    properties:
+      passive: true
+      nominal_impedance_ohm: 8
+    notes: >-
+      Passive. A powered loudspeaker is a different part: it takes audio.port.xlr3f and a power inlet
+      instead of speaker level, and carries an electrical_load_w.
+
+  - id: audio.part.powered_loudspeaker
+    name: Powered loudspeaker
+    category: loudspeaker
+    ports:
+      - { id: in,   def: audio.port.xlr3f,          count: 1 }
+      - { id: thru, def: audio.port.xlr3m,          count: 1 }
+      - { id: pwr,  def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: in, to: thru, transform: pass }
+    properties:
+      electrical_load_w: 700
+
+  - id: audio.part.wireless_receiver
+    name: Wireless receiver
+    category: wireless_receiver
+    ports:
+      - { id: ant, def: audio.port.bnc_antenna,     count: 2, role: diversity }
+      - { id: out, def: audio.port.xlr3m,           count: 2 }
+      - { id: net, def: audio.port.rj45_dante,      count: 1 }
+      - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "ant[*]", to: "out[*]", transform: "demodulate+diversity" }
+      - { from: "ant[*]", to: net,      transform: "demodulate+encode" }
+    properties:
+      electrical_load_w: 40
+      channels: 2
+    notes: >-
+      Two antenna ports in a diversity pair, not a redundant pair: both are received simultaneously and
+      the receiver picks the better one sample by sample.

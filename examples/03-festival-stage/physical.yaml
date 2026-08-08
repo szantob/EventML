@@ -1,0 +1,399 @@
+eventml: "0.1"
+layer: physical
+project: festival-stage
+---
+physical:
+  parts:
+    # --- Audio: capture --------------------------------------------------------
+    - { id: mic-vox,  label: "Vocal microphones",       def: audio.part.microphone,         layer: physical, allocate: stage-inputs }
+    - { id: di-key,   label: "DI — keyboards",          def: audio.part.di_box,             layer: physical, allocate: stage-inputs }
+    - { id: rx-1,     label: "Wireless receiver rack",  def: audio.part.wireless_receiver,  layer: physical, allocate: stage-inputs }
+    - { id: sb-stage, label: "Stage box — 32 in",       def: audio.part.stage_box,          layer: physical, allocate: stage-inputs }
+
+    # --- Audio: mixing and processing -----------------------------------------
+    - { id: mon-console, label: "Monitor console",      def: audio.part.mixing_console, layer: physical, allocate: monitor-world }
+    - { id: wedge-1,     label: "Wedge — downstage",    def: audio.part.powered_loudspeaker, layer: physical, allocate: monitor-world }
+    - { id: wedge-2,     label: "Wedge — drum fill",    def: audio.part.powered_loudspeaker, layer: physical, allocate: monitor-world }
+    - id: foh-console
+      label: "FOH console"
+      def: audio.part.mixing_console
+      layer: physical
+      allocate: mix-position
+      properties:
+        clock_master: true
+
+    - { id: dsp-main,  label: "System processor — stage", def: audio.part.dsp_processor, layer: physical, allocate: system-processing }
+    - { id: dsp-delay, label: "System processor — delay tower", def: audio.part.dsp_processor, layer: physical, allocate: delay-pa }
+
+    # --- Audio: reinforcement --------------------------------------------------
+    - { id: amp-main,  label: "Amplifier — main hang", def: audio.part.amplifier,   layer: physical, allocate: main-pa }
+    - { id: pa-top-l,  label: "Main hang — left",      def: audio.part.loudspeaker, layer: physical, allocate: main-pa }
+    - { id: pa-top-r,  label: "Main hang — right",     def: audio.part.loudspeaker, layer: physical, allocate: main-pa }
+    - { id: amp-delay, label: "Amplifier — delay",     def: audio.part.amplifier,   layer: physical, allocate: delay-pa }
+    - { id: delay-l,   label: "Delay tower — left",    def: audio.part.loudspeaker, layer: physical, allocate: delay-pa }
+
+    # --- Network ---------------------------------------------------------------
+    - { id: sw-stage, label: "Switch — stage",           def: network.part.switch_managed,   layer: physical, allocate: stage-backbone }
+    - { id: mc-stage, label: "Media converter — stage",  def: network.part.media_converter,  layer: physical, allocate: stage-backbone }
+    - { id: mc-foh,   label: "Media converter — FOH",    def: network.part.media_converter,  layer: physical, allocate: stage-backbone }
+    - { id: sw-foh,   label: "Switch — FOH, control only", def: network.part.switch_unmanaged, layer: physical, allocate: stage-backbone }
+    - { id: ap-1,     label: "Access point — production wifi", def: network.part.wireless_ap, layer: physical, allocate: stage-backbone }
+
+    # --- Lighting ---------------------------------------------------------------
+    - { id: profile-1, label: "Profile — front key, stage left",  def: lighting.part.profile_fixture, layer: physical, allocate: key-light }
+    - { id: profile-2, label: "Profile — front key, stage right", def: lighting.part.profile_fixture, layer: physical, allocate: key-light }
+    - { id: par-1,     label: "PAR — wash, upstage bar",          def: lighting.part.par_fixture,     layer: physical, allocate: stage-wash }
+    - { id: par-2,     label: "PAR — wash, downstage bar",        def: lighting.part.par_fixture,     layer: physical, allocate: stage-wash }
+    - { id: mh-1,      label: "Moving head — stage left",         def: lighting.part.moving_head,     layer: physical, allocate: effect-rig }
+    - { id: mh-2,      label: "Moving head — stage right",        def: lighting.part.moving_head,     layer: physical, allocate: effect-rig }
+    - { id: lx-desk,   label: "Lighting console — FOH",           def: lighting.part.lighting_console, layer: physical, allocate: lx-control }
+    - { id: node-1,    label: "DMX node — stage",                 def: lighting.part.dmx_node,        layer: physical, allocate: dmx-dist }
+    - { id: dimmer-1,  label: "Dimmer rack — conventionals",      def: lighting.part.dimmer,          layer: physical, allocate: dmx-dist }
+
+    # --- Video ------------------------------------------------------------------
+    - { id: cam-1,     label: "Camera — stage",            def: video.part.camera,         layer: physical, allocate: screen-source }
+    - { id: server-1,  label: "Media server — sponsor loops", def: video.part.media_server, layer: physical, allocate: screen-source }
+    - { id: scaler-1,  label: "Scaler — laptop feed",      def: video.part.scaler,         layer: physical, allocate: screen-source }
+    - { id: led-proc,  label: "LED processor",             def: video.part.led_processor,  layer: physical, allocate: screen-drive }
+    - { id: led-1,     label: "LED panel column 1",        def: video.part.led_panel,      layer: physical, allocate: screen-wall }
+    - { id: led-2,     label: "LED panel column 2",        def: video.part.led_panel,      layer: physical, allocate: screen-wall }
+    - { id: proj-1,    label: "Projector — backdrop after dark", def: video.part.projector, layer: physical, allocate: screen-wall }
+
+    # --- Power ------------------------------------------------------------------
+    - id: gen-1
+      label: "Generator — behind the trees"
+      def: power.part.generator
+      layer: physical
+      allocate: site-supply
+      satisfies: [r-supply-capacity, r-silent-supply]
+      properties:
+        rated_kva:
+          value: 20
+          state: assumed
+          why: "what was hired last year; the LED wall is new"
+          ask: true
+    - id: rcd-stage
+      label: "RCD — incoming"
+      def: power.part.rcd_unit
+      layer: physical
+      allocate: stage-power
+      satisfies: [r-console-continuity]
+    - id: distro-stage
+      label: "Distro — stage right"
+      def: power.part.distro
+      layer: physical
+      allocate: stage-power
+      satisfies: [r-supply-capacity, r-phase-balance]
+    - { id: drum-1,       label: "Cable drum — FOH feed",   def: power.part.cable_drum, layer: physical, allocate: stage-power }
+    - { id: ups-1,        label: "UPS — consoles and network core", def: power.part.ups, layer: physical, allocate: stage-power }
+
+  connections:
+    # --- Audio capture ---------------------------------------------------------
+    - { id: c-vox-sb,   from: "mic-vox:out",  to: "sb-stage:analog_in[0]", interface: audio.interface.xlr_mic, properties: { length_m: 18 } }
+    - { id: c-di-sb,    from: "di-key:out",   to: "sb-stage:analog_in[4]", interface: audio.interface.xlr_mic, properties: { length_m: 14 } }
+    - { id: c-rx-sb,    from: "rx-1:out[0]",  to: "sb-stage:analog_in[8]", interface: audio.interface.xlr_line, properties: { length_m: 6 } }
+    # The receiver's own Dante port, straight onto the stage switch. The port carries
+    # audio.item.dante_flow and the link carries Ethernet — that difference is exactly
+    # why a PortDef names an item and an InterfaceDef names another.
+    - { id: c-rx-net,   from: "rx-1:net",     to: "sw-stage:port[2]", interface: network.interface.cat6a_link, properties: { length_m: 6 } }
+    - { id: c-rx-ant,   from: "rx-1:ant[0]",  to: "rx-1:ant[1]",      interface: audio.interface.xlr_line, properties: { length_m: 0 } }
+
+    # --- Audio transport and mixing --------------------------------------------
+    - { id: c-sb-sw,       from: "sb-stage:net[0]",   to: "sw-stage:port[0]",   interface: network.interface.cat6a_link, redundancy: primary,   properties: { length_m: 8 } }
+    - { id: c-sb-sw-b,     from: "sb-stage:net[1]",   to: "sw-stage:port_b[0]", interface: network.interface.cat6a_link, redundancy: secondary, properties: { length_m: 8 } }
+    - { id: c-mon-sw,      from: "mon-console:net[0]", to: "sw-stage:port[4]",  interface: network.interface.cat6a_link, redundancy: primary,   properties: { length_m: 10 } }
+    - { id: c-foh-sw,      from: "foh-console:net[0]", to: "mc-foh:copper",     interface: network.interface.cat6a_link, redundancy: primary,   properties: { length_m: 4 } }
+
+    # The 45 m to front of house goes on fibre, not copper — the ground run would
+    # have to cross a public path, and brief.venue.cable_route is unresolved.
+    - { id: c-sw-mc,     from: "sw-stage:sfp[0]", to: "mc-stage:copper", interface: network.interface.cat6a_10g_link, properties: { length_m: 2 } }
+    - { id: c-mc-mc,     from: "mc-stage:fibre",  to: "mc-foh:fibre",    interface: network.interface.fibre_om3_link,  properties: { length_m: 60 } }
+    - { id: c-sw-foh,    from: "mc-foh:copper",   to: "sw-foh:port[0]",  interface: network.interface.cat6a_link,      properties: { length_m: 3 } }
+    - { id: c-ap,        from: "sw-foh:port[4]",  to: "ap-1:uplink",     interface: network.interface.cat6a_link,      properties: { length_m: 12 } }
+
+    # --- Audio processing and PA ------------------------------------------------
+    - { id: c-foh-dsp-aes, from: "foh-console:aes_out[0]", to: "dsp-main:aes_in[0]", interface: audio.interface.xlr_line, properties: { length_m: 3 } }
+    - { id: c-dsp-dsp,     from: "dsp-main:madi[0]",       to: "dsp-delay:madi[0]",  interface: audio.interface.madi_coax, properties: { length_m: 40 } }
+    - { id: c-dsp-amp,     from: "dsp-main:analog_out[0]", to: "amp-main:analog_in[0]", interface: audio.interface.xlr_line, properties: { length_m: 4 } }
+    - { id: c-amp-hang,    from: "amp-main:spk_out_nl8",   to: "pa-top-l:spk_in",    interface: audio.interface.speaker_nl4, properties: { length_m: 20 } }
+    - { id: c-hang-l-r,    from: "pa-top-l:spk_thru",      to: "pa-top-r:spk_in",    interface: audio.interface.speaker_nl4, properties: { length_m: 6 } }
+    - { id: c-dspd-ampd,   from: "dsp-delay:analog_out[0]", to: "amp-delay:analog_in[0]", interface: audio.interface.xlr_line, properties: { length_m: 3 } }
+    - { id: c-ampd-delay,  from: "amp-delay:spk_out[0]",   to: "delay-l:spk_in",     interface: audio.interface.speaker_nl4, properties: { length_m: 12 } }
+
+    - { id: c-mon-wedge1, from: "mon-console:analog_out[0]", to: "wedge-1:in",  interface: audio.interface.xlr_line, properties: { length_m: 14 } }
+    - { id: c-wedge-1-2,  from: "wedge-1:thru",              to: "wedge-2:in",  interface: audio.interface.xlr_line, properties: { length_m: 8 } }
+
+    # --- Lighting ---------------------------------------------------------------
+    - { id: c-lx-node,  from: "lx-desk:net[0]",       to: "node-1:net",       interface: lighting.interface.sacn_over_cat6a, properties: { length_m: 50 } }
+    - { id: c-node-p1,  from: "node-1:dmx_out[0]",    to: "profile-1:dmx_in", interface: lighting.interface.dmx_cable, properties: { length_m: 12 } }
+    - { id: c-p1-p2,    from: "profile-1:dmx_thru",   to: "profile-2:dmx_in", interface: lighting.interface.dmx_cable, properties: { length_m: 10 } }
+    - { id: c-node-par, from: "node-1:dmx_out[1]",    to: "par-1:dmx_in",     interface: lighting.interface.dmx_cable, properties: { length_m: 9 } }
+    - { id: c-par-1-2,  from: "par-1:dmx_thru",       to: "par-2:dmx_in",     interface: lighting.interface.dmx_cable, properties: { length_m: 5 } }
+    - { id: c-node-mh,  from: "node-1:dmx_out[2]",    to: "mh-1:dmx_in",      interface: lighting.interface.dmx_cable, properties: { length_m: 11 } }
+    - { id: c-mh-1-2,   from: "mh-1:dmx_thru",        to: "mh-2:dmx_in",      interface: lighting.interface.dmx_cable, properties: { length_m: 10 } }
+    - { id: c-node-dim, from: "node-1:dmx_out[3]",    to: "dimmer-1:dmx_in",  interface: lighting.interface.dmx_cable, properties: { length_m: 6 } }
+    # The dimmer feeds the PARs on a Harting loom: three circuits on one connector.
+    - { id: c-dim-par1, from: "dimmer-1:pwr_out[0]",  to: "par-1:pwr",        interface: power.interface.harting_loom, properties: { length_m: 15 } }
+    - { id: c-dim-par2, from: "dimmer-1:pwr_out[1]",  to: "par-2:pwr",        interface: power.interface.harting_loom, properties: { length_m: 18 } }
+
+    # --- Video ------------------------------------------------------------------
+    - { id: c-cam-proc,   from: "cam-1:sdi_out",        to: "led-proc:sdi_in[0]",  interface: video.interface.sdi_coax, properties: { length_m: 25 } }
+    - { id: c-cam-ndi,    from: "cam-1:ndi_out",        to: "sw-stage:port[6]",    interface: video.interface.ndi_over_cat6a, properties: { length_m: 25 } }
+    - { id: c-srv-fibre,  from: "server-1:sdi_12g_out", to: "led-proc:fibre_in[0]", interface: network.interface.fibre_om3_link, properties: { length_m: 30 } }
+    - { id: c-scaler-dp,  from: "scaler-1:sdi_out",     to: "led-proc:sdi_in[1]",  interface: video.interface.sdi_coax, properties: { length_m: 12 } }
+    - { id: c-scaler-proj, from: "scaler-1:hdmi_out",   to: "proj-1:hdmi_in",      interface: video.interface.hdmi_cable, properties: { length_m: 8 } }
+    - { id: c-proc-led1,  from: "led-proc:panel[0]",    to: "led-1:data_in",       interface: network.interface.cat6a_link, properties: { length_m: 14 } }
+    - { id: c-led-1-2,    from: "led-1:data_thru",      to: "led-2:data_in",       interface: network.interface.cat6a_link, properties: { length_m: 2 } }
+    - { id: c-led-pwr-1-2, from: "led-1:pwr_thru",      to: "led-2:pwr",           interface: power.interface.ac_1p_cable, properties: { length_m: 2 } }
+
+    # --- Power ------------------------------------------------------------------
+    - { id: c-gen-rcd,    from: "gen-1:out_32a",      to: "rcd-stage:in",     interface: power.interface.ac_3p_cable, properties: { length_m: 70 } }
+    - { id: c-rcd-distro, from: "rcd-stage:out",      to: "distro-stage:in",  interface: power.interface.ac_3p_cable, properties: { length_m: 4 } }
+    # The 16 A leg of the RCD feeds the dimmer rack, which is the largest single-phase load on site.
+    - { id: c-gen-rcd16,  from: "gen-1:out_16a[0]",   to: "rcd-stage:in_16a", interface: power.interface.ac_3p_cable, properties: { length_m: 70 } }
+    - { id: c-rcd16-dim,  from: "rcd-stage:out_16a",  to: "dimmer-1:pwr_in",  interface: power.interface.ac_3p_cable, properties: { length_m: 6 } }
+
+    - { id: c-distro-drum, from: "distro-stage:out_1p[0]", to: "drum-1:in",  interface: power.interface.ac_1p_cable, properties: { length_m: 5 } }
+    - { id: c-drum-ups,    from: "drum-1:out[0]",          to: "ups-1:in",   interface: power.interface.ac_1p_cable, properties: { length_m: 45 } }
+    - { id: c-ups-foh,     from: "ups-1:out[0]",           to: "foh-console:pwr", interface: power.interface.ac_1p_cable, properties: { length_m: 2 } }
+    - { id: c-ups-swfoh,   from: "ups-1:out[1]",           to: "sw-foh:pwr",      interface: power.interface.ac_1p_cable, properties: { length_m: 2 } }
+    - { id: c-ups-mcfoh,   from: "ups-1:out[2]",           to: "mc-foh:pwr",      interface: power.interface.ac_1p_cable, properties: { length_m: 2 } }
+    - { id: c-ups-lx,      from: "ups-1:out[3]",           to: "lx-desk:pwr",     interface: power.interface.ac_1p_cable, properties: { length_m: 3 } }
+
+    - { id: c-distro-sb,     from: "distro-stage:out_true1[0]", to: "sb-stage:pwr",   interface: power.interface.ac_1p_cable, properties: { length_m: 8 } }
+    - { id: c-distro-mon,    from: "distro-stage:out_true1[1]", to: "mon-console:pwr", interface: power.interface.ac_1p_cable, properties: { length_m: 10 } }
+    - { id: c-distro-dspm,   from: "distro-stage:out_true1[2]", to: "dsp-main:pwr",   interface: power.interface.ac_1p_cable, properties: { length_m: 4 } }
+    - { id: c-distro-ampm,   from: "distro-stage:out_true1[3]", to: "amp-main:pwr",   interface: power.interface.ac_1p_cable, properties: { length_m: 6 } }
+    - { id: c-distro-sw,     from: "distro-stage:out_true1[4]", to: "sw-stage:pwr",   interface: power.interface.ac_1p_cable, properties: { length_m: 5 } }
+    - { id: c-distro-mcst,   from: "distro-stage:out_true1[5]", to: "mc-stage:pwr",   interface: power.interface.ac_1p_cable, properties: { length_m: 5 } }
+    - { id: c-distro-rx,     from: "distro-stage:out_1p[1]",    to: "rx-1:pwr",       interface: power.interface.ac_1p_cable, properties: { length_m: 8 } }
+    - { id: c-distro-wedge1, from: "distro-stage:out_1p[2]",    to: "wedge-1:pwr",    interface: power.interface.ac_1p_cable, properties: { length_m: 14 } }
+    - { id: c-distro-wedge2, from: "distro-stage:out_1p[3]",    to: "wedge-2:pwr",    interface: power.interface.ac_1p_cable, properties: { length_m: 18 } }
+    - { id: c-distro-node,   from: "distro-stage:out_1p[4]",    to: "node-1:pwr",     interface: power.interface.ac_1p_cable, properties: { length_m: 10 } }
+    - { id: c-distro-mh1,    from: "distro-stage:out_1p[5]",    to: "mh-1:pwr",       interface: power.interface.ac_1p_cable, properties: { length_m: 12 } }
+    - { id: c-mh-pwr-1-2,    from: "mh-1:pwr_thru",             to: "mh-2:pwr",       interface: power.interface.ac_1p_cable, properties: { length_m: 10 } }
+    - { id: c-distro-p1,     from: "distro-stage:out_1p[6]",    to: "profile-1:pwr",  interface: power.interface.ac_1p_cable, properties: { length_m: 13 } }
+    - { id: c-distro-p2,     from: "distro-stage:out_1p[7]",    to: "profile-2:pwr",  interface: power.interface.ac_1p_cable, properties: { length_m: 13 } }
+    - { id: c-distro-proc,   from: "distro-stage:out_1p[8]",    to: "led-proc:pwr",   interface: power.interface.ac_1p_cable, properties: { length_m: 16 } }
+    - { id: c-distro-led1,   from: "distro-stage:out_1p[9]",    to: "led-1:pwr",      interface: power.interface.ac_1p_cable, properties: { length_m: 16 } }
+    - { id: c-distro-proj,   from: "distro-stage:out_1p[10]",   to: "proj-1:pwr",     interface: power.interface.ac_1p_cable, properties: { length_m: 20 } }
+    - { id: c-distro-srv,    from: "distro-stage:out_1p[11]",   to: "server-1:pwr",   interface: power.interface.ac_1p_cable, properties: { length_m: 16 } }
+    - { id: c-distro-scaler, from: "distro-stage:out_cee[0]",   to: "scaler-1:pwr",   interface: power.interface.ac_1p_cable, properties: { length_m: 12 } }
+    - { id: c-distro-ampd,   from: "distro-stage:out_cee[1]",   to: "amp-delay:pwr",  interface: power.interface.ac_3p_cable, properties: { length_m: 38 } }
+    - { id: c-ampd-dspd,     from: "gen-1:out_1p[0]",           to: "dsp-delay:pwr",  interface: power.interface.ac_1p_cable, properties: { length_m: 60 } }
+
+  flows:
+    # --- Audio -----------------------------------------------------------------
+    - id: f-stage-to-foh
+      item: audio.item.dante_flow
+      from: sb-stage
+      to: foh-console
+      over: [c-sb-sw, c-sw-mc, c-mc-mc, c-sw-foh, c-foh-sw]
+      redundant_over: [c-sb-sw-b, c-sw-mc, c-mc-mc, c-sw-foh, c-foh-sw]
+      properties:
+        channels: 32
+        bandwidth_mbit: 80
+      notes: >-
+        Five connections, three of which change medium — copper, fibre, copper again — and the flow is
+        the only thing that knows the route is one path. The redundant route diverges only at the stage
+        box, which is honest rather than complete: the fibre is a single point of failure and the model
+        says so.
+
+    - id: f-wireless-to-stage
+      item: audio.item.dante_flow
+      from: rx-1
+      to: sb-stage
+      over: [c-rx-net, c-sb-sw]
+      properties:
+        channels:
+          state: unknown
+          notes: "brief.program[1].wireless_channels — the rider has not arrived"
+
+    - id: f-foh-to-processing
+      item: audio.item.aes3
+      from: foh-console
+      to: dsp-main
+      over: [c-foh-dsp-aes]
+      properties:
+        channels: 2
+
+    - id: f-processing-to-delay
+      item: audio.item.madi
+      from: dsp-main
+      to: dsp-delay
+      over: [c-dsp-dsp]
+      properties:
+        channels: 8
+      notes: "MADI on coax to the delay tower: one cable, eight channels, no network to fail."
+
+    - id: f-main-hang
+      item: audio.item.speaker_level
+      from: amp-main
+      to: pa-top-r
+      over: [c-amp-hang, c-hang-l-r]
+      properties:
+        channels: 2
+
+    - id: f-monitors
+      item: audio.item.analog_line
+      from: mon-console
+      to: wedge-2
+      over: [c-mon-wedge1, c-wedge-1-2]
+      properties:
+        channels: 1
+
+    # --- Network ---------------------------------------------------------------
+    - id: f-clock
+      item: network.item.ptp_clock
+      from: foh-console
+      to: sb-stage
+      over: [c-foh-sw, c-sw-foh, c-mc-mc, c-sw-mc, c-sb-sw]
+      properties:
+        role: "master to follower"
+
+    - id: f-discovery
+      item: network.item.nmos_is04
+      from: cam-1
+      to: sw-stage
+      over: [c-cam-ndi]
+      properties:
+        role: "registration and discovery"
+      notes: >-
+        Registration traffic, not media. Modelled because a device that cannot register is invisible to
+        the system that is supposed to switch it, and that failure looks like a cabling fault.
+
+    # --- Lighting ---------------------------------------------------------------
+    - id: f-lighting-sacn
+      item: lighting.item.dmx_over_sacn
+      from: lx-desk
+      to: node-1
+      over: [c-lx-node]
+      properties:
+        universes: 3
+      notes: "Three universes over one cable — which is the reason to put sACN on the 50 m run at all."
+
+    - id: f-lighting-backup
+      item: lighting.item.dmx_over_artnet
+      from: lx-desk
+      to: node-1
+      over: [c-lx-node]
+      properties:
+        universes: 3
+      notes: >-
+        The same cable, the same universes, a second protocol. The node speaks whichever the desk on the
+        day speaks, and both are declared because the desk is not confirmed. Two flows over one
+        connection, and only one of them will be live.
+
+    - id: f-dmx-key
+      item: lighting.item.dmx512
+      from: node-1
+      to: profile-2
+      over: [c-node-p1, c-p1-p2]
+      properties:
+        universes: 1
+        channels_used: 12
+
+    - id: f-dmx-wash
+      item: lighting.item.dmx512
+      from: node-1
+      to: par-2
+      over: [c-node-par, c-par-1-2]
+      properties:
+        universes: 1
+        channels_used: 16
+
+    - id: f-dmx-effect
+      item: lighting.item.dmx512
+      from: node-1
+      to: mh-2
+      over: [c-node-mh, c-mh-1-2]
+      properties:
+        universes: 1
+        channels_used:
+          state: unknown
+          notes: "mode-dependent; read from the fixtures' GDTF files"
+
+    - id: f-rdm-discovery
+      item: lighting.item.rdm
+      from: mh-2
+      to: node-1
+      over: [c-mh-1-2, c-node-mh]
+      properties:
+        role: "fixture discovery and address check"
+      notes: >-
+        The same two cables as f-dmx-effect, traversed backwards. RDM rides the DMX physical layer in
+        the opposite direction, and it is the plainest possible case for keeping Connection and Flow
+        apart.
+
+    # --- Video ------------------------------------------------------------------
+    - id: f-camera-to-wall
+      item: video.item.sdi_3g
+      from: cam-1
+      to: led-2
+      over: [c-cam-proc, c-proc-led1, c-led-1-2]
+      properties:
+        streams: 1
+      notes: "Runs through led-1's data_in → data_thru edge to reach the second column."
+
+    - id: f-server-to-wall
+      item: video.item.st2110_video
+      from: server-1
+      to: led-proc
+      over: [c-srv-fibre]
+      properties:
+        streams: 1
+
+    - id: f-laptop-to-projector
+      item: video.item.hdmi_2_0
+      from: scaler-1
+      to: proj-1
+      over: [c-scaler-proj]
+      properties:
+        streams: 1
+
+    # --- Power -------------------------------------------------------------------
+    - id: f-generator-to-stage
+      item: power.item.ac_400v_3p
+      from: gen-1
+      to: distro-stage
+      over: [c-gen-rcd, c-rcd-distro]
+      properties:
+        current_a: 32
+
+    - id: f-generator-to-dimmer
+      item: power.item.ac_400v_3p
+      from: gen-1
+      to: dimmer-1
+      over: [c-gen-rcd16, c-rcd16-dim]
+      properties:
+        current_a: 16
+
+    - id: f-foh-power
+      item: power.item.ac_230v_1p
+      from: distro-stage
+      to: foh-console
+      over: [c-distro-drum, c-drum-ups, c-ups-foh]
+      properties:
+        current_a: 6
+      notes: >-
+        Three hops through a cable drum and a UPS, each of which is a Part with its own sockets rather
+        than a length of cable. The drum's 45 m at 16 A is where power.constraint.voltage_drop bites.
+
+    - id: f-led-power-chain
+      item: power.item.ac_230v_1p
+      from: led-1
+      to: led-2
+      over: [c-led-pwr-1-2]
+      properties:
+        current_a: 2
+
+    - id: f-ap-power
+      item: power.item.dc_48v
+      from: sw-foh
+      to: ap-1
+      over: [c-ap]
+      properties:
+        watts: 15
+      notes: >-
+        Power over the same connection as the data, in the same direction. The access point declares no
+        power port at all, and a power walk that only followed power ports would miss it entirely.

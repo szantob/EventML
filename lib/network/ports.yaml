@@ -1,0 +1,120 @@
+eventml: "0.1"
+kind: ports
+domain: network
+---
+ports:
+  - id: network.port.rj45
+    name: RJ45
+    item: network.item.ethernet_1g
+    direction: bidir
+    connector: RJ45
+    pins: 8
+    source: "IEEE 802.3ab"
+    notes: >-
+      Bidirectional, unlike almost every other port in the library. An Ethernet port both sends and
+      receives on the same connector, which is why direction alone cannot tell you what flows where —
+      only a Flow can.
+
+  - id: network.port.ethercon_a
+    name: etherCON, primary
+    item: network.item.ethernet_1g
+    direction: bidir
+    connector: ETHERCON
+    pins: 8
+    properties:
+      role: primary
+    notes: >-
+      A locking, shelled RJ45 for touring use. The A/B split is a redundancy role, not an electrical
+      difference: primary and secondary carry the same item over physically separate paths.
+
+  - id: network.port.ethercon_b
+    name: etherCON, secondary
+    item: network.item.ethernet_1g
+    direction: bidir
+    connector: ETHERCON
+    pins: 8
+    properties:
+      role: secondary
+
+  - id: network.port.sfp_cage
+    name: SFP cage
+    item: network.item.ethernet_10g
+    direction: bidir
+    connector: SFP
+    pins: 20
+    notes: >-
+      A slot rather than a connector: what it accepts depends on the transceiver fitted. Modelled as one
+      port because the model cares that the slot exists and is occupied, not which optic is in it.
+
+  - id: network.port.lc_duplex
+    name: LC duplex fibre
+    item: network.item.fibre_om3
+    direction: bidir
+    connector: LC_DUPLEX
+    pins: 2
+    source: "IEC 61754-20"
+
+  - id: network.port.rj45_poe
+    name: RJ45 with PoE
+    item: network.item.ethernet_1g
+    direction: bidir
+    connector: RJ45
+    pins: 8
+    properties:
+      poe_class: "IEEE 802.3at, 25.5 W"
+    source: "IEEE 802.3at"
+    notes: Carries power.item.dc_48v alongside its data payload; a load fed this way needs no power port.
+
+interfaces:
+  - id: network.interface.cat6a_link
+    name: Cat6a copper link
+    item: network.item.ethernet_1g
+    medium: cat6a
+    capacity:
+      mbit: 1000
+      max_length_m: 90
+    constraints:
+      - network.constraint.max_copper_run
+
+  - id: network.interface.cat6a_10g_link
+    name: Cat6a copper link, 10G
+    item: network.item.ethernet_10g
+    medium: cat6a
+    capacity:
+      mbit: 10000
+      max_length_m: 55
+    constraints:
+      - network.constraint.max_copper_run
+    notes: Same cable, shorter reach. The interface is where that difference lives; the port cannot express it.
+
+  - id: network.interface.fibre_om3_link
+    name: OM3 fibre link
+    item: network.item.fibre_om3
+    medium: om3
+    capacity:
+      mbit: 10000
+      max_length_m: 300
+
+constraints:
+  - id: network.constraint.max_copper_run
+    name: Maximum copper run
+    applies_to: Connection
+    expression: >-
+      The connection's length_m must not exceed the interface's capacity.max_length_m. Exceeding it does
+      not fail cleanly: the link negotiates, passes traffic, and drops packets under load, which
+      surfaces as audio dropouts during the show rather than as a fault at rig time.
+
+  - id: network.constraint.bandwidth_headroom
+    name: Bandwidth headroom
+    applies_to: Connection
+    expression: >-
+      The sum of the declared bandwidth of every Flow routed over a connection must not exceed 70% of
+      that connection's interface capacity.mbit. The remaining margin covers control traffic, discovery
+      and the burst behaviour of media flows.
+
+  - id: network.constraint.single_clock_master
+    name: Single clock master
+    applies_to: Flow
+    expression: >-
+      Exactly one part on a synchronised network is the PTP clock master, and every part carrying media
+      flows must have a path to it.

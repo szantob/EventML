@@ -1,0 +1,85 @@
+eventml: "0.1"
+kind: ports
+domain: lighting
+---
+ports:
+  - id: lighting.port.xlr5f_dmx
+    name: XLR 5-pin female, DMX in
+    item: lighting.item.dmx512
+    direction: sink
+    connector: XLR5F
+    pins: 5
+    source: "ANSI E1.11 (DMX512-A); GDTF connector XLR5"
+
+  - id: lighting.port.xlr5m_dmx
+    name: XLR 5-pin male, DMX out
+    item: lighting.item.dmx512
+    direction: source
+    connector: XLR5M
+    pins: 5
+    source: "ANSI E1.11 (DMX512-A); GDTF connector XLR5"
+
+  - id: lighting.port.xlr3f_dmx
+    name: XLR 3-pin female, DMX in
+    item: lighting.item.dmx512
+    direction: sink
+    connector: XLR3F
+    pins: 3
+    notes: >-
+      Non-standard but universal on budget fixtures, and physically identical to audio.port.xlr3f while
+      being electrically incompatible with it. The two are separate port definitions because what
+      passes through them differs — the same reason audio.port.xlr3f_aes3 exists.
+
+  - id: lighting.port.xlr3m_dmx
+    name: XLR 3-pin male, DMX out
+    item: lighting.item.dmx512
+    direction: source
+    connector: XLR3M
+    pins: 3
+
+  - id: lighting.port.rj45_sacn
+    name: RJ45 sACN
+    item: lighting.item.dmx_over_sacn
+    direction: bidir
+    connector: RJ45
+    pins: 8
+    source: "ANSI E1.31 (sACN)"
+
+interfaces:
+  - id: lighting.interface.dmx_cable
+    name: DMX cable
+    item: lighting.item.dmx512
+    medium: "dmx_110ohm_2pair"
+    capacity:
+      universes: 1
+      max_length_m: 300
+      max_devices: 32
+    constraints:
+      - lighting.constraint.dmx_run_limit
+
+  - id: lighting.interface.sacn_over_cat6a
+    name: sACN over Cat6a
+    item: lighting.item.dmx_over_sacn
+    medium: cat6a
+    capacity:
+      mbit: 1000
+      max_length_m: 90
+    constraints:
+      - network.constraint.max_copper_run
+
+constraints:
+  - id: lighting.constraint.dmx_run_limit
+    name: DMX run limit
+    applies_to: Connection
+    expression: >-
+      A DMX daisy chain must not exceed 32 devices or 300 m, and must be terminated at its far end.
+      Beyond either limit the symptom is intermittent flicker on the last fixtures rather than a clean
+      failure — insert a splitter, which is a Part and therefore visible in the model.
+
+  - id: lighting.constraint.universe_capacity
+    name: Universe capacity
+    applies_to: Flow
+    expression: >-
+      The sum of the DMX footprint of every fixture patched to a universe must not exceed 512 channels.
+      A fixture's footprint depends on the mode it is set to, which is exactly the information a GDTF
+      file holds — see the note in parts.yaml.

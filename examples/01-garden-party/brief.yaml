@@ -1,0 +1,128 @@
+eventml: "0.1"
+layer: brief
+project: garden-party
+---
+brief:
+  name: Garden party, Gellért terrace
+  date: 2026-09-12
+
+  sources:
+    - id: s-client-brief
+      kind: email
+      date: 2026-08-01
+      from: client
+      subject: "Garden party, 12 September — quote request"
+      excerpt: >-
+        Hi — we're doing a garden party for about 300 people at the Gellért terrace on 12 September.
+        There'll be a welcome speech around 7, then a live band later. Nothing fancy, but it should
+        sound good. Can you send a quote?
+    - id: s-client-update
+      kind: email
+      date: 2026-08-05
+      from: client
+      subject: "Re: Garden party, 12 September — quote request"
+      excerpt: >-
+        Small update — the guest list has grown, we're now looking at 450. Everything else as before.
+    - id: s-venue-call
+      kind: call
+      date: 2026-08-06
+      from: venue
+      sender: "terrace manager"
+      excerpt: >-
+        Spoke to the terrace manager. There is an outdoor socket by the service door; he did not know
+        what it is rated at and will check. Load-in from 14:00 at the earliest, the restaurant serves
+        lunch until 13:30.
+
+  audience:
+    state: conflicting
+    alternatives:
+      - { value: 300, src: s-client-brief }
+      - { value: 450, src: s-client-update }
+    notes: >-
+      Not a correction — the second message says the guest list grew, so both numbers were true when
+      written. What is unresolved is which one to design for, and it changes the PA.
+
+  venue:
+    name: Gellért terrace
+    covered:
+      value: false
+      state: assumed
+      why: "the brief says 'terrace' and mentions no marquee"
+      ask: true
+    audience_area:
+      state: unknown
+    ambient_noise:
+      value: "traffic from the embankment"
+      state: assumed
+      why: "the terrace faces the road; no measurement taken"
+    quiet_hours_from:
+      value: "22:00"
+      state: assumed
+      why: "standard municipal limit for outdoor amplified sound in the district"
+      ask: true
+
+  power:
+    outdoor_socket_present:
+      value: true
+      state: stated
+      src: s-venue-call
+    rating:
+      state: unknown
+    distance_to_stage_m:
+      state: unknown
+
+  program:
+    - id: b-arrival
+      at: "18:00"
+      what: Guest arrival and drinks
+      audio: background music
+      source:
+        value: "playlist from a laptop"
+        state: assumed
+        why: "no DJ mentioned in the brief"
+        ask: true
+
+    - id: b-welcome-speech
+      at: "19:00"
+      what: Welcome speech
+      speakers:
+        value: 1
+        state: assumed
+        why: "the brief says 'a welcome speech', singular"
+      handheld_needed:
+        value: true
+        state: derived
+        why: "a speech with no fixed lectern in the brief implies a handheld or a stand microphone"
+
+    - id: b-dinner
+      at: "19:30"
+      what: Dinner service
+      audio: background music
+
+    - id: b-band
+      at: "21:00"
+      what: Live band
+      size:
+        state: unknown
+      instruments:
+        state: unknown
+      backline_provided_by:
+        state: unknown
+      until:
+        value: "23:00"
+        state: assumed
+        why: "the brief says the band plays 'later'; end time never stated"
+        ask: true
+
+  load_in:
+    value: "14:00"
+    state: stated
+    src: s-venue-call
+
+  stated_preferences:
+    - value: "Nothing fancy, but it should sound good."
+      state: stated
+      src: s-client-brief
+      notes: >-
+        Kept verbatim rather than paraphrased. It is the only quality statement the client has made, and
+        it is what audio.req.music_reproduction's `level` parameter has to be negotiated against.

@@ -1,0 +1,116 @@
+eventml: "0.1"
+layer: brief
+project: conference-room
+---
+brief:
+  name: Annual partner meeting, hotel conference room
+  date: 2026-11-19
+
+  sources:
+    - id: s-client-brief
+      kind: document
+      date: 2026-10-02
+      from: client
+      subject: "Annual partner meeting — event brief"
+      excerpt: >-
+        Annual partner meeting, 120 people, our usual room at the hotel. Morning is presentations from
+        the floor, afternoon is a panel of four. We want to stream it for the colleagues who cannot
+        travel, and two of the panellists are joining from abroad. Slides throughout. Same as last year
+        but the streaming part is new.
+    - id: s-client-call
+      kind: call
+      date: 2026-10-09
+      from: client
+      excerpt: >-
+        Asked about the room. It is the Danube room, the long one. They think there is a screen already
+        but are not sure it is big enough. The hotel's AV person handles the house lights.
+    - id: s-venue-email
+      kind: email
+      date: 2026-10-14
+      from: venue
+      subject: "Danube room — network, patch panel and site access"
+      excerpt: >-
+        The house network is available for guests. There is a patch panel at the back of the room. Our
+        technician will be on site from 07:00.
+
+  audience:
+    value: 120
+    state: stated
+    src: s-client-brief
+
+  remote_audience:
+    state: unknown
+    notes: "'colleagues who cannot travel' — no number given, and it sizes the streaming platform"
+
+  venue:
+    name: "Danube room, hotel"
+    room_shape:
+      value: "long and narrow"
+      state: assumed
+      why: "the client called it 'the long one'; no floor plan received"
+      ask: true
+    furthest_seat_m:
+      state: unknown
+    seating:
+      value: theatre
+      state: assumed
+      why: "120 people for presentations; cabaret would need a different screen position"
+      ask: true
+    existing_screen:
+      value: true
+      state: stated
+      src: s-client-call
+    existing_screen_size:
+      state: unknown
+    house_lights_dimmable:
+      state: unknown
+    house_network_available:
+      value: true
+      state: stated
+      src: s-venue-email
+
+  program:
+    - id: b-morning-presentations
+      at: "09:00"
+      what: Presentations from the floor
+      presenters:
+        value: 6
+        state: assumed
+        why: "a morning of presentations at roughly 40 minutes each"
+        ask: true
+      slides: true
+      laptop_source:
+        value: "presenters' own laptops"
+        state: assumed
+        why: "no shared machine mentioned"
+        ask: true
+
+    - id: b-panel
+      at: "14:00"
+      what: Panel discussion
+      panellists: 4
+      remote_panellists:
+        value: 2
+        state: stated
+        src: s-client-brief
+      seated: true
+
+    - id: b-stream
+      at: "09:00"
+      what: Live stream of the whole day
+      platform:
+        state: unknown
+      recording_required:
+        value: true
+        state: assumed
+        why: "a stream for people who cannot attend usually implies they may watch it later"
+        ask: true
+
+  stated_preferences:
+    - value: "Same as last year but the streaming part is new."
+      state: stated
+      src: s-client-brief
+      notes: >-
+        The most dangerous sentence in the brief. "Same as last year" is a reference to a model nobody
+        wrote down, and the streaming addition changes lighting, camera, network and audio routing —
+        that is, most of it.

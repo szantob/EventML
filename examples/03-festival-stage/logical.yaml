@@ -1,0 +1,180 @@
+eventml: "0.1"
+layer: logical
+project: festival-stage
+---
+logical:
+  parts:
+    # --- Audio ---------------------------------------------------------------
+    - id: stage-inputs
+      label: "Stage input pool — all four bands"
+      def: audio.part.microphone_pool
+      layer: logical
+      satisfies: [r-changeover-speed]
+    - id: monitor-world
+      label: "Monitor world"
+      def: audio.part.monitor_world
+      layer: logical
+      satisfies: [r-band-monitoring]
+    - { id: mix-position,      label: "Front of house",                    def: audio.part.mix_position,    layer: logical }
+    - id: system-processing
+      label: "System processing"
+      def: audio.part.dsp_processor
+      layer: logical
+      satisfies: [r-music-park]
+    - id: main-pa
+      label: "Main PA"
+      def: audio.part.main_pa
+      layer: logical
+      satisfies: [r-music-park]
+    - id: delay-pa
+      label: "Delay line — 35 m out"
+      def: audio.part.delay_line
+      layer: logical
+      satisfies: [r-music-park, r-coverage-depth]
+
+    # --- Network -------------------------------------------------------------
+    - id: stage-backbone
+      label: "Stage to front-of-house backbone"
+      def: network.part.network_backbone
+      layer: logical
+      satisfies: [r-long-haul]
+    - id: clock-master
+      label: "Clock master"
+      def: network.part.clock_master
+      layer: logical
+      satisfies: [r-clock-stability]
+
+    # --- Lighting ------------------------------------------------------------
+    - id: key-light
+      label: "Front key light"
+      def: lighting.part.key_light
+      layer: logical
+      satisfies: [r-face-lighting]
+    - id: stage-wash
+      label: "Stage wash"
+      def: lighting.part.wash_light
+      layer: logical
+      satisfies: [r-stage-wash]
+    - id: effect-rig
+      label: "Effect lighting"
+      def: lighting.part.effect_light
+      layer: logical
+      satisfies: [r-stage-wash]
+    - id: lx-control
+      label: "Lighting control"
+      def: lighting.part.control_surface
+      layer: logical
+      satisfies: [r-control-universes]
+    - id: dmx-dist
+      label: "DMX distribution"
+      def: lighting.part.dmx_distribution
+      layer: logical
+      satisfies: [r-control-universes]
+
+    # --- Video ---------------------------------------------------------------
+    - { id: screen-source, label: "Screen content source", def: video.part.image_source,     layer: logical }
+    - { id: screen-drive,  label: "Screen processing",     def: video.part.image_processing, layer: logical }
+    - id: screen-wall
+      label: "LED wall"
+      def: video.part.image_display
+      layer: logical
+      satisfies: [r-screen-visible]
+
+    # --- Power ---------------------------------------------------------------
+    - { id: site-supply,   label: "Site supply",          def: power.part.power_source,       layer: logical }
+    - { id: stage-power,   label: "Stage distribution",   def: power.part.power_distribution, layer: logical }
+    - id: lx-load
+      label: "Lighting load"
+      def: power.part.load
+      layer: logical
+      properties:
+        electrical_load_w:
+          value: 7800
+          state: derived
+          why: "sum of the fixture loads once the rig is chosen; the largest single-phase load on site"
+
+  connections:
+    # Audio
+    - { id: lc-inputs-mon,   from: "stage-inputs:out[0]",     to: "monitor-world:in[0]",     interface: audio.interface.xlr_mic }
+    - { id: lc-inputs-mix,   from: "stage-inputs:out[1]",     to: "mix-position:in[0]",      interface: audio.interface.xlr_mic }
+    - { id: lc-mix-dsp,      from: "mix-position:out[0]",     to: "system-processing:analog_in[0]", interface: audio.interface.xlr_line }
+    - { id: lc-dsp-mainpa,   from: "system-processing:analog_out[0]", to: "main-pa:in[0]",   interface: audio.interface.xlr_line }
+    - { id: lc-dsp-delaypa,  from: "system-processing:analog_out[2]", to: "delay-pa:in[0]",  interface: audio.interface.xlr_line }
+
+    # Network — the backbone the distance forces
+    - { id: lc-backbone-clock, from: "stage-backbone:edge[0]", to: "clock-master:net", interface: network.interface.cat6a_link }
+
+    # Lighting
+    - { id: lc-lxctrl-dist, from: "lx-control:dmx_out[0]", to: "dmx-dist:in",     interface: lighting.interface.dmx_cable }
+    - { id: lc-dist-key,    from: "dmx-dist:out[0]",       to: "key-light:ctrl",  interface: lighting.interface.dmx_cable }
+    - { id: lc-dist-wash,   from: "dmx-dist:out[1]",       to: "stage-wash:ctrl", interface: lighting.interface.dmx_cable }
+    - { id: lc-dist-effect, from: "dmx-dist:out[2]",       to: "effect-rig:ctrl", interface: lighting.interface.dmx_cable }
+
+    # Video
+    - { id: lc-src-drive,   from: "screen-source:out",   to: "screen-drive:in[0]", interface: video.interface.sdi_coax }
+    - { id: lc-drive-wall,  from: "screen-drive:out[0]", to: "screen-wall:in",     interface: video.interface.sdi_coax }
+
+    # Power
+    - { id: lc-supply-stage, from: "site-supply:out",     to: "stage-power:in",         interface: power.interface.ac_3p_cable }
+    - { id: lc-stage-mainpa, from: "stage-power:out[0]",  to: "main-pa:pwr",            interface: power.interface.ac_1p_cable }
+    - { id: lc-stage-delay,  from: "stage-power:out[1]",  to: "delay-pa:pwr",           interface: power.interface.ac_1p_cable }
+    - { id: lc-stage-mon,    from: "stage-power:out[2]",  to: "monitor-world:pwr",      interface: power.interface.ac_1p_cable }
+    - { id: lc-stage-mix,    from: "stage-power:out[3]",  to: "mix-position:pwr",       interface: power.interface.ac_1p_cable }
+    - { id: lc-stage-dsp,    from: "stage-power:out[4]",  to: "system-processing:pwr",  interface: power.interface.ac_1p_cable }
+    - { id: lc-stage-lx,     from: "stage-power:out[5]",  to: "lx-load:pwr",            interface: power.interface.ac_1p_cable }
+    - { id: lc-stage-lxctrl, from: "stage-power:out[6]",  to: "lx-control:pwr",         interface: power.interface.ac_1p_cable }
+    - { id: lc-stage-screen, from: "stage-power:out[7]",  to: "screen-wall:pwr",        interface: power.interface.ac_1p_cable }
+    - { id: lc-stage-drive,  from: "stage-power:out[8]",  to: "screen-drive:pwr",       interface: power.interface.ac_1p_cable }
+
+  flows:
+    - id: lf-inputs-to-mix
+      item: audio.item.analog_mic
+      from: stage-inputs
+      to: mix-position
+      over: [lc-inputs-mix]
+      properties:
+        channels: 32
+
+    - id: lf-mix-to-pa
+      item: audio.item.analog_line
+      from: mix-position
+      to: main-pa
+      over: [lc-mix-dsp, lc-dsp-mainpa]
+      properties:
+        channels: 2
+
+    - id: lf-mix-to-delay
+      item: audio.item.analog_line
+      from: mix-position
+      to: delay-pa
+      over: [lc-mix-dsp, lc-dsp-delaypa]
+      properties:
+        channels: 2
+      notes: >-
+        Shares lc-mix-dsp with lf-mix-to-pa and diverges inside the processor, through its
+        analog_in → analog_out internal edge. Two flows, one cable, then two different destinations —
+        which is what a system processor is for.
+
+    - id: lf-lighting-control
+      item: lighting.item.dmx512
+      from: lx-control
+      to: key-light
+      over: [lc-lxctrl-dist, lc-dist-key]
+      properties:
+        universes: 1
+
+    - id: lf-screen-content
+      item: video.item.sdi_3g
+      from: screen-source
+      to: screen-wall
+      over: [lc-src-drive, lc-drive-wall]
+      properties:
+        streams: 1
+
+    - id: lf-site-power
+      item: power.item.ac_400v_3p
+      from: site-supply
+      to: stage-power
+      over: [lc-supply-stage]
+      properties:
+        current_a: 32

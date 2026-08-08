@@ -1,0 +1,130 @@
+eventml: "0.1"
+layer: brief
+project: festival-stage
+---
+brief:
+  name: Second stage, town festival
+  date: 2026-06-20
+
+  sources:
+    - id: s-client-brief
+      kind: email
+      date: 2026-04-11
+      from: client
+      subject: "Second stage, town festival — same as last year"
+      excerpt: >-
+        We're running the second stage at the town festival again, in the park by the river. Four bands
+        through the afternoon and evening, headliner at 21:00, finish by 23:00. Last year the sound was
+        fine but the stage looked flat on the photos and you couldn't see anything after dark. There's a
+        video screen this year. No mains anywhere near, we hire a generator as usual.
+    - id: s-site-visit
+      kind: site_visit
+      date: 2026-05-08
+      from: production
+      sender: "production manager"
+      excerpt: >-
+        Walked the site. Generator position is behind the trees, roughly 70 m from the stage — noise is
+        fine there but that is a long cable run. Front of house is 45 m out from the stage, past the
+        crowd barrier. No cable route on the ground between them that does not cross a public path.
+    - id: s-venue-mats
+      kind: site_visit
+      date: 2026-05-08
+      from: venue
+      sender: "site manager"
+      excerpt: >-
+        Said we can run cable across the path if we mat it — that is what the food stalls do.
+    - id: s-council-paths
+      kind: site_visit
+      date: 2026-05-08
+      from: authority
+      sender: "council representative"
+      excerpt: >-
+        Stated that no cable may run across a public path, matted or not, for the duration of the
+        festival. Said this in front of the site manager, who had just offered the opposite.
+
+  audience:
+    value: 1500
+    state: stated
+    src: s-client-brief
+
+  venue:
+    name: "Riverside park, second stage"
+    covered:
+      value: true
+      state: stated
+      src: s-client-brief
+      notes: "stage roof; the audience area is open"
+    foh_distance_m:
+      value: 45
+      state: stated
+      src: s-site-visit
+    generator_distance_m:
+      value: 70
+      state: stated
+      src: s-site-visit
+    cable_route:
+      state: conflicting
+      alternatives:
+        - { value: "ground run with mats across the path", src: s-venue-mats }
+        - { value: "no ground run permitted on public paths", src: s-council-paths }
+      notes: >-
+        Both said on the same site visit, by different people — the site manager offered mats, the council
+        representative present said no. Recorded as conflicting rather than resolved by whoever spoke
+        last. The two statements are separate `sources` entries precisely so the conflict can name who
+        said what; a single entry for the visit would have left both alternatives pointing at the same
+        `src` and the question unanswerable.
+
+  power:
+    source: generator
+    rating:
+      value: "20 kVA three-phase"
+      state: assumed
+      why: "what was hired last year; the video screen is new and may change it"
+      ask: true
+
+  program:
+    - id: b-changeovers
+      what: Four bands with changeovers
+      bands: 4
+      changeover_minutes:
+        value: 20
+        state: assumed
+        why: "four bands between 16:00 and 23:00 leaves about that much"
+
+    - id: b-headliner
+      at: "21:00"
+      what: Headliner
+      size:
+        value: 6
+        state: stated
+        src: s-client-brief
+      wireless_channels:
+        state: unknown
+        notes: "rider not received; decides receiver count and frequency coordination"
+
+    - id: b-lighting
+      what: Stage lighting after dark
+      brief_quote: "the stage looked flat on the photos and you couldn't see anything after dark"
+      dark_from:
+        value: "20:45"
+        state: derived
+        why: "sunset plus civil twilight for the date and latitude"
+
+    - id: b-screen
+      what: Video screen beside the stage
+      screen_type:
+        value: "LED wall"
+        state: assumed
+        why: "outdoor, daylight, 1500 people — projection will not carry"
+        ask: true
+      content:
+        state: unknown
+        notes: "camera of the stage, sponsor loops, or both — nobody has said"
+
+  stated_preferences:
+    - value: "Last year the sound was fine but the stage looked flat on the photos."
+      state: stated
+      src: s-client-brief
+      notes: >-
+        A lighting requirement stated as a complaint about photographs. It refines into face lighting and
+        stage wash, neither of which the client would name.

@@ -1,0 +1,116 @@
+eventml: "0.1"
+layer: logical
+project: garden-party
+---
+logical:
+  parts:
+    - id: microphone-pool
+      label: "Sources — speech, band, playback"
+      def: audio.part.microphone_pool
+      layer: logical
+      satisfies: [r-input-capacity]
+      properties:
+        channels:
+          state: unknown
+          notes: "one per band input plus one handheld for the speech"
+
+    - id: playback
+      label: "Arrival and dinner playlist"
+      def: audio.part.playback_source
+      layer: logical
+
+    - id: mix-position
+      label: "Mix position"
+      def: audio.part.mix_position
+      layer: logical
+
+    - id: main-pa
+      label: "Main PA — terrace"
+      def: audio.part.main_pa
+      layer: logical
+      satisfies: [r-speech-intelligible, r-music-reproduction, r-coverage-uniformity]
+      properties:
+        covers: "the seated audience area"
+
+    - id: front-fill
+      label: "Front fill — front tables"
+      def: audio.part.front_fill
+      layer: logical
+      satisfies: [r-speech-intelligible, r-coverage-uniformity]
+      properties:
+        covers: "the two front table rows, inside the main PA's pattern"
+
+    - id: monitor-world
+      label: "Stage monitoring"
+      def: audio.part.monitor_world
+      layer: logical
+      properties:
+        mixes:
+          state: unknown
+          notes: "one per performer; blocked on brief.program[3].size"
+
+    - id: power-supply
+      label: "Site supply"
+      def: power.part.power_source
+      layer: logical
+      satisfies: [r-supply-capacity, r-silent-supply]
+      properties:
+        rated_current_a:
+          state: unknown
+          notes: "brief.power.rating — the terrace manager is checking"
+
+    - id: power-dist
+      label: "Terrace distribution"
+      def: power.part.power_distribution
+      layer: logical
+      satisfies: [r-supply-capacity]
+
+  connections:
+    - { id: lc-mics-mix,     from: "microphone-pool:out[0]", to: "mix-position:in[0]",  interface: audio.interface.xlr_mic }
+    - { id: lc-playback-mix, from: "playback:out[0]",        to: "mix-position:in[16]", interface: audio.interface.xlr_line }
+    - { id: lc-mix-pa,       from: "mix-position:out[0]",    to: "main-pa:in[0]",       interface: audio.interface.xlr_line }
+    - { id: lc-mix-fill,     from: "mix-position:out[2]",    to: "front-fill:in[0]",    interface: audio.interface.xlr_line }
+    - { id: lc-mix-mon,      from: "mix-position:out[4]",    to: "monitor-world:in[0]", interface: audio.interface.xlr_line }
+    - { id: lc-supply-dist,  from: "power-supply:out",       to: "power-dist:in",       interface: power.interface.ac_3p_cable }
+    - { id: lc-dist-pa,      from: "power-dist:out[0]",      to: "main-pa:pwr",         interface: power.interface.ac_1p_cable }
+    - { id: lc-dist-fill,    from: "power-dist:out[2]",      to: "front-fill:pwr",      interface: power.interface.ac_1p_cable }
+    - { id: lc-dist-mon,     from: "power-dist:out[4]",      to: "monitor-world:pwr",   interface: power.interface.ac_1p_cable }
+    - { id: lc-dist-mix,     from: "power-dist:out[6]",      to: "mix-position:pwr",    interface: power.interface.ac_1p_cable }
+
+  flows:
+    - id: lf-programme-to-audience
+      item: audio.item.analog_line
+      from: mix-position
+      to: main-pa
+      over: [lc-mix-pa]
+      properties:
+        channels: 2
+
+    - id: lf-sources-to-mix
+      item: audio.item.analog_mic
+      from: microphone-pool
+      to: mix-position
+      over: [lc-mics-mix]
+      properties:
+        channels:
+          state: unknown
+          notes: "equals the input count, blocked on the band's instrument list"
+
+    - id: lf-monitor-sends
+      item: audio.item.analog_line
+      from: mix-position
+      to: monitor-world
+      over: [lc-mix-mon]
+      properties:
+        channels:
+          state: unknown
+          notes: "one per mix"
+
+    - id: lf-site-power
+      item: power.item.ac_400v_3p
+      from: power-supply
+      to: power-dist
+      over: [lc-supply-dist]
+      properties:
+        current_a:
+          state: unknown
