@@ -84,7 +84,7 @@ band:
 
 ## 3. Question rules
 
-A question is generated in exactly five situations. Each generated question carries three fields:
+A question is generated in exactly six situations. Each generated question carries three fields:
 
 - `ask` — the client-facing wording, written for someone who does not know the domain
 - `why` — what the answer decides, in the project manager's terms
@@ -162,6 +162,29 @@ prose in this release.
   blocks: 2
 ```
 
+#### Rule 6 — an L2 `Part` no `Requirement` calls for
+
+**Trigger.** An L2 `Part` with an empty `satisfies` list.
+
+This is rule 3 seen from the other end, and the two point in opposite directions. Rule 3 says something was
+promised and nothing delivers it. Rule 6 says something is being delivered that nothing promised — a logical
+block that will be allocated to equipment, loaded onto a truck and billed, with no requirement behind it. It
+is either unnecessary, or evidence of a requirement nobody wrote down, and those two have very different
+costs.
+
+Like rule 3, it is addressed to the project manager rather than the client, and its `ask` is phrased for
+internal reading.
+
+**L2 only.** An L3 part with no `satisfies` is ordinary: its justification comes from the L2 block it is
+allocated from, and `allocate` already carries that. An L3 part with no `allocate` is a modelling error
+rather than a question — boundary rule 3 in `01-layers.md`.
+
+```yaml
+- ask: "The plan includes a mix position, but nothing in the brief or the requirements asks for one."
+  why: "L2 block `mix-position` satisfies no requirement; either it is an unjustified line on the quote, or nobody wrote down that the system has to be operated live"
+  blocks: 0
+```
+
 ## 4. Ranking
 
 `blocks` is computed by counting the `Requirement`s reachable downstream of the open node by following
@@ -185,6 +208,12 @@ questions:
 ```
 
 Three questions instead of forty, and the first two decide half the plan.
+
+Rule 6 is the exception the ranking handles by doing nothing special. A block that satisfies no requirement
+has no requirements downstream of it by definition, so its `blocks` is always 0 and it sorts to the bottom.
+That is the right place for it: an unjustified block costs money but decides nothing, so it should be
+settled once the questions that decide the plan have been answered — and never silently dropped, because
+it is the line on the quote the client will ask about.
 
 **In v0.1 this list is written by hand.** The examples under `examples/` contain hand-written `questions`
 blocks that demonstrate the intended output of the derivation. They are illustrations, not derived

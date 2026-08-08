@@ -140,9 +140,16 @@ questions:
     rule: 2
     source: brief.program[3].until
     blocks: 1        # r-music-reproduction
+
+  - ask: "The plan includes a mix position, a playback source and a monitor world, and nothing in the brief or the requirements asks for any of them."
+    why: "three L2 blocks satisfy no requirement; playback and the mix position are billable and unjustified, and monitor-world is the same gap as r-band-monitoring seen from the other end"
+    rule: 6
+    source: [mix-position, playback, monitor-world]
+    blocks: 0
+    internal: true   # for the project manager, not for the client
 ```
 
-Six questions, and the first three decide most of the plan. Forty things in this model are unspecified;
+Seven questions, and the first three decide most of the plan. Forty things in this model are unspecified;
 these are the ones with requirements hanging off them.
 
 Note what rule 2 does in the first question. Nobody stated that the terrace is uncovered — it was assumed
@@ -153,3 +160,10 @@ only person in a position to make it, and the model carries it forward.
 Note also the wording. Not "what is the service rating of the supply", which no client can answer, but
 "send a photo of the socket and the fuse box" — which settles the question completely and which anyone can
 do while standing in the venue.
+
+The last question is rule 6, and `monitor-world` is why the rule earns its place. That block appears twice
+in this list: once under rule 3, because `r-band-monitoring` is satisfied by nothing, and once under rule 6,
+because the block satisfies nothing. It is one gap seen from both ends — a requirement and a block that
+ought to be joined and are not, because nobody knows how big the band is. Rule 3 alone would report the
+requirement and leave the block looking deliberate. `mix-position` and `playback` are the other kind: no
+requirement anywhere refers to them, and they are on the quote regardless.

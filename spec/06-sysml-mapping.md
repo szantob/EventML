@@ -117,7 +117,7 @@ premise — that incompleteness is the normal state of the data and must be mode
 has nowhere to live in SysML, and a translation flattens `{ value: outdoor, state: assumed, why: "…",
 ask: true }` to `outdoor`.
 
-**Question derivation.** The five question rules in `04-uncertainty.md` are a derivation over the value
+**Question derivation.** The six question rules in `04-uncertainty.md` are a derivation over the value
 states and the traceability graph. Half of their inputs do not survive translation, so the derived question
 list cannot be recomputed from an exported model. The `blocks` ranking, which depends only on the
 traceability graph, would survive; the questions themselves would not.
