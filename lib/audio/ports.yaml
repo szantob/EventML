@@ -1,0 +1,164 @@
+eventml: "0.1"
+kind: ports
+domain: audio
+---
+ports:
+  # Analogue, low level. Direction is stated from the perspective of the part that owns the port:
+  # a female XLR on a device is where signal arrives, so it is a sink.
+  - id: audio.port.xlr3f
+    name: XLR 3-pin female
+    item: audio.item.analog_line
+    direction: sink
+    connector: XLR3F
+    pins: 3
+    source: "IFC IfcDistributionPort FlowDirection=SINK"
+
+  - id: audio.port.xlr3m
+    name: XLR 3-pin male
+    item: audio.item.analog_line
+    direction: source
+    connector: XLR3M
+    pins: 3
+    source: "IFC IfcDistributionPort FlowDirection=SOURCE"
+
+  - id: audio.port.xlr3m_mic
+    name: XLR 3-pin male, microphone level
+    item: audio.item.analog_mic
+    direction: source
+    connector: XLR3M
+    pins: 3
+    notes: The output of a microphone or a passive DI box.
+
+  - id: audio.port.trs_jack
+    name: 6.35 mm TRS jack
+    item: audio.item.analog_line
+    direction: bidir
+    connector: TRS635
+    pins: 3
+    notes: >-
+      Bidirectional because the same socket is wired as an input on one device and an insert send-return
+      on the next. Where a device fixes the direction, the part declares a direction-specific port instead.
+
+  # Analogue, loudspeaker level.
+  - id: audio.port.nl4_out
+    name: speakON NL4 output
+    item: audio.item.speaker_level
+    direction: source
+    connector: NL4
+    pins: 4
+
+  - id: audio.port.nl4_in
+    name: speakON NL4 input
+    item: audio.item.speaker_level
+    direction: sink
+    connector: NL4
+    pins: 4
+
+  - id: audio.port.speakon_nl8
+    name: speakON NL8
+    item: audio.item.speaker_level
+    direction: source
+    connector: NL8
+    pins: 8
+    notes: Four amplifier channels on one connector; used for multi-way cabinets and array hangs.
+
+  # Digital.
+  - id: audio.port.bnc_madi
+    name: BNC MADI
+    item: audio.item.madi
+    direction: bidir
+    connector: BNC75
+    pins: 1
+    source: "AES10-2008 coaxial interface"
+
+  - id: audio.port.xlr3f_aes3
+    name: XLR 3-pin female, AES3
+    item: audio.item.aes3
+    direction: sink
+    connector: XLR3F
+    pins: 3
+    notes: >-
+      Physically identical to audio.port.xlr3f and electrically incompatible with it. Two ports, not one,
+      because what passes through them differs — which is the whole reason a port names an item.
+
+  - id: audio.port.xlr3m_aes3
+    name: XLR 3-pin male, AES3
+    item: audio.item.aes3
+    direction: source
+    connector: XLR3M
+    pins: 3
+    source: "AES3-2009"
+
+  - id: audio.port.bnc_antenna
+    name: BNC antenna input
+    item: audio.item.rf_link
+    direction: sink
+    connector: BNC50
+    pins: 1
+    notes: >-
+      50-ohm, unlike the 75-ohm BNC used for MADI. Same connector shell, different cable, and swapping
+      them costs range — which is why they are two port definitions.
+
+  - id: audio.port.rj45_dante
+    name: RJ45 Dante
+    item: audio.item.dante_flow
+    direction: bidir
+    connector: RJ45
+    pins: 8
+    source: "AES67-2018"
+    notes: >-
+      The audio-domain view of a network port. Where the model cares about the Ethernet link rather than
+      the audio riding it, use network.port.rj45.
+
+interfaces:
+  - id: audio.interface.xlr_line
+    name: Analogue line cable
+    item: audio.item.analog_line
+    medium: xlr_cable
+    capacity:
+      channels: 1
+      max_length_m: 100
+    constraints:
+      - audio.constraint.analog_run_length
+
+  - id: audio.interface.xlr_mic
+    name: Microphone cable
+    item: audio.item.analog_mic
+    medium: xlr_cable
+    capacity:
+      channels: 1
+      max_length_m: 60
+    constraints:
+      - audio.constraint.analog_run_length
+
+  - id: audio.interface.speaker_nl4
+    name: Loudspeaker cable, NL4
+    item: audio.item.speaker_level
+    medium: "h07rn-f_4g2.5"
+    capacity:
+      channels: 2
+      max_length_m: 50
+
+  - id: audio.interface.madi_coax
+    name: MADI coaxial link
+    item: audio.item.madi
+    medium: rg59
+    capacity:
+      channels: 64
+      max_length_m: 100
+
+constraints:
+  - id: audio.constraint.analog_run_length
+    name: Analogue run length
+    applies_to: Connection
+    expression: >-
+      The connection's length_m must not exceed the interface's capacity.max_length_m. Beyond it, expect
+      high-frequency loss and increased susceptibility to induced noise; convert to a digital transport
+      instead of extending the run.
+
+  - id: audio.constraint.input_capacity
+    name: Input capacity
+    applies_to: Part
+    expression: >-
+      The number of Connections terminating on a part's input ports must not exceed the count declared for
+      those ports in its PartDef.

@@ -1,0 +1,65 @@
+eventml: "0.1"
+kind: items
+domain: lighting
+---
+items:
+  - id: lighting.item.dmx512
+    name: DMX512-A
+    kind: data
+    form: electrical
+    carries: One universe of 512 control channels, on a balanced pair, one direction only
+    properties:
+      channels: 512
+      refresh_hz: 44
+      topology: daisy_chain
+      max_devices_per_run: 32
+    source: "ANSI E1.11 (DMX512-A); GDTF SignalType: DMX512"
+    notes: >-
+      Unidirectional and terminated. A universe is a hard limit, not a guideline: the 513th channel
+      needs a second universe, a second cable and usually a second output on the node — which is why
+      universe count is a requirement template rather than a detail.
+
+  - id: lighting.item.rdm
+    name: RDM
+    kind: data
+    form: electrical
+    carries: Bidirectional discovery and configuration traffic sharing the DMX512 physical layer
+    properties:
+      shares_layer_with: lighting.item.dmx512
+      bidirectional: true
+    source: "ANSI E1.20 (RDM)"
+    notes: >-
+      Rides the same cable as DMX in the opposite direction. Two items over one Connection, which the
+      Connection/Flow split handles and a merged entity could not.
+
+  - id: lighting.item.dmx_over_sacn
+    name: DMX over sACN
+    kind: data
+    form: digital
+    carries: One or more DMX512 universes over IP, as multicast
+    properties:
+      transport: network.item.sacn
+      universes_per_stream: 1
+    source: "ANSI E1.31 (sACN); GDTF SignalType: DMX512"
+
+  - id: lighting.item.dmx_over_artnet
+    name: DMX over Art-Net
+    kind: data
+    form: digital
+    carries: One or more DMX512 universes over IP
+    properties:
+      transport: network.item.artnet
+      universes_per_stream: 1
+    source: "Art-Net 4, Artistic Licence; GDTF SignalType: DMX512"
+
+  - id: lighting.item.light_output
+    name: Light output
+    kind: signal
+    form: optical
+    carries: The luminous output of a fixture onto a surface or a performer
+    properties:
+      measured_as: "illuminance at the subject, in lux"
+    notes: >-
+      Not transported over any cable, and therefore never the item of a Connection. It exists so that a
+      requirement about what the audience sees has something to attach to, and so that a fixture's
+      purpose is modelled rather than only its wiring.

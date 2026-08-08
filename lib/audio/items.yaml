@@ -1,0 +1,84 @@
+eventml: "0.1"
+kind: items
+domain: audio
+---
+items:
+  - id: audio.item.analog_mic
+    name: Analogue microphone level
+    kind: signal
+    form: analog
+    carries: One channel of balanced microphone-level audio, typically requiring preamplification
+    properties:
+      nominal_level: "-40 dBu"
+      balanced: true
+      phantom_power: "48 V DC, optional"
+    source: "GDTF SignalType: AnalogAudio"
+
+  - id: audio.item.analog_line
+    name: Analogue line level
+    kind: signal
+    form: analog
+    carries: One channel of balanced line-level audio
+    properties:
+      nominal_level: "+4 dBu"
+      balanced: true
+    source: "GDTF SignalType: AnalogAudio"
+
+  - id: audio.item.speaker_level
+    name: Loudspeaker level
+    kind: signal
+    form: analog
+    carries: One amplified channel driving a passive loudspeaker
+    properties:
+      nominal_impedance_ohm: 8
+      balanced: false
+    notes: >-
+      Distinct from line level in every respect that matters on site: it carries power, it is unbalanced,
+      and connecting it to a line input damages the input.
+
+  - id: audio.item.aes3
+    name: AES3 digital audio
+    kind: signal
+    form: digital
+    carries: Two channels of linear PCM audio on one balanced pair
+    properties:
+      channels: 2
+      sample_rates: [44100, 48000, 96000]
+    source: "AES3-2009 (AES/EBU)"
+
+  - id: audio.item.madi
+    name: MADI multichannel audio
+    kind: signal
+    form: digital
+    carries: Up to 64 channels of linear PCM audio on one coaxial or optical link
+    properties:
+      channels: 64
+      sample_rates: [48000, 96000]
+    source: "AES10-2008 (MADI)"
+
+  - id: audio.item.dante_flow
+    name: Dante audio flow
+    kind: signal
+    form: digital
+    carries: A group of audio channels transported over an IP network as one subscribed flow
+    properties:
+      channels_per_flow: 8
+      transport: network.item.dante_transport
+      clock: network.item.ptp_clock
+    source: "AES67-2018 interoperable transport; Audinate Dante flow model"
+    notes: >-
+      A flow is the unit of subscription, not the unit of audio. Channel count per flow is a
+      configuration choice, and the number of flows a device can send or receive is a device limit —
+      both belong on the Part, not here.
+
+  - id: audio.item.rf_link
+    name: Wireless audio RF link
+    kind: signal
+    form: analog
+    carries: One channel of audio modulated onto a UHF carrier between a transmitter and a receiver
+    properties:
+      band: "470-694 MHz, subject to national frequency regulation"
+      licence_required: "depends on band and territory"
+    notes: >-
+      Modelled only at its wired endpoints — the antenna ports of the receiver. The over-the-air hop
+      itself is not a Connection in v0.1, because nothing about it is patched.

@@ -1,0 +1,65 @@
+eventml: "0.1"
+kind: requirements
+domain: network
+---
+requirements:
+  - id: network.req.bandwidth_headroom
+    name: Bandwidth headroom
+    text: "Every link carrying {traffic} must run below {headroom} of its rated capacity."
+    params:
+      - { name: traffic,  type: string, default: "media flows" }
+      - { name: headroom, type: number, default: 0.7 }
+    verification: >-
+      Sum the declared bandwidth of every Flow routed over each Connection and compare against the
+      interface's capacity.mbit.
+    constraints:
+      - network.constraint.bandwidth_headroom
+    asks:
+      - param: traffic
+        question: "Will anything else be using the same network on the day — a video stream, the venue's own wifi, a laptop for presentations?"
+
+  - id: network.req.clock_stability
+    name: Clock stability
+    text: "Every device carrying {media} must hold synchronisation to a single clock master throughout {period}."
+    params:
+      - { name: media,  type: string, default: "networked audio" }
+      - { name: period, type: string, default: "the whole event, including changeovers" }
+    verification: >-
+      One part declared clock master, a path from every media-carrying part to it, and every switch on
+      those paths declaring ptp_transparent.
+    constraints:
+      - network.constraint.single_clock_master
+    asks:
+      - param: period
+        question: "Is there a point in the day when equipment gets switched off and back on — a changeover, a break, a move between rooms?"
+    notes: >-
+      Rarely traces to a brief element. Clients do not ask for clock stability; they report that the
+      sound cut out for two seconds during the speech.
+
+  - id: network.req.network_redundancy
+    name: Network redundancy
+    text: "A single cable failure must not interrupt {service} during {period}."
+    params:
+      - { name: service, type: string }
+      - { name: period,  type: string, default: "live programme" }
+    verification: >-
+      Every Flow serving the stated service declares a redundant_over route sharing no Connection with
+      its primary route.
+    asks:
+      - param: service
+        question: "If the sound stopped for thirty seconds in the middle of the evening, what would that cost you? That decides how much duplicate cabling is worth."
+      - param: period
+        question: "Which parts of the evening absolutely cannot be interrupted?"
+
+  - id: network.req.segregation
+    name: Traffic segregation
+    text: "{domain_a} traffic must be isolated from {domain_b} traffic."
+    params:
+      - { name: domain_a, type: string }
+      - { name: domain_b, type: string, default: "guest and venue traffic" }
+    verification: >-
+      No Flow of one domain shares a Connection with a Flow of the other, or every shared Connection
+      passes only through parts declaring vlan_capable.
+    asks:
+      - param: domain_b
+        question: "Will guests or venue staff need to use the same network sockets or wifi as the production equipment?"

@@ -1,0 +1,165 @@
+eventml: "0.1"
+kind: ports
+domain: power
+---
+ports:
+  # Inlet and outlet are separate PortDefs even when the connector family is the same, because
+  # `direction` differs and direction is what makes a port graph walkable. This is the first place a
+  # reader meets the pattern, and it recurs in every domain: a socket that receives is not the same
+  # definition as the plug that supplies, however similar they look in a catalogue photograph.
+  #
+  # Power is also where getting it wrong is dangerous rather than merely wrong: connectors are keyed so
+  # that a live pin is never exposed, and a model that treats inlet and outlet as one definition can
+  # describe a cable nobody could safely build.
+
+  - id: power.port.schuko
+    name: Schuko outlet (CEE 7/3)
+    item: power.item.ac_230v_1p
+    direction: source
+    connector: CEE7/3
+    pins: 3
+    properties:
+      rated_current_a: 16
+    source: "CEE 7/3, IEC 60038 voltage"
+    notes: The standard domestic and light-commercial outlet across most of continental Europe.
+
+  - id: power.port.schuko_in
+    name: Schuko inlet (CEE 7/4 plug side)
+    item: power.item.ac_230v_1p
+    direction: sink
+    connector: CEE7/4
+    pins: 3
+    properties:
+      rated_current_a: 16
+
+  - id: power.port.powercon_true1_in
+    name: powerCON TRUE1 inlet
+    item: power.item.ac_230v_1p
+    direction: sink
+    connector: TRUE1_IN
+    pins: 3
+    properties:
+      rated_current_a: 16
+    notes: The device end. Rated for connection under load, which is why it displaced the blue/white pair.
+
+  - id: power.port.powercon_true1_out
+    name: powerCON TRUE1 outlet
+    item: power.item.ac_230v_1p
+    direction: source
+    connector: TRUE1_OUT
+    pins: 3
+    properties:
+      rated_current_a: 16
+    notes: The link-out end, used to daisy-chain the next device in a chain.
+
+  - id: power.port.cee_16a_3p
+    name: CEE 16 A five-pin outlet
+    item: power.item.ac_400v_3p
+    direction: source
+    connector: CEE16_5P
+    pins: 5
+    properties:
+      rated_current_a: 16
+      colour: red
+    source: "IEC 60309"
+
+  - id: power.port.cee_16a_3p_in
+    name: CEE 16 A five-pin inlet
+    item: power.item.ac_400v_3p
+    direction: sink
+    connector: CEE16_5P
+    pins: 5
+    properties:
+      rated_current_a: 16
+      colour: red
+    source: "IEC 60309"
+
+  - id: power.port.cee_32a_3p
+    name: CEE 32 A five-pin outlet
+    item: power.item.ac_400v_3p
+    direction: source
+    connector: CEE32_5P
+    pins: 5
+    properties:
+      rated_current_a: 32
+      colour: red
+    source: "IEC 60309"
+
+  - id: power.port.cee_32a_3p_in
+    name: CEE 32 A five-pin inlet
+    item: power.item.ac_400v_3p
+    direction: sink
+    connector: CEE32_5P
+    pins: 5
+    properties:
+      rated_current_a: 32
+      colour: red
+    source: "IEC 60309"
+
+  - id: power.port.harting_6p
+    name: Harting 6-pole multipin
+    item: power.item.ac_230v_1p
+    direction: bidir
+    connector: HAN6
+    pins: 6
+    properties:
+      rated_current_a: 16
+      circuits: 3
+    notes: >-
+      Three single-phase circuits on one connector, used for lighting bars and truss drops. Bidirectional
+      because the same shell appears as a hood or a housing depending on which end of the loom it is on.
+
+interfaces:
+  - id: power.interface.ac_1p_cable
+    name: Single-phase power cable
+    item: power.item.ac_230v_1p
+    medium: "h07rn-f_3g2.5"
+    capacity:
+      current_a: 16
+      max_length_m: 50
+    constraints:
+      - power.constraint.voltage_drop
+
+  - id: power.interface.ac_3p_cable
+    name: Three-phase power cable
+    item: power.item.ac_400v_3p
+    medium: "h07rn-f_5g6"
+    capacity:
+      current_a: 32
+      max_length_m: 60
+    constraints:
+      - power.constraint.voltage_drop
+
+  - id: power.interface.harting_loom
+    name: Harting multicore loom
+    item: power.item.ac_230v_1p
+    medium: "h07rn-f_7g1.5"
+    capacity:
+      current_a: 16
+      circuits: 3
+      max_length_m: 30
+
+constraints:
+  - id: power.constraint.voltage_drop
+    name: Voltage drop
+    applies_to: Connection
+    expression: >-
+      Voltage drop along the connection, computed from its length_m, the conductor cross-section implied
+      by the interface medium, and the current drawn by everything downstream, must stay below 5% of
+      nominal. Beyond that, motors and amplifier supplies misbehave before anything trips.
+
+  - id: power.constraint.phase_balance
+    name: Phase balance
+    applies_to: Part
+    expression: >-
+      Across a three-phase distribution part, the difference between the most and least loaded phase
+      must not exceed 20% of the mean phase load. Imbalance raises neutral current and, on a generator,
+      costs usable output.
+
+  - id: power.constraint.supply_headroom
+    name: Supply headroom
+    applies_to: Part
+    expression: >-
+      The sum of electrical_load_w across everything downstream of a supply must not exceed 80% of that
+      supply's rated capacity. The remaining fifth absorbs inrush at power-up and whatever the client
+      plugs in on the day without telling anyone.

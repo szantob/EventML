@@ -1,0 +1,185 @@
+eventml: "0.1"
+layer: physical
+project: conference-room
+---
+physical:
+  parts:
+    # --- Audio ---------------------------------------------------------------
+    - { id: mic-lectern, label: "Lectern microphone",   def: audio.part.microphone, layer: physical, allocate: microphone-pool }
+    - { id: mic-panel-1, label: "Panel microphone 1-2", def: audio.part.microphone, layer: physical, allocate: microphone-pool }
+    - { id: mic-panel-2, label: "Panel microphone 3-4", def: audio.part.microphone, layer: physical, allocate: microphone-pool }
+
+    - { id: sb-stage, label: "Stage box — front of room", def: audio.part.stage_box, layer: physical, allocate: mix-position }
+    - id: console
+      label: "Console — back of room"
+      def: audio.part.mixing_console
+      layer: physical
+      allocate: mix-position
+      properties:
+        clock_master: true
+
+    - { id: pa-l, label: "PA — left",  def: audio.part.powered_loudspeaker, layer: physical, allocate: room-pa }
+    - { id: pa-r, label: "PA — right", def: audio.part.powered_loudspeaker, layer: physical, allocate: room-pa }
+
+    # --- Video ---------------------------------------------------------------
+    - { id: laptop-scaler, label: "Presenter input — scaler at the lectern", def: video.part.scaler,         layer: physical, allocate: presenter-source }
+    - { id: cam-1,         label: "Camera — back of room",                   def: video.part.camera,         layer: physical, allocate: camera-1 }
+    - { id: switcher,      label: "Switcher — operating position",           def: video.part.video_switcher, layer: physical, allocate: video-processing }
+    - { id: server,        label: "Media server — playback and recording",   def: video.part.media_server,   layer: physical, allocate: video-processing }
+    - id: screen
+      label: "Existing house screen"
+      def: video.part.display_screen
+      layer: physical
+      allocate: main-display
+      properties:
+        image_height_m:
+          state: unknown
+          notes: >-
+            The hotel's own screen. Its height is what video.constraint.display_legibility needs and
+            nobody has measured it — which is why r-screen-size cannot be satisfied.
+
+    # --- Network -------------------------------------------------------------
+    - { id: sw-room, label: "Switch — production", def: network.part.switch_managed, layer: physical, allocate: room-network }
+
+    # --- Lighting ------------------------------------------------------------
+    - { id: profile-1,  label: "Profile — lectern key",      def: lighting.part.profile_fixture, layer: physical, allocate: key-light }
+    - { id: profile-2,  label: "Profile — panel key",        def: lighting.part.profile_fixture, layer: physical, allocate: key-light }
+    - { id: lx-console, label: "Lighting console — back",    def: lighting.part.lighting_console, layer: physical, allocate: light-control }
+
+    # --- Power ---------------------------------------------------------------
+    - { id: distro-room, label: "Distro — from the room patch panel", def: power.part.distro, layer: physical, allocate: room-power }
+
+  connections:
+    # --- Audio capture and transport -----------------------------------------
+    - { id: c-lectern-sb, from: "mic-lectern:out", to: "sb-stage:analog_in[0]", interface: audio.interface.xlr_mic, properties: { length_m: 6 } }
+    - { id: c-panel1-sb,  from: "mic-panel-1:out", to: "sb-stage:analog_in[1]", interface: audio.interface.xlr_mic, properties: { length_m: 8 } }
+    - { id: c-panel2-sb,  from: "mic-panel-2:out", to: "sb-stage:analog_in[2]", interface: audio.interface.xlr_mic, properties: { length_m: 8 } }
+
+    - { id: c-sb-net,      from: "sb-stage:net[0]", to: "sw-room:port[0]", interface: network.interface.cat6a_link, redundancy: primary, properties: { length_m: 4 } }
+    - { id: c-net-console, from: "sw-room:port[1]", to: "console:net[0]",  interface: network.interface.cat6a_link, redundancy: primary, properties: { length_m: 3 } }
+
+    # --- Audio out ------------------------------------------------------------
+    - { id: c-console-pa-l,  from: "console:analog_out[0]", to: "pa-l:in",              interface: audio.interface.xlr_line, properties: { length_m: 28 } }
+    - { id: c-pa-l-r,        from: "pa-l:thru",             to: "pa-r:in",              interface: audio.interface.xlr_line, properties: { length_m: 12 } }
+    - { id: c-console-switcher, from: "console:analog_out[2]", to: "switcher:audio_in[0]", interface: audio.interface.xlr_line, properties: { length_m: 2 } }
+
+    # --- Video: camera → switcher → media server → display --------------------
+    - { id: c-cam-switcher,    from: "cam-1:sdi_out",         to: "switcher:sdi_in[0]", interface: video.interface.sdi_coax, properties: { length_m: 3 } }
+    - { id: c-scaler-switcher, from: "laptop-scaler:sdi_out", to: "switcher:sdi_in[1]", interface: video.interface.sdi_coax, properties: { length_m: 26 } }
+    - { id: c-switcher-net,    from: "switcher:net",          to: "sw-room:port[4]",    interface: video.interface.ndi_over_cat6a, properties: { length_m: 2 } }
+    - { id: c-net-server,      from: "sw-room:port[5]",       to: "server:net[0]",      interface: video.interface.ndi_over_cat6a, properties: { length_m: 2 } }
+    - { id: c-server-screen,   from: "server:sdi_out[0]",     to: "screen:sdi_in",      interface: video.interface.sdi_coax, properties: { length_m: 24 } }
+
+    # --- Secondary path to the server, on the switch's second port group ------
+    - { id: c-net-server-b, from: "sw-room:port[8]", to: "server:net[1]", interface: network.interface.cat6a_link, redundancy: secondary, properties: { length_m: 6 } }
+
+    # --- Lighting -------------------------------------------------------------
+    - { id: c-lx-p1, from: "lx-console:dmx_out[0]", to: "profile-1:dmx_in", interface: lighting.interface.dmx_cable, properties: { length_m: 25 } }
+    - { id: c-p1-p2, from: "profile-1:dmx_thru",    to: "profile-2:dmx_in", interface: lighting.interface.dmx_cable, properties: { length_m: 4 } }
+
+    # --- Power ----------------------------------------------------------------
+    - { id: c-distro-console,  from: "distro-room:out_true1[0]"   , to: "console:pwr",       interface: power.interface.ac_1p_cable, properties: { length_m: 2 } }
+    - { id: c-distro-sb,       from: "distro-room:out_true1[1]",    to: "sb-stage:pwr",      interface: power.interface.ac_1p_cable, properties: { length_m: 26 } }
+    - { id: c-distro-switcher, from: "distro-room:out_true1[2]",    to: "switcher:pwr",      interface: power.interface.ac_1p_cable, properties: { length_m: 2 } }
+    - { id: c-distro-server,   from: "distro-room:out_true1[3]",    to: "server:pwr",        interface: power.interface.ac_1p_cable, properties: { length_m: 2 } }
+    - { id: c-distro-sw,       from: "distro-room:out_true1[4]",    to: "sw-room:pwr",       interface: power.interface.ac_1p_cable, properties: { length_m: 2 } }
+    - { id: c-distro-lx,       from: "distro-room:out_true1[5]",    to: "lx-console:pwr",    interface: power.interface.ac_1p_cable, properties: { length_m: 3 } }
+    - { id: c-distro-pa-l,     from: "distro-room:out_1p[0]",       to: "pa-l:pwr",          interface: power.interface.ac_1p_cable, properties: { length_m: 30 } }
+    - { id: c-distro-pa-r,     from: "distro-room:out_1p[1]",       to: "pa-r:pwr",          interface: power.interface.ac_1p_cable, properties: { length_m: 34 } }
+    - { id: c-distro-screen,   from: "distro-room:out_1p[2]",       to: "screen:pwr",        interface: power.interface.ac_1p_cable, properties: { length_m: 26 } }
+    - { id: c-distro-cam,      from: "distro-room:out_1p[3]",       to: "cam-1:pwr",         interface: power.interface.ac_1p_cable, properties: { length_m: 3 } }
+    - { id: c-distro-scaler,   from: "distro-room:out_1p[4]",       to: "laptop-scaler:pwr", interface: power.interface.ac_1p_cable, properties: { length_m: 26 } }
+    - { id: c-distro-p1,       from: "distro-room:out_1p[5]",       to: "profile-1:pwr",     interface: power.interface.ac_1p_cable, properties: { length_m: 22 } }
+    - { id: c-distro-p2,       from: "distro-room:out_1p[6]",       to: "profile-2:pwr",     interface: power.interface.ac_1p_cable, properties: { length_m: 24 } }
+
+  flows:
+    - id: f-mics-to-console
+      item: audio.item.dante_flow
+      from: sb-stage
+      to: console
+      over: [c-sb-net, c-net-console]
+      properties:
+        channels: 8
+        bandwidth_mbit:
+          value: 20
+          state: derived
+          why: "8 channels at 48 kHz/24-bit with Dante overhead"
+
+    - id: f-programme-to-pa
+      item: audio.item.analog_line
+      from: console
+      to: pa-r
+      over: [c-console-pa-l, c-pa-l-r]
+      properties:
+        channels: 1
+      notes: "Runs through pa-l's in → thru internal edge; without it pa-r appears unfed."
+
+    - id: f-programme-audio-to-switcher
+      item: audio.item.analog_line
+      from: console
+      to: switcher
+      over: [c-console-switcher]
+      properties:
+        channels: 2
+
+    - id: f-camera-to-switcher
+      item: video.item.sdi_3g
+      from: cam-1
+      to: switcher
+      over: [c-cam-switcher]
+      properties:
+        streams: 1
+
+    - id: f-slides-to-switcher
+      item: video.item.sdi_3g
+      from: laptop-scaler
+      to: switcher
+      over: [c-scaler-switcher]
+      properties:
+        streams: 1
+
+    # --- Three flows over the production switch -------------------------------
+    # c-switcher-net carries the programme out to the server and, in the other
+    # direction, the remote panellists in. f-mics-to-console shares the same
+    # switch on different ports. Summing bandwidth per Connection is what
+    # r-stream-bandwidth checks, and it is only possible because Flows name the
+    # Connections they ride.
+    - id: f-programme-to-server
+      item: video.item.ndi_stream
+      from: switcher
+      to: server
+      over: [c-switcher-net, c-net-server]
+      redundant_over: [c-switcher-net, c-net-server-b]
+      properties:
+        streams: 1
+        bandwidth_mbit: 160
+
+    - id: f-remote-panellists
+      item: video.item.ndi_stream
+      from: server
+      to: switcher
+      over: [c-net-server, c-switcher-net]
+      properties:
+        streams: 2
+        bandwidth_mbit:
+          value: 8
+          state: assumed
+          why: "two conferencing participants at a typical downstream rate"
+
+    - id: f-server-to-screen
+      item: video.item.sdi_3g
+      from: server
+      to: screen
+      over: [c-server-screen]
+      properties:
+        streams: 1
+
+    - id: f-lighting-control
+      item: lighting.item.dmx512
+      from: lx-console
+      to: profile-2
+      over: [c-lx-p1, c-p1-p2]
+      properties:
+        universes: 1
+        channels_used: 12
+      notes: "Two profiles at six channels each, daisy-chained through profile-1's dmx_in → dmx_thru edge."

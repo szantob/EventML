@@ -737,7 +737,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 **Interfaces:**
 - Consumes: the four-file pattern from Task 7
-- Produces: `power.port.powercon_true1` and the load properties that `audio.part.stage_box` already references. Task 9's example needs both audio and power to be walkable.
+- Produces: `power.port.powercon_true1` and the load properties that `audio.part.stage_box` already references. Task 10's example needs audio, power and network all resolvable to be walkable.
 
 - [ ] **Step 1: Write `lib/power/items.yaml`**
 
@@ -781,13 +781,65 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 ---
 
-## Task 9: Garden party example
+## Task 9: Network domain library
+
+**Files:**
+- Create: `lib/network/items.yaml`, `lib/network/ports.yaml`, `lib/network/parts.yaml`, `lib/network/requirements.yaml`
+
+**Interfaces:**
+- Consumes: the pattern from Task 7; `network.port.ethercon_a` is already referenced by `audio.part.stage_box` and is dangling until this task lands
+- Produces: transport types the video and lighting libraries build on, and the switching parts Task 10's example needs for its stage-box → switch → console chain
+
+- [ ] **Step 1: Write `items.yaml`**
+
+At minimum: `ethernet_1g`, `ethernet_10g`, `fibre_om3`, `dante_transport`, `sacn`, `artnet`, `ptp_clock`. Adopt NMOS and AES67 terminology where it exists and record it in `source:`.
+
+- [ ] **Step 2: Write `ports.yaml`**
+
+At minimum: `rj45`, `ethercon_a`, `ethercon_b`, `sfp_cage`, `lc_duplex`.
+
+- [ ] **Step 3: Write `parts.yaml`**
+
+**Abstract (L2)**: `network_backbone`, `network_edge`, `clock_master`.
+**Concrete (L3)**: `switch_managed`, `switch_unmanaged`, `media_converter`, `wireless_ap`.
+
+`switch_managed` must declare `internal` connecting every port to every other — this is the case that proves `Flow` cannot be inferred from `Connection` alone.
+
+- [ ] **Step 4: Write `requirements.yaml`**
+
+At least three: `bandwidth_headroom`, `clock_stability`, `network_redundancy`.
+
+- [ ] **Step 5: Verify, and confirm the audio library's forward reference now resolves**
+
+```bash
+python -c "import yaml,glob; [list(yaml.safe_load_all(open(f,encoding='utf-8'))) for f in glob.glob('lib/network/*.yaml')]; print('network parses OK')"
+rg -n "network.port.ethercon_a" lib/
+```
+
+Expected: `network parses OK`, and the ID appears both in `lib/audio/parts.yaml` (the reference) and `lib/network/ports.yaml` (the definition). If they differ, fix the definition to match the reference.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add lib/network/
+git commit -m "Add network domain library
+
+Transport items, port types, switching parts with full internal
+traversability, and three requirement templates. Resolves the ethercon port
+the audio stage box already referenced.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+```
+
+---
+
+## Task 10: Garden party example
 
 **Files:**
 - Create: `examples/01-garden-party/README.md`, `brief.yaml`, `requirements.yaml`, `logical.yaml`, `physical.yaml`
 
 **Interfaces:**
-- Consumes: everything from Tasks 2–8
+- Consumes: everything from Tasks 2–9
 - Produces: the first end-to-end proof that the language works. If a concept cannot be expressed here, the spec is wrong and must be fixed in this task, not worked around.
 
 This is the plan's first real test. Treat a failure to express something as a spec defect.
@@ -847,61 +899,13 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 ---
 
-## Task 10: Network domain library
-
-**Files:**
-- Create: `lib/network/items.yaml`, `lib/network/ports.yaml`, `lib/network/parts.yaml`, `lib/network/requirements.yaml`
-
-**Interfaces:**
-- Consumes: the pattern from Task 7; `network.port.ethercon_a` is already referenced by `audio.part.stage_box`
-- Produces: transport types the video and lighting libraries build on
-
-- [ ] **Step 1: Write `items.yaml`**
-
-At minimum: `ethernet_1g`, `ethernet_10g`, `fibre_om3`, `dante_transport`, `sacn`, `artnet`, `ptp_clock`. Adopt NMOS and AES67 terminology where it exists and record it in `source:`.
-
-- [ ] **Step 2: Write `ports.yaml`**
-
-At minimum: `rj45`, `ethercon_a`, `ethercon_b`, `sfp_cage`, `lc_duplex`.
-
-- [ ] **Step 3: Write `parts.yaml`**
-
-**Abstract (L2)**: `network_backbone`, `network_edge`, `clock_master`.
-**Concrete (L3)**: `switch_managed`, `switch_unmanaged`, `media_converter`, `wireless_ap`.
-
-`switch_managed` must declare `internal` connecting every port to every other — this is the case that proves `Flow` cannot be inferred from `Connection` alone.
-
-- [ ] **Step 4: Write `requirements.yaml`**
-
-At least three: `bandwidth_headroom`, `clock_stability`, `network_redundancy`.
-
-- [ ] **Step 5: Verify**
-
-```bash
-python -c "import yaml,glob; [list(yaml.safe_load_all(open(f,encoding='utf-8'))) for f in glob.glob('lib/network/*.yaml')]; print('network parses OK')"
-```
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add lib/network/
-git commit -m "Add network domain library
-
-Transport items, port types, switching parts with full internal
-traversability, and three requirement templates.
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
-```
-
----
-
 ## Task 11: Video domain library
 
 **Files:**
 - Create: `lib/video/items.yaml`, `lib/video/ports.yaml`, `lib/video/parts.yaml`, `lib/video/requirements.yaml`
 
 **Interfaces:**
-- Consumes: the pattern from Task 7; network transports from Task 10
+- Consumes: the pattern from Task 7; network transports from Task 9
 - Produces: parts used by Task 13's example
 
 - [ ] **Step 1: Write `items.yaml`**
@@ -949,7 +953,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - Create: `lib/lighting/items.yaml`, `lib/lighting/ports.yaml`, `lib/lighting/parts.yaml`, `lib/lighting/requirements.yaml`
 
 **Interfaces:**
-- Consumes: the pattern from Task 7; `sacn` and `artnet` from Task 10
+- Consumes: the pattern from Task 7; `sacn` and `artnet` from Task 9
 - Produces: the domain where GDTF alignment is tightest — cite GDTF in `source:` throughout
 
 - [ ] **Step 1: Write `items.yaml`**
@@ -1232,7 +1236,7 @@ Report the tag and the audit results to the user. Pushing the branch and the tag
 
 **Spec coverage.** Every section of the design document maps to a task: §2 deliverable → Tasks 2–15; §4.1 layers → Task 2; §4.2 entities → Task 3; §5.1 relations → Task 4; §5.2–5.3 uncertainty and question rules → Task 5; §6 repository → Task 1; §7 verification rules and acceptance criteria → Task 16, with the per-domain criteria enforced in Tasks 7–12 and the example criteria in Tasks 9 and 13; §3 D7 glossary → Task 15. The SysML mapping required by the acceptance criteria is Task 14. No design-document requirement lacks a task.
 
-**Deliberate ordering choices.** The audio and power libraries precede example 01 because that example needs both to be walkable. Example 01 precedes the remaining three libraries so the metamodel meets a real model early, while changing it is still cheap. The SysML mapping comes after both examples so it maps a language that has been exercised.
+**Deliberate ordering choices.** The audio, power and network libraries precede example 01 because that example's stage-box → switch → console chain references all three, and its reference-integrity check would fail without them. Example 01 then precedes the video and lighting libraries so the metamodel meets a real model early, while changing it is still cheap. The SysML mapping comes after both examples so it maps a language that has been exercised.
 
 **Type consistency.** Attribute names are used identically throughout: `def`, `id`, `label`, `layer`, `allocate`, `refines`, `derived_from`, `satisfied_by`, `over`, `redundant_over`, `state`, `why`, `src`, `ask`, `alternatives`, `internal`, `catalog_ref`, `source`. Port reference syntax is `<part_id>:<port_id>[<index>]` in every task that uses it. The five state names and five relation names are spelled the same in Tasks 4, 5, 9, 13 and 14.
 

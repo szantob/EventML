@@ -1,0 +1,99 @@
+eventml: "0.1"
+layer: requirement
+project: garden-party
+---
+requirements:
+  - id: r-speech-intelligible
+    def: audio.req.speech_intelligibility
+    params:
+      area:
+        state: unknown
+        notes: "waiting on brief.venue.audience_area"
+      audience:
+        state: conflicting
+        alternatives:
+          - { value: 300, src: s-client-brief }
+          - { value: 450, src: s-client-update }
+    refines: brief.program[1]
+
+  - id: r-music-reproduction
+    def: audio.req.music_reproduction
+    params:
+      programme: "a live band, plus recorded playlists during arrival and dinner"
+      area:
+        state: unknown
+      level:
+        value: "concert level, but bounded by the municipal limit after 22:00"
+        state: assumed
+        why: "'nothing fancy, but it should sound good' plus a 21:00 band slot"
+        ask: true
+    refines: brief.program[3]
+
+  - id: r-band-monitoring
+    def: audio.req.stage_monitoring
+    params:
+      performers:
+        state: unknown
+        notes: "waiting on brief.program[3].size"
+      content: "their own instrument and the vocals"
+    refines: brief.program[3].size
+    notes: >-
+      Deliberately unsatisfied. Nothing can be designed until the band's size is known, and the fact that
+      no part lists this requirement in its `satisfies` is what makes that visible — question rule 3.
+
+  - id: r-input-capacity
+    def: audio.req.input_capacity
+    params:
+      inputs:
+        state: unknown
+        notes: "derived once brief.program[3].instruments is answered"
+      position: "the stage end of the terrace"
+    derived_from: r-band-monitoring
+
+  - id: r-coverage-uniformity
+    def: audio.req.coverage_uniformity
+    params:
+      area:
+        state: unknown
+      tolerance_db: 6
+    refines: brief.program[1]
+    derived_from: r-speech-intelligible
+
+  - id: r-supply-capacity
+    def: power.req.supply_capacity
+    params:
+      location: "the terrace, by the service door"
+      demand_kw:
+        state: unknown
+        notes: "waiting on brief.power.rating; the model can compute demand, not supply"
+    refines: brief.power
+
+  - id: r-weather-protection
+    def: audio.req.weather_protection
+    params:
+      location: "the terrace"
+      conditions: "light rain and wind"
+    refines: brief.venue.covered
+    notes: >-
+      Also unsatisfied, and for a different reason from r-band-monitoring: here the information exists
+      but the decision has not been made. Nobody has said whether the event moves indoors, so no cover
+      has been designed.
+
+  - id: r-rcd-protection
+    def: power.req.residual_current_protection
+    params:
+      area: "the whole terrace, all equipment outdoors"
+      trip_ma: 30
+    notes: >-
+      No `refines`. The client never asked for this and never will. An absent refine edge is legitimate
+      and worth seeing in review — see spec/03-relationships.md.
+
+  - id: r-silent-supply
+    def: power.req.silent_supply
+    params:
+      area: "the terrace"
+      period: "the welcome speech at 19:00"
+    refines: brief.program[1]
+    notes: >-
+      The requirement that decides whether a generator is viable at all. It exists only because someone
+      asked what happens during the speech.

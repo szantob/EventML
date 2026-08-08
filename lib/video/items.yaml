@@ -1,0 +1,79 @@
+eventml: "0.1"
+kind: items
+domain: video
+---
+items:
+  - id: video.item.sdi_3g
+    name: 3G-SDI
+    kind: signal
+    form: electrical
+    carries: One uncompressed HD video stream with embedded audio, on 75-ohm coaxial cable
+    properties:
+      bitrate_mbit: 2970
+      max_format: "1920x1080p50"
+      embedded_audio_channels: 16
+    source: "SMPTE ST 424:2012"
+
+  - id: video.item.sdi_12g
+    name: 12G-SDI
+    kind: signal
+    form: electrical
+    carries: One uncompressed UHD video stream with embedded audio, on 75-ohm coaxial cable
+    properties:
+      bitrate_mbit: 11880
+      max_format: "3840x2160p50"
+      embedded_audio_channels: 16
+    source: "SMPTE ST 2082-1:2015"
+
+  - id: video.item.hdmi_2_0
+    name: HDMI 2.0
+    kind: signal
+    form: electrical
+    carries: One video stream with audio and control, over a consumer-grade multi-pair cable
+    properties:
+      bitrate_mbit: 18000
+      max_format: "3840x2160p60"
+      hdcp: true
+    source: "HDMI 2.0b"
+    notes: >-
+      The format every presenter's laptop actually has, and the one with the shortest reliable run
+      length. Where a run exceeds about 10 m, expect a converter to SDI or fibre in the path — which
+      is a Part, and therefore visible in the model.
+
+  - id: video.item.dp_1_4
+    name: DisplayPort 1.4
+    kind: signal
+    form: electrical
+    carries: One video stream with audio, from a computer to a display or converter
+    properties:
+      bitrate_mbit: 25920
+      max_format: "3840x2160p120"
+    source: "VESA DisplayPort 1.4"
+
+  - id: video.item.ndi_stream
+    name: NDI stream
+    kind: signal
+    form: digital
+    carries: One compressed video stream with audio over a standard IP network
+    properties:
+      typical_bitrate_mbit: 160
+      transport: network.item.ethernet_1g
+      compressed: true
+    source: "NDI 5, Vizrt"
+    notes: Compressed, so it survives a shared network — which is exactly what ST 2110 will not do.
+
+  - id: video.item.st2110_video
+    name: ST 2110-20 video essence
+    kind: signal
+    form: digital
+    carries: One uncompressed video essence stream over IP, separate from its audio and metadata
+    properties:
+      bitrate_mbit: 2970
+      transport: network.item.ethernet_10g
+      requires_clock: network.item.ptp_clock
+      compressed: false
+    source: "SMPTE ST 2110-20:2017; AMWA NMOS IS-04 for discovery"
+    notes: >-
+      Video, audio and ancillary data are three separate flows in ST 2110, deliberately. EventML models
+      them as three Flows over the same Connections, which is the case the Connection/Flow split exists
+      to handle.
