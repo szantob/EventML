@@ -21,11 +21,16 @@ parts:
     category: processing
     abstract: true
     ports:
-      - { id: in,  def: video.port.bnc_sdi_in,  count: 8 }
-      - { id: out, def: video.port.bnc_sdi_out, count: 4 }
-      - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
+      - { id: in,       def: video.port.bnc_sdi_in,  count: 8 }
+      - { id: audio_in, def: audio.port.xlr3f,       count: 2 }
+      - { id: out,      def: video.port.bnc_sdi_out, count: 4 }
+      - { id: net,      def: network.port.rj45,      count: 1 }
+      - { id: pwr,      def: power.port.powercon_true1_in, count: 1 }
     internal:
-      - { from: "in[*]", to: "out[*]", transform: "switch+scale" }
+      - { from: "in[*]",       to: "out[*]", transform: "switch+scale" }
+      - { from: "audio_in[*]", to: "out[*]", transform: embed }
+      - { from: "in[*]",       to: net,      transform: "encode+stream" }
+      - { from: net,           to: "out[*]", transform: "decode+switch" }
     notes: Everything between source and display — switching, scaling, keying, recording.
 
   - id: video.part.image_display
@@ -78,6 +83,7 @@ parts:
     ports:
       - { id: sdi_in,   def: video.port.bnc_sdi_in,       count: 8 }
       - { id: hdmi_in,  def: video.port.hdmi_a_in,        count: 2 }
+      - { id: audio_in, def: audio.port.xlr3f,            count: 2 }
       - { id: sdi_out,  def: video.port.bnc_sdi_out,      count: 4 }
       - { id: net,      def: network.port.rj45,           count: 1 }
       - { id: pwr,      def: power.port.powercon_true1_in, count: 1 }
@@ -87,6 +93,8 @@ parts:
       - { from: "sdi_in[*]",  to: "sdi_out[*]", transform: switch }
       - { from: "hdmi_in[*]", to: "sdi_out[*]", transform: "convert+switch" }
       - { from: "sdi_in[*]",  to: net,          transform: "encode+stream" }
+      - { from: "audio_in[*]", to: "sdi_out[*]", transform: embed }
+      - { from: "audio_in[*]", to: net,          transform: "encode+stream" }
     properties:
       electrical_load_w: 120
       mix_effects: 2

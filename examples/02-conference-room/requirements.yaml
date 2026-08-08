@@ -1,0 +1,140 @@
+eventml: "0.1"
+layer: requirement
+project: conference-room
+---
+requirements:
+  # --- Audio ----------------------------------------------------------------
+  - id: r-speech-room
+    def: audio.req.speech_intelligibility
+    params:
+      area: "the whole seated area of the Danube room"
+      audience: 120
+    refines: brief.program[0]
+    satisfied_by: [room-pa, mix-position]
+
+  - id: r-panel-inputs
+    def: audio.req.input_capacity
+    params:
+      inputs:
+        value: 8
+        state: derived
+        why: "four panellists at one microphone each, a lectern microphone, two spare handhelds, one laptop feed"
+      position: "the stage end of the room"
+    refines: brief.program[1]
+    satisfied_by: [mix-position]
+
+  # --- Video, with a derive chain -------------------------------------------
+  # r-slides-visible decomposes into two children: one about the screen being
+  # big enough, one about every seat being able to see it. Example 01 has no
+  # derive chain; this is it.
+  - id: r-slides-visible
+    def: video.req.image_legibility
+    params:
+      display: "the room's main screen"
+      area: "the whole seated area"
+      content_detail:
+        value: "slides with body text and financial tables"
+        state: assumed
+        why: "a partner meeting; last year's deck is not available to check"
+        ask: true
+    refines: brief.program[0]
+    satisfied_by: [main-display]
+
+  - id: r-screen-size
+    def: video.req.image_legibility
+    params:
+      display: "the room's main screen"
+      area: "the back row"
+      content_detail: "slides with body text and financial tables"
+    derived_from: r-slides-visible
+    satisfied_by: []
+    notes: >-
+      Unsatisfied and blocking. The existing screen's size is unknown and the furthest seat is
+      unmeasured, so nothing can be shown to satisfy this — and it fires question rule 5 as well as
+      rule 3, because the ratio the constraint checks cannot be computed at all.
+
+  - id: r-sightlines
+    def: video.req.screen_coverage
+    params:
+      area: "the whole seated area"
+      displays: 1
+    derived_from: r-slides-visible
+    satisfied_by: [main-display]
+    notes: >-
+      The second child of r-slides-visible. A long narrow room in theatre seating is the case where one
+      screen at the front stops being enough, which is why the room shape assumption is marked ask.
+
+  - id: r-remote-participation
+    def: video.req.remote_participation
+    params:
+      content: "the speaker, the slides and the panel"
+      area: "the Danube room"
+    refines: brief.program[1]
+    satisfied_by: [camera-1, video-processing, room-pa]
+
+  - id: r-source-switching
+    def: video.req.source_switching
+    params:
+      sources:
+        value: 4
+        state: derived
+        why: "presenter laptop, camera, remote participants, holding slide"
+      period: "the whole day"
+    refines: brief.program[0]
+    satisfied_by: [video-processing]
+
+  # --- Network --------------------------------------------------------------
+  - id: r-stream-bandwidth
+    def: network.req.bandwidth_headroom
+    params:
+      traffic: "the outbound stream, the remote panellists' call, and NDI between the camera and the switcher"
+      headroom: 0.7
+    refines: brief.program[2]
+    satisfied_by: [room-network]
+
+  - id: r-stream-segregation
+    def: network.req.segregation
+    params:
+      domain_a: "production traffic — NDI, the stream encoder, the conferencing endpoint"
+      domain_b: "the hotel's guest wifi"
+    derived_from: r-stream-bandwidth
+    satisfied_by: [room-network]
+    notes: >-
+      Derived rather than refined: nobody asked for segregation, but once the stream shares the house
+      network the headroom requirement cannot be met without it.
+
+  # --- Lighting -------------------------------------------------------------
+  - id: r-face-lighting
+    def: lighting.req.face_lighting
+    params:
+      position: "the lectern and the four panel chairs"
+      purpose: "the camera and the remote audience to see who is speaking"
+    refines: brief.program[2]
+    satisfied_by: [key-light]
+    notes: >-
+      Traces to the stream, not to the lighting. Nobody asked to be lit; the requirement exists because
+      somebody asked what the remote audience would see. That is the whole argument for L0 → L1
+      traceability in one line.
+
+  - id: r-house-lights
+    def: lighting.req.house_light_control
+    params:
+      area: "the Danube room"
+      position: "the operating position at the back"
+      period: "the presentations"
+    satisfied_by: []
+    notes: >-
+      No refine edge and no satisfying part: the venue controls the house lights and nobody has agreed
+      how they will be dimmed. Both a design gap and a negotiation.
+
+  # --- Power ----------------------------------------------------------------
+  - id: r-room-power
+    def: power.req.supply_capacity
+    params:
+      location: "the Danube room, from the patch panel at the back"
+      demand_kw:
+        value: 3.1
+        state: derived
+        why: "sum of electrical_load_w across the physical parts, at the 0.8 headroom factor"
+    refines: brief.venue
+    satisfied_by: [room-power]

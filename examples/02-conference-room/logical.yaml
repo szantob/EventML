@@ -1,0 +1,129 @@
+eventml: "0.1"
+layer: logical
+project: conference-room
+---
+logical:
+  parts:
+    # --- Audio ---------------------------------------------------------------
+    - { id: microphone-pool, label: "Lectern, panel and handheld microphones", def: audio.part.microphone_pool, layer: logical }
+    - { id: mix-position,    label: "Mix position — back of room",             def: audio.part.mix_position,    layer: logical }
+    - { id: room-pa,         label: "Room PA",                                 def: audio.part.main_pa,         layer: logical }
+
+    # --- Video ---------------------------------------------------------------
+    - { id: presenter-source, label: "Presenter laptop feed", def: video.part.image_source,     layer: logical }
+    - { id: camera-1,         label: "Room camera",           def: video.part.image_source,     layer: logical }
+    - { id: video-processing, label: "Switching and streaming", def: video.part.image_processing, layer: logical }
+    - id: main-display
+      label: "Main screen"
+      def: video.part.image_display
+      layer: logical
+      properties:
+        image_height_m:
+          state: unknown
+          notes: "brief.venue.existing_screen_size — the hotel has not measured it"
+
+    # --- Network -------------------------------------------------------------
+    - { id: room-network, label: "Room network", def: network.part.network_edge, layer: logical }
+
+    # --- Lighting ------------------------------------------------------------
+    - { id: key-light,      label: "Key light — lectern and panel", def: lighting.part.key_light,        layer: logical }
+    - { id: light-control,  label: "Lighting control",              def: lighting.part.control_surface,  layer: logical }
+
+    # --- Power ---------------------------------------------------------------
+    - { id: room-power, label: "Room supply and distribution", def: power.part.power_distribution, layer: logical }
+
+  connections:
+    # Audio
+    - { id: lc-mics-mix,  from: "microphone-pool:out[0]", to: "mix-position:in[0]", interface: audio.interface.xlr_mic }
+    - { id: lc-mix-pa,    from: "mix-position:out[0]",    to: "room-pa:in[0]",      interface: audio.interface.xlr_line }
+    - { id: lc-mix-video, from: "mix-position:out[2]",    to: "video-processing:audio_in[0]", interface: audio.interface.xlr_line }
+
+    # Video
+    - { id: lc-presenter-proc, from: "presenter-source:out", to: "video-processing:in[0]", interface: video.interface.sdi_coax }
+    - { id: lc-proc-display,   from: "video-processing:out[0]", to: "main-display:in",     interface: video.interface.sdi_coax }
+
+    - { id: lc-camera-proc, from: "camera-1:out", to: "video-processing:in[2]", interface: video.interface.sdi_coax }
+
+    # The shared link. The outbound stream leaves over it and the two remote
+    # panellists arrive over it, in opposite directions on one cable. Their
+    # bandwidth sums against that link's capacity, which is what
+    # r-stream-bandwidth checks. No Connection attribute could record this.
+    - { id: lc-net-proc, from: "room-network:access[0]", to: "video-processing:net", interface: video.interface.ndi_over_cat6a }
+
+    # Lighting
+    - { id: lc-lightctrl-key, from: "light-control:dmx_out[0]", to: "key-light:ctrl", interface: lighting.interface.dmx_cable }
+
+    # Power
+    - { id: lc-power-pa,      from: "room-power:out[0]",  to: "room-pa:pwr",          interface: power.interface.ac_1p_cable }
+    - { id: lc-power-mix,     from: "room-power:out[1]",  to: "mix-position:pwr",     interface: power.interface.ac_1p_cable }
+    - { id: lc-power-video,   from: "room-power:out[2]",  to: "video-processing:pwr", interface: power.interface.ac_1p_cable }
+    - { id: lc-power-display, from: "room-power:out[3]",  to: "main-display:pwr",     interface: power.interface.ac_1p_cable }
+    - { id: lc-power-key,     from: "room-power:out[4]",  to: "key-light:pwr",        interface: power.interface.ac_1p_cable }
+    - { id: lc-power-lightctrl, from: "room-power:out[5]", to: "light-control:pwr",   interface: power.interface.ac_1p_cable }
+
+  flows:
+    - id: lf-speech-to-room
+      item: audio.item.analog_line
+      from: mix-position
+      to: room-pa
+      over: [lc-mix-pa]
+      properties:
+        channels: 2
+
+    - id: lf-programme-audio-to-stream
+      item: audio.item.analog_line
+      from: mix-position
+      to: video-processing
+      over: [lc-mix-video]
+      properties:
+        channels: 2
+
+    - id: lf-slides-to-screen
+      item: video.item.sdi_3g
+      from: presenter-source
+      to: main-display
+      over: [lc-presenter-proc, lc-proc-display]
+      properties:
+        streams: 1
+
+    - id: lf-camera-to-processing
+      item: video.item.sdi_3g
+      from: camera-1
+      to: video-processing
+      over: [lc-camera-proc]
+      properties:
+        streams: 1
+
+    # --- Two flows sharing one connection -------------------------------------
+    - id: lf-remote-panellists-inbound
+      item: video.item.ndi_stream
+      from: room-network
+      to: video-processing
+      over: [lc-net-proc]
+      properties:
+        streams: 2
+        bandwidth_mbit:
+          value: 8
+          state: assumed
+          why: "two conferencing participants at a typical downstream rate"
+
+    - id: lf-stream-outbound
+      item: video.item.ndi_stream
+      from: video-processing
+      to: room-network
+      over: [lc-net-proc]
+      properties:
+        streams: 1
+        bandwidth_mbit:
+          value: 12
+          state: assumed
+          why: "1080p25 at a typical platform bitrate; brief.program[2].platform is unknown"
+          ask: true
+
+    - id: lf-lighting-control
+      item: lighting.item.dmx512
+      from: light-control
+      to: key-light
+      over: [lc-lightctrl-key]
+      properties:
+        universes: 1
