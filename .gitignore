@@ -1,0 +1,16 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Python (verification tooling only — no Python ships in this repo)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
