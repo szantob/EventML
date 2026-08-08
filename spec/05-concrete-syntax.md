@@ -167,8 +167,15 @@ sentence, and nothing can resolve it.
 ## 5. Conventions
 
 - **Indent two spaces. Never tabs.**
-- **Inline flow mappings** are permitted for short single-line records — a port declaration, an `internal`
-  edge, a `params` entry — and must stay under 100 characters. Anything longer expands to block form.
+- **Inline flow mappings** carry one record on one line: a port declaration, an `internal` edge, a `params`
+  entry, a `Connection`, a `Flow`, or a `Part` whose values are all plain scalars. The test is structural,
+  not a character count. A record stays inline while all three hold: it nests at most one level deep
+  (`properties: { length_m: 12 }` is inline, a map inside that map is not); none of its values is a wrapped
+  `Value`, so anything carrying `state:` expands; and it needs no comment of its own. The moment one fails,
+  the record expands to block form.
+- **Align the columns within a run of inline records.** The alignment is what makes a sixty-entry
+  connection list scannable, and it is the whole reason the inline form is worth having. A run whose
+  columns do not line up should be block form instead.
 - **Key order:** `id` first, then `name` (definitions) or `label` (usages), then `def`, then everything
   else. A reader scanning a file's left edge should see what each element is before reading what it does.
 - **Encoding is UTF-8, line endings are LF.** Venue and client names are Hungarian; `Gellért` is written as
@@ -177,12 +184,25 @@ sentence, and nothing can resolve it.
   `# the stage box` does not.
 
 ```yaml
+connections:
+  - { id: c-sb1-swstage,   from: "sb1:net[0]",      to: "sw-stage:port[0]", interface: network.interface.cat6a_link, redundancy: primary, properties: { length_m: 12 } }
+  - { id: c-swstage-swfoh, from: "sw-stage:port[8]", to: "sw-foh:port[0]",   interface: network.interface.cat6a_link, redundancy: primary, properties: { length_m: 60 } }
+
 parts:
   - id: sb1
     label: "Stage box — drum riser"
     def: audio.part.stage_box
     layer: physical
     allocate: stage-input-block
+    satisfies: [r-input-capacity]
     properties:
       electrical_load_w: 90        # measured, not the datasheet figure
 ```
+
+The connections stay inline at some length because they are a table and read as one; `sb1` expands because
+its `properties` carries a comment and would nest a second level. **An earlier draft of this file capped
+inline records at 100 characters. The cap was removed because it was wrong in practice:** the records that
+matter most — a connection naming two ports, an interface and a length — run to about 170 characters once
+aligned, and splitting each into six lines turns a readable sixty-line table into four hundred lines nobody
+scans. Length is not what makes an inline record hard to read. Nesting and hidden state are, and those are
+what the rule now tests.

@@ -9,6 +9,24 @@ versioned separately. Entries state which one changed.
 
 ## [Unreleased]
 
+### Added — eventml-core
+
+- **Question rule 6** (`spec/04-uncertainty.md`): an L2 `Part` with an empty `satisfies` generates a
+  question. It is rule 3 seen from the other end — rule 3 reports something promised that nothing delivers,
+  rule 6 reports something delivered that nothing promised. Restricted to L2, because an L3 part inherits
+  its justification through `allocate`. Its `blocks` is always 0, so it ranks last, which is correct: an
+  unjustified block costs money but decides nothing. Twelve L2 blocks across the three examples trigger it;
+  `examples/01-garden-party` carries the worked list.
+
+### Changed — eventml-core
+
+- **Inline flow mappings are governed by a structural rule, not a character count**
+  (`spec/05-concrete-syntax.md`). A record stays inline while it nests at most one level, carries no wrapped
+  `Value`, and needs no comment of its own. The previous 100-character cap is removed: it was contradicted
+  by 244 records across `lib/` and `examples/`, and the records breaking it — aligned connection tables
+  running to about 170 characters — are more readable inline than split across six lines each. All 538
+  inline records in the repository satisfy the structural rule.
+
 ## [0.1.0] - 2026-08-08
 
 First release. A specification only: prose and data, nothing executable.
