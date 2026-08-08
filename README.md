@@ -2,8 +2,12 @@
 
 **An open modelling language for live event AV systems — from client brief to signal topology.**
 
-> **Status: early draft.** The language specification is being written. Nothing here is implemented yet, and
-> the syntax will still change. See [the design document](docs/superpowers/specs/2026-08-08-eventml-core-design.md).
+> **Status: v0.1.0 — the specification is complete; nothing is executable.** The kernel is here: four
+> layers, ten core entities, five traceability relations, the uncertainty model and the canonical YAML
+> syntax, in seven files under [`spec/`](spec/). Base vocabulary for five domains — 172 concepts — is in
+> [`lib/`](lib/), and three worked models under [`examples/`](examples/) exercise every one of them. There
+> is no schema, no validator and no tooling yet; those are the next stage. The syntax may still change
+> before 1.0. See [the design document](docs/superpowers/specs/2026-08-08-eventml-core-design.md).
 
 ---
 
@@ -106,6 +110,12 @@ Base concepts across five domains — audio, lighting, video, ethernet network, 
 stable enough that adding depth later will not restructure it. v0.1 is a specification: prose and data, no
 executable code. A machine-readable schema, a validator, derived question lists and diagram generation follow
 in the next stage.
+
+Because there is no validator, **the worked examples are the only test v0.1 has**, under two rules: every
+defined concept must appear in at least one example, and every example must be walkable across all four
+layers. Both are met — 172 of 172 concepts exercised — and enforcing the first one is what produced the
+third example and found four real defects in the domain library. The question lists in the examples are
+hand-written to show the intended output; deriving them is a v0.2 task.
 
 ## Language
 
