@@ -1,0 +1,94 @@
+eventml: "0.1"
+kind: requirements
+domain: audio
+---
+requirements:
+  - id: audio.req.speech_intelligibility
+    name: Speech intelligibility
+    text: "Speech must be intelligible across {area} for an audience of {audience}."
+    params:
+      - { name: area,     type: string }
+      - { name: audience, type: int }
+      - { name: sti_target, type: number, default: 0.5 }
+    verification: "Coverage prediction, or measured STI at the three worst listening positions."
+    constraints:
+      - audio.constraint.analog_run_length
+    asks:
+      - param: area
+        question: "Where exactly will people be standing or sitting during the speeches?"
+      - param: audience
+        question: "Roughly how many people will be there when someone is speaking — everyone, or a smaller group?"
+
+  - id: audio.req.music_reproduction
+    name: Music reproduction
+    text: "{programme} must be reproduced across {area} at {level} without audible distortion."
+    params:
+      - { name: programme, type: string }
+      - { name: area,      type: string }
+      - { name: level,     type: string, default: "concert level" }
+    verification: >-
+      Measured A-weighted level at the mix position and at the nearest audience position, compared
+      against the venue's noise limit and the system's rated output.
+    asks:
+      - param: level
+        question: "Should the music be at background level, so people can talk over it, or a proper concert volume people can feel?"
+      - param: programme
+        question: "What will be played through the system — a band, a DJ, background playlists, or all of these?"
+
+  - id: audio.req.stage_monitoring
+    name: Stage monitoring
+    text: "Each of {performers} performers must hear {content} clearly at their own position."
+    params:
+      - { name: performers, type: int }
+      - { name: content,    type: string, default: "their own instrument and the vocals" }
+      - { name: mixes,      type: int,    default: 4 }
+    verification: >-
+      One monitor position per performer, each fed from a mix they can adjust, checked at soundcheck
+      with the performers present.
+    asks:
+      - param: performers
+        question: "How many people will be on stage at once, and what does each of them play or do?"
+      - param: content
+        question: "Do the performers have their own preferences about what they need to hear — or a rider we should read?"
+
+  - id: audio.req.input_capacity
+    name: Input capacity
+    text: "The system must accept {inputs} simultaneous sources at {position}."
+    params:
+      - { name: inputs,   type: int }
+      - { name: position, type: string, default: "the stage" }
+    verification: "Count the input list against the declared preamp count of the stage boxes and console."
+    constraints:
+      - audio.constraint.input_capacity
+    asks:
+      - param: inputs
+        question: "Besides the band, is anything else plugged into the sound system — a laptop for presentations, a video feed, a second microphone for the host?"
+
+  - id: audio.req.coverage_uniformity
+    name: Coverage uniformity
+    text: "Level across {area} must not vary by more than {tolerance_db} dB."
+    params:
+      - { name: area,         type: string }
+      - { name: tolerance_db, type: number, default: 6 }
+    verification: >-
+      Coverage prediction across the audience plane, or measured level at the nearest, furthest and
+      widest audience positions.
+    asks:
+      - param: area
+        question: "How far back does the audience area go, and is anyone seated off to the sides or behind the stage?"
+      - param: tolerance_db
+        question: "Is it acceptable for the sound to be noticeably louder near the front, or should it feel the same everywhere?"
+
+  - id: audio.req.weather_protection
+    name: Weather protection
+    text: "All equipment placed at {location} must remain operable in {conditions}."
+    params:
+      - { name: location,   type: string }
+      - { name: conditions, type: string, default: "light rain and wind" }
+    verification: "Every outdoor part has cover or an IP rating meeting the stated conditions."
+    asks:
+      - param: conditions
+        question: "If it rains on the day, does the event carry on outside, move indoors, or get cancelled?"
+    notes: >-
+      Audio-domain by convention because outdoor PA is where it bites first, but it applies to any
+      domain with equipment outdoors.
