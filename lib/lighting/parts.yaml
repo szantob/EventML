@@ -1,0 +1,186 @@
+eventml: "0.1"
+kind: parts
+domain: lighting
+---
+# ---------------------------------------------------------------------------
+# Concrete fixture *models* do not belong here.
+#
+# A Robe MegaPointe's DMX modes, channel functions, wheel contents, colour
+# calibration, beam geometry and physical dimensions are a device digital twin,
+# and GDTF already defines that format completely. EventML models the topology —
+# what is patched to which universe, what plugs into what, what the rig is for —
+# and defers the twin to GDTF via `catalog_ref: { gdtf: ... }`.
+#
+# The rule that follows: a PartDef here is a *category* (moving head, dimmer,
+# profile), never a product. If a property would differ between two units of the
+# same category, it belongs in the GDTF file or on the Part usage, not here.
+# ---------------------------------------------------------------------------
+parts:
+  # --- Abstract blocks — L2 Logical -----------------------------------------
+  # Lighting decomposes at L2 by purpose, not by fixture type: what the light is
+  # for is a logical decision, which fixture delivers it is a physical one.
+
+  - id: lighting.part.key_light
+    name: Key light
+    category: purpose
+    abstract: true
+    ports:
+      - { id: ctrl, def: lighting.port.xlr5f_dmx,      count: 1 }
+      - { id: pwr,  def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      item: lighting.item.light_output
+      lights: "faces, front, at an angle that reads on camera"
+    notes: >-
+      The block that decides whether people can be seen. On any event with cameras or a hybrid audience
+      it is the first lighting requirement and the one most often missing.
+
+  - id: lighting.part.wash_light
+    name: Wash light
+    category: purpose
+    abstract: true
+    ports:
+      - { id: ctrl, def: lighting.port.xlr5f_dmx,      count: 1 }
+      - { id: pwr,  def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      item: lighting.item.light_output
+      lights: "an area, evenly, in colour"
+
+  - id: lighting.part.effect_light
+    name: Effect light
+    category: purpose
+    abstract: true
+    ports:
+      - { id: ctrl, def: lighting.port.xlr5f_dmx,      count: 1 }
+      - { id: pwr,  def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      item: lighting.item.light_output
+      lights: "the room, for atmosphere rather than visibility"
+
+  - id: lighting.part.control_surface
+    name: Control surface
+    category: control
+    abstract: true
+    ports:
+      - { id: dmx_out, def: lighting.port.xlr5m_dmx,      count: 4 }
+      - { id: net,     def: lighting.port.rj45_sacn,      count: 1 }
+      - { id: pwr,     def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: desk, to: "dmx_out[*]", transform: "generate_dmx" }
+      - { from: desk, to: net,          transform: "generate_sacn" }
+    notes: "`desk` is a source with no port: control originates at the operator."
+
+  - id: lighting.part.dmx_distribution
+    name: DMX distribution
+    category: distribution
+    abstract: true
+    ports:
+      - { id: in,  def: lighting.port.xlr5f_dmx, count: 1 }
+      - { id: out, def: lighting.port.xlr5m_dmx, count: 4 }
+    internal:
+      - { from: in, to: "out[*]", transform: "split+buffer" }
+
+  # --- Concrete categories — L3 Physical -------------------------------------
+
+  - id: lighting.part.moving_head
+    name: Moving head fixture
+    category: moving_head
+    ports:
+      - { id: dmx_in,   def: lighting.port.xlr5f_dmx,       count: 1 }
+      - { id: dmx_thru, def: lighting.port.xlr5m_dmx,       count: 1 }
+      - { id: pwr,      def: power.port.powercon_true1_in,  count: 1 }
+      - { id: pwr_thru, def: power.port.powercon_true1_out, count: 1 }
+    internal:
+      - { from: dmx_in, to: dmx_thru, transform: pass }
+      - { from: pwr,    to: pwr_thru, transform: pass }
+    properties:
+      electrical_load_w: 550
+      dmx_footprint:
+        state: unknown
+        notes: "mode-dependent; read it from the GDTF file rather than assuming it"
+    catalog_ref:
+      gdtf: "Robe@MegaPointe@v1.4.gdtf"
+      rentman: null
+    source: "GDTF DIN SPEC 15800 device digital twin"
+    notes: >-
+      The `catalog_ref.gdtf` binding is the intended division of labour: EventML says this fixture is
+      third on the DMX chain from node 2 and draws 550 W; the GDTF file says what its channels do.
+
+  - id: lighting.part.par_fixture
+    name: PAR fixture
+    category: par
+    ports:
+      - { id: dmx_in,   def: lighting.port.xlr3f_dmx,       count: 1 }
+      - { id: dmx_thru, def: lighting.port.xlr3m_dmx,       count: 1 }
+      - { id: pwr,      def: power.port.powercon_true1_in,  count: 1 }
+      - { id: pwr_thru, def: power.port.powercon_true1_out, count: 1 }
+    internal:
+      - { from: dmx_in, to: dmx_thru, transform: pass }
+      - { from: pwr,    to: pwr_thru, transform: pass }
+    properties:
+      electrical_load_w: 180
+      dmx_footprint: 8
+    catalog_ref:
+      gdtf: null
+    source: "GDTF DIN SPEC 15800"
+
+  - id: lighting.part.profile_fixture
+    name: Profile fixture
+    category: profile
+    ports:
+      - { id: dmx_in,   def: lighting.port.xlr5f_dmx,      count: 1 }
+      - { id: dmx_thru, def: lighting.port.xlr5m_dmx,      count: 1 }
+      - { id: pwr,      def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: dmx_in, to: dmx_thru, transform: pass }
+    properties:
+      electrical_load_w: 300
+      dmx_footprint: 6
+      beam: "shaped, with shutters — the fixture used for key light on a lectern"
+
+  - id: lighting.part.lighting_console
+    name: Lighting console
+    category: console
+    ports:
+      - { id: dmx_out, def: lighting.port.xlr5m_dmx,      count: 4 }
+      - { id: net,     def: lighting.port.rj45_sacn,      count: 2, role: primary_secondary }
+      - { id: pwr,     def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: desk, to: "dmx_out[*]", transform: "generate_dmx" }
+      - { from: desk, to: "net[*]",     transform: "generate_sacn" }
+    properties:
+      electrical_load_w: 200
+      universes: 8
+
+  - id: lighting.part.dmx_node
+    name: DMX node
+    category: node
+    ports:
+      - { id: net,     def: lighting.port.rj45_sacn,      count: 1 }
+      - { id: dmx_out, def: lighting.port.xlr5m_dmx,      count: 4 }
+      - { id: pwr,     def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: net, to: "dmx_out[*]", transform: "sacn_to_dmx" }
+    properties:
+      electrical_load_w: 15
+      universes: 4
+    notes: The part that converts a network universe into a physical DMX chain, and where universe count becomes a cable count.
+
+  - id: lighting.part.dimmer
+    name: Dimmer
+    category: dimmer
+    ports:
+      - { id: dmx_in,  def: lighting.port.xlr5f_dmx,      count: 1 }
+      - { id: pwr_in,  def: power.port.cee_32a_3p_in,     count: 1 }
+      - { id: pwr_out, def: power.port.harting_6p,        count: 2 }
+    internal:
+      - { from: pwr_in, to: "pwr_out[*]", transform: "dim+switch" }
+      - { from: dmx_in, to: "pwr_out[*]", transform: control }
+    properties:
+      electrical_load_w: 60
+      channels: 12
+      rated_current_per_channel_a: 10
+    notes: >-
+      The part where the lighting and power domains genuinely meet: DMX arrives on one port and
+      controls what leaves on another, in a different domain entirely. The dmx_in → pwr_out internal
+      edge is a control edge rather than a signal path, and recording it is what lets a walk explain
+      why a lamp went out.

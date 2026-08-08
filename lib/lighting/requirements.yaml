@@ -1,0 +1,70 @@
+eventml: "0.1"
+kind: requirements
+domain: lighting
+---
+requirements:
+  - id: lighting.req.face_lighting
+    name: Face lighting
+    text: "Faces at {position} must be lit to {level} from the front, for {purpose}."
+    params:
+      - { name: position, type: string }
+      - { name: level,    type: string, default: "an even key light with no hard shadow across the eyes" }
+      - { name: purpose,  type: string, default: "the audience to see who is speaking" }
+    verification: >-
+      A front-lighting fixture aimed at each speaking position, at roughly 45 degrees horizontally and
+      vertically; checked on camera where cameras are present.
+    asks:
+      - param: position
+        question: "Where will people be standing or sitting when they speak — a lectern, a panel of chairs, walking around?"
+      - param: purpose
+        question: "Will any of it be filmed or streamed? Camera needs noticeably more light than an audience does."
+    notes: >-
+      The requirement that most often has no `refines` edge. Clients ask for a screen and a microphone;
+      nobody asks to be lit, and then the recording is unusable.
+
+  - id: lighting.req.stage_wash
+    name: Stage wash
+    text: "{area} must be evenly lit to a level suitable for {activity}."
+    params:
+      - { name: area,     type: string }
+      - { name: activity, type: string, default: "a performance seen by a seated audience" }
+      - { name: colour,   type: string, default: "neutral white" }
+    verification: "Even coverage across the stated area with no dark patches at the edges of the performance space."
+    asks:
+      - param: area
+        question: "How big is the area people will actually perform or present in — the whole stage, or one spot?"
+      - param: colour
+        question: "Is there a house style or brand colour the room should be in, or is neutral white right?"
+
+  - id: lighting.req.control_universes
+    name: Control universes
+    text: "The control system must address {fixtures} fixtures across {universes} universes from {position}."
+    params:
+      - { name: fixtures,  type: int }
+      - { name: universes, type: int }
+      - { name: position,  type: string, default: "the operating position" }
+    verification: >-
+      Sum the DMX footprint of every fixture and divide by 512; compare against the declared universe
+      count of the console and the nodes, and check every chain against
+      lighting.constraint.dmx_run_limit.
+    constraints:
+      - lighting.constraint.universe_capacity
+      - lighting.constraint.dmx_run_limit
+    asks:
+      - param: position
+        question: "Where should the person running the lights sit? They need to see the stage, and it takes a cable run from wherever the fixtures are."
+
+  - id: lighting.req.house_light_control
+    name: House light control
+    text: "House lighting in {area} must be dimmable from {position} during {period}."
+    params:
+      - { name: area,     type: string }
+      - { name: position, type: string, default: "the operating position" }
+      - { name: period,   type: string, default: "the programme" }
+    verification: "A control path exists from the operating position to the venue's own lighting control."
+    asks:
+      - param: area
+        question: "Can the room's own lights be dimmed, and does someone from the venue need to do it — or can we control them ourselves?"
+    notes: >-
+      Almost always a venue negotiation rather than an equipment decision, and it belongs in the model
+      because forgetting it means the slides are washed out and nobody can find the switch.
