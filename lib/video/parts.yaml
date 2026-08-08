@@ -1,0 +1,167 @@
+eventml: "0.1"
+kind: parts
+domain: video
+---
+parts:
+  # ---------------------------------------------------------------------------
+  # Abstract blocks — L2 Logical. Video reduces to three statements at L2:
+  # where the picture comes from, what happens to it, and where it lands.
+  # ---------------------------------------------------------------------------
+
+  - id: video.part.image_source
+    name: Image source
+    category: source
+    abstract: true
+    ports:
+      - { id: out, def: video.port.bnc_sdi_out, count: 1 }
+    notes: A camera, a presenter's laptop, a media server, a remote participant — undecided at L2.
+
+  - id: video.part.image_processing
+    name: Image processing
+    category: processing
+    abstract: true
+    ports:
+      - { id: in,  def: video.port.bnc_sdi_in,  count: 8 }
+      - { id: out, def: video.port.bnc_sdi_out, count: 4 }
+      - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "in[*]", to: "out[*]", transform: "switch+scale" }
+    notes: Everything between source and display — switching, scaling, keying, recording.
+
+  - id: video.part.image_display
+    name: Image display
+    category: display
+    abstract: true
+    ports:
+      - { id: in,  def: video.port.bnc_sdi_in, count: 1 }
+      - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      image_height_m: { state: unknown }
+    notes: >-
+      Screen, projector or LED wall. Its image height is what
+      video.constraint.display_legibility is checked against, and it is usually unknown until the room
+      is measured.
+
+  # ---------------------------------------------------------------------------
+  # Concrete categories — L3 Physical.
+  # ---------------------------------------------------------------------------
+
+  - id: video.part.camera
+    name: Camera
+    category: camera
+    ports:
+      - { id: sdi_out, def: video.port.bnc_sdi_out,      count: 1 }
+      - { id: pwr,     def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      electrical_load_w: 30
+      output_format: "1920x1080p50"
+
+  - id: video.part.media_server
+    name: Media server
+    category: media_server
+    ports:
+      - { id: sdi_out,  def: video.port.bnc_sdi_out,      count: 4 }
+      - { id: hdmi_out, def: video.port.hdmi_a_out,       count: 2 }
+      - { id: net,      def: network.port.rj45,           count: 2, role: primary_secondary }
+      - { id: pwr,      def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: storage, to: "sdi_out[*]",  transform: playback }
+      - { from: storage, to: "hdmi_out[*]", transform: playback }
+      - { from: net,     to: "sdi_out[*]",  transform: "decode+playback" }
+    properties:
+      electrical_load_w: 450
+    notes: "`storage` is a source with no port, like the generator's `engine`: content originates here."
+
+  - id: video.part.video_switcher
+    name: Video switcher
+    category: switcher
+    ports:
+      - { id: sdi_in,   def: video.port.bnc_sdi_in,       count: 8 }
+      - { id: hdmi_in,  def: video.port.hdmi_a_in,        count: 2 }
+      - { id: sdi_out,  def: video.port.bnc_sdi_out,      count: 4 }
+      - { id: net,      def: network.port.rj45,           count: 1 }
+      - { id: pwr,      def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      # Any input to any output, which is the whole function of the part. As with the managed switch,
+      # the Connections cannot say which route a given picture takes — only a Flow can.
+      - { from: "sdi_in[*]",  to: "sdi_out[*]", transform: switch }
+      - { from: "hdmi_in[*]", to: "sdi_out[*]", transform: "convert+switch" }
+      - { from: "sdi_in[*]",  to: net,          transform: "encode+stream" }
+    properties:
+      electrical_load_w: 120
+      mix_effects: 2
+
+  - id: video.part.scaler
+    name: Scaler
+    category: scaler
+    ports:
+      - { id: hdmi_in,  def: video.port.hdmi_a_in,        count: 2 }
+      - { id: sdi_in,   def: video.port.bnc_sdi_in,       count: 1 }
+      - { id: sdi_out,  def: video.port.bnc_sdi_out,      count: 1 }
+      - { id: hdmi_out, def: video.port.hdmi_a_out,       count: 1 }
+      - { id: pwr,      def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "hdmi_in[*]", to: sdi_out,  transform: "scale+convert" }
+      - { from: "hdmi_in[*]", to: hdmi_out, transform: scale }
+      - { from: sdi_in,       to: hdmi_out, transform: "scale+convert" }
+    properties:
+      electrical_load_w: 25
+    notes: >-
+      The part that absorbs whatever resolution a presenter's laptop decides to output. Its presence in
+      a model is usually the answer to a question rule 5 firing on video.constraint.hdmi_run_length or
+      on a format mismatch.
+
+  - id: video.part.led_processor
+    name: LED processor
+    category: led_processor
+    ports:
+      - { id: sdi_in,  def: video.port.bnc_sdi_in,       count: 2 }
+      - { id: panel,   def: network.port.rj45,           count: 8 }
+      - { id: pwr,     def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: "sdi_in[*]", to: "panel[*]", transform: "map+drive" }
+    properties:
+      electrical_load_w: 90
+
+  - id: video.part.led_panel
+    name: LED panel
+    category: led_panel
+    ports:
+      - { id: data_in,   def: network.port.rj45,           count: 1 }
+      - { id: data_thru, def: network.port.rj45,           count: 1 }
+      - { id: pwr,       def: power.port.powercon_true1_in, count: 1 }
+      - { id: pwr_thru,  def: power.port.powercon_true1_out, count: 1 }
+    internal:
+      - { from: data_in, to: data_thru, transform: pass }
+      - { from: pwr,     to: pwr_thru,  transform: pass }
+    properties:
+      electrical_load_w: 200
+      panel_size_m: 0.5
+    notes: >-
+      Both data and power daisy-chain through the panel, and both chains have a length limit. The
+      pwr → pwr_thru internal edge is what lets a power walk find every panel on a chain and sum the
+      load, rather than seeing only the first one.
+
+  - id: video.part.projector
+    name: Projector
+    category: projector
+    ports:
+      - { id: sdi_in,  def: video.port.bnc_sdi_in,       count: 1 }
+      - { id: hdmi_in, def: video.port.hdmi_a_in,        count: 1 }
+      - { id: net,     def: network.port.rj45,           count: 1 }
+      - { id: pwr,     def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      electrical_load_w: 1200
+      lumens: 10000
+
+  - id: video.part.display_screen
+    name: Display screen
+    category: display
+    ports:
+      - { id: sdi_in,  def: video.port.bnc_sdi_in,       count: 1 }
+      - { id: hdmi_in, def: video.port.hdmi_a_in,        count: 1 }
+      - { id: pwr,     def: power.port.powercon_true1_in, count: 1 }
+    properties:
+      electrical_load_w: 250
+      image_height_m: 1.2
+      diagonal_inch: 98

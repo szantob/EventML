@@ -1,0 +1,126 @@
+eventml: "0.1"
+kind: ports
+domain: video
+---
+ports:
+  - id: video.port.bnc_sdi_in
+    name: BNC SDI input
+    item: video.item.sdi_3g
+    direction: sink
+    connector: BNC75
+    pins: 1
+    source: "SMPTE ST 424:2012"
+
+  - id: video.port.bnc_sdi_out
+    name: BNC SDI output
+    item: video.item.sdi_3g
+    direction: source
+    connector: BNC75
+    pins: 1
+    source: "SMPTE ST 424:2012"
+
+  - id: video.port.bnc_sdi_12g_out
+    name: BNC 12G-SDI output
+    item: video.item.sdi_12g
+    direction: source
+    connector: BNC75
+    pins: 1
+    source: "SMPTE ST 2082-1:2015"
+
+  - id: video.port.hdmi_a_in
+    name: HDMI Type A input
+    item: video.item.hdmi_2_0
+    direction: sink
+    connector: HDMI_A
+    pins: 19
+    source: "HDMI 2.0b"
+
+  - id: video.port.hdmi_a_out
+    name: HDMI Type A output
+    item: video.item.hdmi_2_0
+    direction: source
+    connector: HDMI_A
+    pins: 19
+    source: "HDMI 2.0b"
+
+  - id: video.port.displayport
+    name: DisplayPort
+    item: video.item.dp_1_4
+    direction: source
+    connector: DP20
+    pins: 20
+    source: "VESA DisplayPort 1.4"
+
+  - id: video.port.rj45_ndi
+    name: RJ45 NDI
+    item: video.item.ndi_stream
+    direction: bidir
+    connector: RJ45
+    pins: 8
+    notes: >-
+      The video-domain view of a network port. Where the model cares about the Ethernet link rather than
+      the video riding it, use network.port.rj45.
+
+  - id: video.port.lc_duplex_video
+    name: LC duplex fibre, video
+    item: video.item.st2110_video
+    direction: bidir
+    connector: LC_DUPLEX
+    pins: 2
+    source: "SMPTE ST 2110-20:2017"
+
+interfaces:
+  - id: video.interface.sdi_coax
+    name: SDI coaxial link
+    item: video.item.sdi_3g
+    medium: rg6
+    capacity:
+      streams: 1
+      max_length_m: 100
+    constraints:
+      - video.constraint.sdi_run_length
+
+  - id: video.interface.hdmi_cable
+    name: HDMI cable
+    item: video.item.hdmi_2_0
+    medium: hdmi_passive
+    capacity:
+      streams: 1
+      max_length_m: 10
+    constraints:
+      - video.constraint.hdmi_run_length
+
+  - id: video.interface.ndi_over_cat6a
+    name: NDI over Cat6a
+    item: video.item.ndi_stream
+    medium: cat6a
+    capacity:
+      mbit: 1000
+      max_length_m: 90
+    constraints:
+      - network.constraint.max_copper_run
+      - network.constraint.bandwidth_headroom
+
+constraints:
+  - id: video.constraint.sdi_run_length
+    name: SDI run length
+    applies_to: Connection
+    expression: >-
+      The connection's length_m must not exceed the interface's capacity.max_length_m, and the limit
+      falls as the bitrate rises: a run that carries 3G-SDI reliably may not carry 12G-SDI at all.
+
+  - id: video.constraint.hdmi_run_length
+    name: HDMI run length
+    applies_to: Connection
+    expression: >-
+      Passive HDMI must not exceed 10 m. Beyond it the link fails intermittently rather than cleanly,
+      typically when the presenter's laptop renegotiates HDCP in front of the audience. Insert a
+      converter part instead of extending the cable.
+
+  - id: video.constraint.display_legibility
+    name: Display legibility
+    applies_to: Part
+    expression: >-
+      The furthest viewing distance must not exceed 8 times the display's image height for detailed
+      content, or 12 times for headline content. Below that ratio, body text on a slide is unreadable
+      from the back row whatever the resolution.

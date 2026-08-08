@@ -1,0 +1,66 @@
+eventml: "0.1"
+kind: requirements
+domain: video
+---
+requirements:
+  - id: video.req.image_legibility
+    name: Image legibility
+    text: "Content shown on {display} must be legible from every seat in {area}."
+    params:
+      - { name: display, type: string }
+      - { name: area,    type: string }
+      - { name: content_detail, type: string, default: "slides with body text" }
+    verification: >-
+      Furthest viewing distance divided by image height, checked against
+      video.constraint.display_legibility for the stated content detail.
+    constraints:
+      - video.constraint.display_legibility
+    asks:
+      - param: area
+        question: "Where is the furthest seat from the screen — roughly how many rows back, or how many paces?"
+      - param: content_detail
+        question: "Will the slides have small text, spreadsheets or detailed charts on them, or mostly headlines and images? It changes how big the screen has to be."
+    notes: >-
+      The `asks` deliberately avoid resolution and pixel pitch. A client cannot answer those and the
+      answer would not help: legibility is set by image height against viewing distance, and by what is
+      on the slide.
+
+  - id: video.req.source_switching
+    name: Source switching
+    text: "An operator must be able to switch between {sources} during {period} without visible interruption."
+    params:
+      - { name: sources, type: int }
+      - { name: period,  type: string, default: "the live programme" }
+    verification: >-
+      Every declared source has a path to the switcher, and the switcher's declared input count is at
+      least the number of sources.
+    asks:
+      - param: sources
+        question: "What will people see on the screen through the day — slides, a camera of whoever is speaking, a video clip, someone dialling in remotely? List everything, even if it is only on screen for a minute."
+
+  - id: video.req.screen_coverage
+    name: Screen coverage
+    text: "Every seat in {area} must have an unobstructed view of at least one display."
+    params:
+      - { name: area, type: string }
+      - { name: displays, type: int, default: 1 }
+    verification: "Sightline check from the corner seats of the stated area."
+    asks:
+      - param: area
+        question: "Is the seating in one block facing the stage, or spread around — cabaret tables, seats down the sides, anyone behind pillars?"
+
+  - id: video.req.remote_participation
+    name: Remote participation
+    text: "Remote participants must see {content} and be seen and heard in {area}."
+    params:
+      - { name: content, type: string, default: "the speaker and the slides" }
+      - { name: area,    type: string }
+    verification: >-
+      A path exists from the room's camera and programme audio to the conferencing endpoint, and from
+      the endpoint back to a display and the PA.
+    asks:
+      - param: content
+        question: "What should the people joining remotely be able to see — just the slides, the person speaking, or the whole room?"
+    notes: >-
+      Spans audio, video and network, and is deliberately filed under video because that is where the
+      question gets asked. A requirement is not owned by the domain that satisfies it.
