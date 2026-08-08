@@ -136,10 +136,12 @@ parts:
     ports:
       - { id: analog_in,  def: audio.port.xlr3f,          count: 8 }
       - { id: analog_out, def: audio.port.xlr3m,          count: 8 }
+      - { id: aes_out,    def: audio.port.xlr3m_aes3,     count: 2 }
       - { id: net,        def: network.port.ethercon_a,   count: 2, role: primary_secondary }
       - { id: pwr,        def: power.port.powercon_true1_in, count: 1 }
     internal:
       - { from: "analog_in[*]", to: "analog_out[*]", transform: mix }
+      - { from: "analog_in[*]", to: "aes_out[*]",    transform: "mix+adc" }
       - { from: net,            to: "analog_out[*]", transform: mix }
       - { from: "analog_in[*]", to: net,             transform: mix }
       - { from: net,            to: net,             transform: mix }
@@ -153,11 +155,15 @@ parts:
     category: dsp_processor
     ports:
       - { id: analog_in,  def: audio.port.xlr3f,          count: 4 }
+      - { id: aes_in,     def: audio.port.xlr3f_aes3,     count: 2 }
+      - { id: madi,       def: audio.port.bnc_madi,       count: 2, role: primary_secondary }
       - { id: analog_out, def: audio.port.xlr3m,          count: 8 }
       - { id: net,        def: network.port.ethercon_a,   count: 2, role: primary_secondary }
       - { id: pwr,        def: power.port.powercon_true1_in, count: 1 }
     internal:
       - { from: "analog_in[*]", to: "analog_out[*]", transform: "eq+delay+limit" }
+      - { from: "aes_in[*]",    to: "analog_out[*]", transform: "dac+eq+delay+limit" }
+      - { from: "madi[*]",      to: "analog_out[*]", transform: "dac+eq+delay+limit" }
       - { from: net,            to: "analog_out[*]", transform: "eq+delay+limit" }
     properties:
       electrical_load_w: 60
@@ -169,9 +175,11 @@ parts:
       - { id: analog_in, def: audio.port.xlr3f,          count: 4 }
       - { id: net,       def: network.port.ethercon_a,   count: 2, role: primary_secondary }
       - { id: spk_out,   def: audio.port.nl4_out,        count: 4 }
+      - { id: spk_out_nl8, def: audio.port.speakon_nl8,   count: 1 }
       - { id: pwr,       def: power.port.powercon_true1_in, count: 1 }
     internal:
-      - { from: "analog_in[*]", to: "spk_out[*]", transform: amplify }
+      - { from: "analog_in[*]", to: "spk_out[*]",   transform: amplify }
+      - { from: "analog_in[*]", to: spk_out_nl8,    transform: amplify }
       - { from: net,            to: "spk_out[*]", transform: "decode+amplify" }
     properties:
       electrical_load_w: 2400
@@ -210,10 +218,11 @@ parts:
     ports:
       - { id: ant, def: audio.port.bnc_antenna,     count: 2, role: diversity }
       - { id: out, def: audio.port.xlr3m,           count: 2 }
-      - { id: net, def: network.port.rj45,          count: 1 }
+      - { id: net, def: audio.port.rj45_dante,      count: 1 }
       - { id: pwr, def: power.port.powercon_true1_in, count: 1 }
     internal:
       - { from: "ant[*]", to: "out[*]", transform: "demodulate+diversity" }
+      - { from: "ant[*]", to: net,      transform: "demodulate+encode" }
     properties:
       electrical_load_w: 40
       channels: 2

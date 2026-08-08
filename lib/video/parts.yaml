@@ -56,7 +56,10 @@ parts:
     category: camera
     ports:
       - { id: sdi_out, def: video.port.bnc_sdi_out,      count: 1 }
+      - { id: ndi_out, def: video.port.rj45_ndi,          count: 1 }
       - { id: pwr,     def: power.port.powercon_true1_in, count: 1 }
+    internal:
+      - { from: sdi_out, to: ndi_out, transform: "encode+stream" }
     properties:
       electrical_load_w: 30
       output_format: "1920x1080p50"
@@ -65,8 +68,9 @@ parts:
     name: Media server
     category: media_server
     ports:
-      - { id: sdi_out,  def: video.port.bnc_sdi_out,      count: 4 }
-      - { id: hdmi_out, def: video.port.hdmi_a_out,       count: 2 }
+      - { id: sdi_out,     def: video.port.bnc_sdi_out,      count: 4 }
+      - { id: sdi_12g_out, def: video.port.bnc_sdi_12g_out,  count: 1 }
+      - { id: hdmi_out,    def: video.port.hdmi_a_out,       count: 2 }
       - { id: net,      def: network.port.rj45,           count: 2, role: primary_secondary }
       - { id: pwr,      def: power.port.powercon_true1_in, count: 1 }
     internal:
@@ -104,12 +108,14 @@ parts:
     category: scaler
     ports:
       - { id: hdmi_in,  def: video.port.hdmi_a_in,        count: 2 }
+      - { id: dp_in,    def: video.port.displayport,      count: 1 }
       - { id: sdi_in,   def: video.port.bnc_sdi_in,       count: 1 }
       - { id: sdi_out,  def: video.port.bnc_sdi_out,      count: 1 }
       - { id: hdmi_out, def: video.port.hdmi_a_out,       count: 1 }
       - { id: pwr,      def: power.port.powercon_true1_in, count: 1 }
     internal:
       - { from: "hdmi_in[*]", to: sdi_out,  transform: "scale+convert" }
+      - { from: dp_in,        to: sdi_out,  transform: "scale+convert" }
       - { from: "hdmi_in[*]", to: hdmi_out, transform: scale }
       - { from: sdi_in,       to: hdmi_out, transform: "scale+convert" }
     properties:
@@ -123,11 +129,13 @@ parts:
     name: LED processor
     category: led_processor
     ports:
-      - { id: sdi_in,  def: video.port.bnc_sdi_in,       count: 2 }
-      - { id: panel,   def: network.port.rj45,           count: 8 }
+      - { id: sdi_in,   def: video.port.bnc_sdi_in,       count: 2 }
+      - { id: fibre_in, def: video.port.lc_duplex_video,  count: 2 }
+      - { id: panel,    def: network.port.rj45,           count: 8 }
       - { id: pwr,     def: power.port.powercon_true1_in, count: 1 }
     internal:
-      - { from: "sdi_in[*]", to: "panel[*]", transform: "map+drive" }
+      - { from: "sdi_in[*]",   to: "panel[*]", transform: "map+drive" }
+      - { from: "fibre_in[*]", to: "panel[*]", transform: "depacketise+map+drive" }
     properties:
       electrical_load_w: 90
 

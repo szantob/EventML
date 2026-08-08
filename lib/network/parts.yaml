@@ -53,16 +53,18 @@ parts:
     name: Managed switch
     category: switch
     ports:
-      - { id: port, def: network.port.ethercon_a,      count: 16 }
-      - { id: sfp,  def: network.port.sfp_cage,        count: 2 }
+      - { id: port,   def: network.port.ethercon_a,    count: 16 }
+      - { id: port_b, def: network.port.ethercon_b,    count: 8 }
+      - { id: sfp,    def: network.port.sfp_cage,      count: 2 }
       - { id: pwr,  def: power.port.powercon_true1_in, count: 1 }
     internal:
       # Every port reaches every other port, in both directions. This is the case that proves a Flow
       # cannot be inferred from Connections alone: the Connections say sixteen cables terminate here,
       # and nothing in them says which of the 240 possible paths any given audio flow actually takes.
       # Only a Flow, naming its ordered chain of Connections, records the route.
-      - { from: "port[*]", to: "port[*]", transform: switch }
-      - { from: "port[*]", to: "sfp[*]",  transform: switch }
+      - { from: "port[*]",   to: "port[*]",   transform: switch }
+      - { from: "port_b[*]", to: "port_b[*]", transform: switch }
+      - { from: "port[*]",   to: "sfp[*]",    transform: switch }
       - { from: "sfp[*]",  to: "port[*]", transform: switch }
       - { from: "sfp[*]",  to: "sfp[*]",  transform: switch }
     properties:

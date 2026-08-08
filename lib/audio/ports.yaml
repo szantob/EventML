@@ -81,6 +81,14 @@ ports:
       Physically identical to audio.port.xlr3f and electrically incompatible with it. Two ports, not one,
       because what passes through them differs — which is the whole reason a port names an item.
 
+  - id: audio.port.xlr3m_aes3
+    name: XLR 3-pin male, AES3
+    item: audio.item.aes3
+    direction: source
+    connector: XLR3M
+    pins: 3
+    source: "AES3-2009"
+
   - id: audio.port.bnc_antenna
     name: BNC antenna input
     item: audio.item.rf_link

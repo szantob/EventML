@@ -87,10 +87,13 @@ parts:
     name: Residual current device
     category: protection
     ports:
-      - { id: in,  def: power.port.cee_32a_3p_in, count: 1 }
-      - { id: out, def: power.port.cee_32a_3p,    count: 1 }
+      - { id: in,      def: power.port.cee_32a_3p_in, count: 1 }
+      - { id: out,     def: power.port.cee_32a_3p,    count: 1 }
+      - { id: in_16a,  def: power.port.cee_16a_3p_in, count: 1 }
+      - { id: out_16a, def: power.port.cee_16a_3p,    count: 1 }
     internal:
-      - { from: in, to: out, transform: "protect+disconnect_on_fault" }
+      - { from: in,     to: out,     transform: "protect+disconnect_on_fault" }
+      - { from: in_16a, to: out_16a, transform: "protect+disconnect_on_fault" }
     properties:
       rated_current_a: 32
       trip_current_ma: 30

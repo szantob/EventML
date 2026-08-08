@@ -1,0 +1,109 @@
+eventml: "0.1"
+layer: brief
+project: festival-stage
+---
+brief:
+  name: Second stage, town festival
+  date: 2026-06-20
+
+  sources:
+    - id: s-brief-2026-04-11
+      kind: email
+      from: client
+      excerpt: >-
+        We're running the second stage at the town festival again, in the park by the river. Four bands
+        through the afternoon and evening, headliner at 21:00, finish by 23:00. Last year the sound was
+        fine but the stage looked flat on the photos and you couldn't see anything after dark. There's a
+        video screen this year. No mains anywhere near, we hire a generator as usual.
+    - id: s-visit-2026-05-08
+      kind: site_visit
+      from: production
+      excerpt: >-
+        Walked the site. Generator position is behind the trees, roughly 70 m from the stage — noise is
+        fine there but that is a long cable run. Front of house is 45 m out from the stage, past the
+        crowd barrier. No cable route on the ground between them that does not cross a public path.
+
+  audience:
+    value: 1500
+    state: stated
+    src: s-brief-2026-04-11
+
+  venue:
+    name: "Riverside park, second stage"
+    covered:
+      value: true
+      state: stated
+      src: s-brief-2026-04-11
+      notes: "stage roof; the audience area is open"
+    foh_distance_m:
+      value: 45
+      state: stated
+      src: s-visit-2026-05-08
+    generator_distance_m:
+      value: 70
+      state: stated
+      src: s-visit-2026-05-08
+    cable_route:
+      state: conflicting
+      alternatives:
+        - { value: "ground run with mats across the path", src: s-visit-2026-05-08 }
+        - { value: "no ground run permitted on public paths", src: s-visit-2026-05-08 }
+      notes: >-
+        Both from the same site visit, and both were said — the site manager offered mats, the council
+        representative present said no. Recorded as conflicting rather than resolved by whoever spoke
+        last.
+
+  power:
+    source: generator
+    rating:
+      value: "20 kVA three-phase"
+      state: assumed
+      why: "what was hired last year; the video screen is new and may change it"
+      ask: true
+
+  program:
+    - id: b-changeovers
+      what: Four bands with changeovers
+      bands: 4
+      changeover_minutes:
+        value: 20
+        state: assumed
+        why: "four bands between 16:00 and 23:00 leaves about that much"
+
+    - id: b-headliner
+      at: "21:00"
+      what: Headliner
+      size:
+        value: 6
+        state: stated
+        src: s-brief-2026-04-11
+      wireless_channels:
+        state: unknown
+        notes: "rider not received; decides receiver count and frequency coordination"
+
+    - id: b-lighting
+      what: Stage lighting after dark
+      brief_quote: "the stage looked flat on the photos and you couldn't see anything after dark"
+      dark_from:
+        value: "20:45"
+        state: derived
+        why: "sunset plus civil twilight for the date and latitude"
+
+    - id: b-screen
+      what: Video screen beside the stage
+      screen_type:
+        value: "LED wall"
+        state: assumed
+        why: "outdoor, daylight, 1500 people — projection will not carry"
+        ask: true
+      content:
+        state: unknown
+        notes: "camera of the stage, sponsor loops, or both — nobody has said"
+
+  stated_preferences:
+    - value: "Last year the sound was fine but the stage looked flat on the photos."
+      state: stated
+      src: s-brief-2026-04-11
+      notes: >-
+        A lighting requirement stated as a complaint about photographs. It refines into face lighting and
+        stage wash, neither of which the client would name.
