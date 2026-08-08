@@ -1,0 +1,43 @@
+eventml: "0.1"
+kind: items
+domain: power
+---
+items:
+  - id: power.item.ac_230v_1p
+    name: AC 230 V single phase
+    kind: power
+    form: electrical
+    carries: Single-phase alternating current at 230 V, 50 Hz
+    properties:
+      voltage_v: 230
+      frequency_hz: 50
+      phases: 1
+      conductors: "L, N, PE"
+    source: "IEC 60038 standard voltage; IFC IfcDistributionPort PredefinedType=ELECTRICAL"
+
+  - id: power.item.ac_400v_3p
+    name: AC 400 V three phase
+    kind: power
+    form: electrical
+    carries: Three-phase alternating current at 400 V line-to-line, 50 Hz
+    properties:
+      voltage_v: 400
+      voltage_phase_neutral_v: 230
+      frequency_hz: 50
+      phases: 3
+      conductors: "L1, L2, L3, N, PE"
+    source: "IEC 60038"
+    notes: >-
+      Loads are single-phase and drawn from one of the three legs, so a three-phase supply is only as
+      useful as its balance. See power.constraint.phase_balance.
+
+  - id: power.item.dc_48v
+    name: DC 48 V
+    kind: power
+    form: electrical
+    carries: Direct current at 48 V, for PoE-style device supply and battery systems
+    properties:
+      voltage_v: 48
+      phases: 0
+      conductors: "+, -"
+    notes: Where 48 V arrives over an Ethernet cable, model the link as network and this item as its payload.
