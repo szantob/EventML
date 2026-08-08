@@ -22,7 +22,7 @@ they hold.
 | 3 | **Catalogue ID format:** `<domain>.<kind>.<name>` — lowercase, `snake_case` name, e.g. `audio.item.analog_line`, `audio.port.xlr3f`, `power.part.distro`, `audio.req.speech_intelligibility`. Domains: `audio`, `lighting`, `video`, `network`, `power`. Kinds: `item`, `port`, `part`, `interface`, `req`, `constraint`. |
 | 4 | **Type reference vs instance ID:** a usage names its catalogue type under key `def:`; its own identifier is `id:`. Never infer one from the other. |
 | 5 | **Port reference syntax:** `<part_id>:<port_id>[<index>]`, e.g. `sb1:dante[0]`. The index is omitted when the port count is 1. |
-| 6 | **Every YAML file starts with the same three header keys:** `eventml`, `layer`, and either `domain` (library files) or `project` (model files). |
+| 6 | **Every YAML file opens with a three-key header document, then `---`, then the content.** Library files: `eventml`, `kind`, `domain`. Model files: `eventml`, `layer`, `project`. A library file never carries `layer` or `project`; a model file never carries `kind` or `domain`. |
 | 7 | **Version floors:** `eventml: "0.1"` in every YAML file. `eventml-core` and `eventml-lib` version separately; both are `0.1.0` at the v0.1 tag. |
 | 8 | **Adopt, don't invent.** Where a term exists in GDTF, NMOS, IFC or SysML v2, use that term and record the source in a `source:` key. Only coin a term when no standard has one. |
 | 9 | **Commit after every task.** Never push — pushing is the user's decision. |
