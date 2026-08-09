@@ -110,10 +110,19 @@ and it is versioned separately — vocabulary grows without touching the languag
 ## Scope at v0.3
 
 Base concepts across five domains — audio, lighting, video, ethernet network, electrical — with the kernel
-stable enough that adding depth later will not restructure it, plus the `Decision` entity and the `affect`
-relation for recording who chose something and whether anyone outside the team agreed to it. v0.3 is a
-specification: prose and data, no executable code. A machine-readable schema, a validator, derived question
-lists and diagram generation follow in v0.6.
+stable enough that adding depth later will not restructure it. v0.1 built that kernel; v0.2 added the
+`Decision` entity and the `affect` relation, for recording who chose something and whether anyone outside
+the team agreed to it.
+
+v0.3 is about where a model's vocabulary comes from. A library declares its own name and version in a
+manifest; a project declares which library it resolves against, by name and version rather than by
+location, so the same reference means something in a git repository, a folder and a web interface. A model
+resolves against exactly one library. Requirement templates gained `applies_when`, one sentence saying when
+each applies — an outdoor event implies weather protection, a spoken-word item implies intelligibility —
+so that judgement lives in the library rather than in whoever happens to be modelling.
+
+v0.3 is still a specification: prose and data, no executable code. A machine-readable schema, a validator,
+derived question lists and diagram generation follow in v0.6.
 
 Because there is no validator, **the worked examples are the only test v0.3 has**, under two rules: every
 defined concept must appear in at least one example, and every example must be walkable across all four

@@ -54,7 +54,8 @@ rule rather than a special case: every library carries a version of its own. Eve
 language version it was written against in an `eventml:` header key — the lowest version whose constructs
 the file actually uses, not the version of the repository as a whole. A project's four layer files can stay
 at `"0.1"` while its `decisions.yaml`, the only file using the `Decision` entity, declares `"0.2"`; mixed
-floors within one project are correct. At this tag both `eventml-core` and `eventml-lib` are `0.2.0`.
+floors within one project are correct. At this tag `eventml-core` is `0.3.0` and `eventml-lib` is `0.2.0` —
+the divergence this release makes ordinary, since the two now move on their own schedules.
 
 ## 6. Relationship to existing standards
 
