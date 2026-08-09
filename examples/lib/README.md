@@ -1,6 +1,12 @@
-# lib — the EventML domain library
+# examples/lib — an example EventML domain library
 
-The library is **data, not schema.** Everything here is written in the language defined by `spec/`; nothing
+**This is one library, not the library.** EventML has no central catalogue: every organisation modelling
+real events owns its own, and a project resolves against exactly one of them by name and version — see
+`spec/05-concrete-syntax.md`. This one exists so the worked models under `examples/` have something to
+resolve against, and so that an organisation starting out has entries worth copying as a seed. Copy from it;
+do not resolve a real project against it.
+
+A library is **data, not schema.** Everything here is written in the language defined by `spec/`; nothing
 here extends it. A new microphone type, a new connector, a new requirement template is a change to this
 directory. A new *kind of thing* — a new entity, a new relation, a new value state — is a change to `spec/`
 and needs justification.
