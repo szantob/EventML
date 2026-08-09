@@ -17,7 +17,11 @@ requirements:
       inputs:
         value: 8
         state: derived
-        why: "four panellists at one microphone each, a lectern microphone, two spare handhelds, one laptop feed"
+        why: >-
+          Four panellists at one microphone each, a lectern microphone, two spare handhelds, one laptop
+          feed. Takes the lower arm of the conflicting brief.program[1].panellists; if the count settles
+          at five this derives to nine, which is why the conflict is worth resolving before the input
+          list is ordered.
       position: "the stage end of the room"
     refines: brief.program[1]
 
