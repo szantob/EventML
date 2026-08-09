@@ -1,0 +1,50 @@
+eventml: "0.2"
+kind: decisions
+project: garden-party
+---
+decisions:
+  - id: d-audience-450
+    date: 2026-08-12
+    by: { party: client, person: "event manager" }
+    decision: "The system is sized for 450 guests."
+    why: "the guest list grew between the brief and the update; the client confirmed the larger number in writing"
+    alternatives:
+      - { option: "300 guests", why_not: "stated in the first email and superseded by the update of 5 August" }
+    affects: [brief.audience, main-pa, r-speech-intelligible, r-coverage-uniformity]
+    src: s-client-update
+    needs_agreement: true
+    agreed_by: { party: client, person: "event manager", src: s-client-confirm }
+    notes: >-
+      This is what resolves the conflicting value in brief.audience. The value does not become `stated`
+      — both numbers were true when written. It becomes a value the model depends on because somebody
+      chose it, and this record is where that choice lives.
+
+  - id: d-digital-transport
+    date: 2026-08-14
+    by: { party: production, person: "system engineer" }
+    decision: "Stage inputs reach front of house as Dante over Cat6a, not as an analogue multicore."
+    why: >-
+      Thirty-two channels across the terrace; an analogue multicore of that size is heavier than two
+      people can carry and slower to derig than the venue's load-out window allows
+    alternatives:
+      - { option: "16-way analogue multicore", why_not: "weight, and derig time the venue will not give us" }
+    affects: [sb1, sw-stage, sw-foh]
+    src: s-venue-call
+    notes: >-
+      An engineering choice: no `agreed_by`, and none needed. It is also the decision the README
+      described in prose before v0.2 — the stage box and both switches exist only because of it, and
+      nothing at L2 records a digital transport at all.
+
+  - id: d-no-cover
+    date: 2026-08-14
+    by: { party: production, person: "project manager" }
+    decision: "No marquee or stage cover is carried, and no cover budget is quoted."
+    why: "the brief never mentions cover and the terrace is assumed open; carrying one would change the quote materially"
+    alternatives:
+      - { option: "carry a small stage cover", why_not: "adds cost to a quote the client called 'nothing fancy'" }
+    affects: [r-weather-protection]
+    src: s-client-brief
+    needs_agreement: true
+    notes: >-
+      Deliberately unagreed, and the reason rule 7 exists. The client has not been told that rain means
+      the show stops. `agreed_by` is absent, so the question fires until somebody asks them.

@@ -93,6 +93,27 @@ vox1 ──f-vox-to-sb1──▶ sb1 ═adc═▶ sb1:net
 
 `══▶` is an internal edge inside a part; `──▶` is a flow over connections.
 
+## The decisions
+
+`decisions.yaml` holds three decisions, each demonstrating a different part of `spec/07-decisions.md`.
+
+`d-audience-450` is a client agreement resolving a `conflicting` value. `brief.audience` stays
+`conflicting` — the model does not turn 450 into a new `stated` fact, because both 300 and 450 were true
+when written. What changes is that the plan now depends on 450, and this decision is the record of who
+chose that number, when, and on what evidence: the client's update email as `src`, and the client's
+confirmation cited by `agreed_by.src` rather than assumed.
+
+`d-digital-transport` is an engineering choice with no `agreed_by` — nothing outside the team needed to
+sign off on how the stage inputs reach front of house. It is also the sentence this README used to carry
+in prose, in the "Layer boundary" section above: the stage box and both switches exist only because a
+digital transport was chosen at L3, and nothing at L2 records that a digital transport exists at all. That
+sentence is now a `Decision`, not a paragraph — the model holds it, the README just points at it.
+
+`d-no-cover` is a decision nobody has agreed to. It carries `needs_agreement: true` and no `agreed_by`,
+so question rule 7 in `spec/04-uncertainty.md` fires on it: the client has not been told that a stage cover
+is out of scope, which means an outdoor event's weather risk is being carried by the client without their
+knowledge. See the question list below.
+
 ## The question list
 
 **This list is hand-written.** v0.1 has no validator and no traversal engine, so nothing here was computed
@@ -147,9 +168,16 @@ questions:
     source: [mix-position, playback, monitor-world]
     blocks: 0
     internal: true   # for the project manager, not for the client
+
+  - ask: "Can you confirm we are not carrying a cover? If it rains on the 12th the terrace has nowhere to go, and we would rather agree now what happens than decide it on the night."
+    why: "d-no-cover is unagreed; it moves a weather risk onto the client without their knowledge"
+    rule: 7
+    source: d-no-cover
+    blocks: 0
+    internal: true   # for the project manager, not for the client
 ```
 
-Seven questions, and the first three decide most of the plan. Forty things in this model are unspecified;
+Eight questions, and the first three decide most of the plan. Forty things in this model are unspecified;
 these are the ones with requirements hanging off them.
 
 Note what rule 2 does in the first question. Nobody stated that the terrace is uncovered — it was assumed
