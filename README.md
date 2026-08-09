@@ -97,7 +97,7 @@ perfectly. The reasoning is set out in full in the [design document](docs/superp
 ## Layout
 
 ```
-spec/       the language: layers, metamodel, relations, uncertainty, syntax, SysML mapping
+spec/       the language: layers, metamodel, relations, uncertainty, decisions, syntax, SysML mapping
 lib/        domain library: audio, lighting, video, network, power vocabulary
 examples/   worked models exercising all four layers
 docs/       design records and the Hungarian glossary
@@ -106,17 +106,18 @@ docs/       design records and the Hungarian glossary
 The **kernel** (`spec/`) is the language. The **domain library** (`lib/`) is data written in that language,
 and it is versioned separately — vocabulary grows without touching the language.
 
-## Scope of the first release
+## Current scope
 
 Base concepts across five domains — audio, lighting, video, ethernet network, electrical — with the kernel
-stable enough that adding depth later will not restructure it. v0.1 is a specification: prose and data, no
-executable code. A machine-readable schema, a validator, derived question lists and diagram generation follow
-in the next stage.
+stable enough that adding depth later will not restructure it, plus the `Decision` entity and the `affect`
+relation for recording who chose something and whether anyone outside the team agreed to it. v0.2 is a
+specification: prose and data, no executable code. A machine-readable schema, a validator, derived question
+lists and diagram generation follow in v0.5.
 
-Because there is no validator, **the worked examples are the only test v0.1 has**, under two rules: every
+Because there is no validator, **the worked examples are the only test v0.2 has**, under two rules: every
 defined concept must appear in at least one example, and every example must be walkable across all four
-layers. Both are met — 172 of 172 concepts exercised — and enforcing the first one is what produced the
-third example and found four real defects in the domain library. The question lists in the examples are
+layers. Both are met — 172 of 172 library concepts exercised — and enforcing the first one is what produced
+the third example and found four real defects in the domain library. The question lists in the examples are
 hand-written to show the intended output; deriving them is a v0.5 task.
 
 ## Language

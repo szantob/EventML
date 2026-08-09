@@ -127,7 +127,7 @@ questions:
     source: f-dmx-effect.properties.channels_used
     blocks: 1
 
-  - ask: "Can you get confirmation in writing from the council that flying the cable on a catenary at 5.2 m over the path is acceptable to them? They told us what was not allowed on the ground; nobody has gone back to ask them about what we are doing instead."
+  - ask: "d-foh-catenary is unagreed: the council said what was not allowed on the ground, but nobody has gone back to confirm the catenary alternative at 5.2 m with them."
     why: "d-foh-catenary is unagreed; the council can still stop the show on the day if their objection was engineered around rather than actually settled"
     rule: 7
     source: d-foh-catenary

@@ -5,9 +5,9 @@ project: garden-party
 decisions:
   - id: d-audience-450
     date: 2026-08-12
-    by: { party: client, person: "event manager" }
+    by: { party: production, person: "system engineer" }
     decision: "The system is sized for 450 guests."
-    why: "the guest list grew between the brief and the update; the client confirmed the larger number in writing"
+    why: "the guest list grew between the brief and the update; sizing for the larger number now avoids rebuilding the PA plan later if it holds"
     alternatives:
       - { option: "300 guests", why_not: "stated in the first email and superseded by the update of 5 August" }
     affects: [brief.audience, main-pa, r-speech-intelligible, r-coverage-uniformity]

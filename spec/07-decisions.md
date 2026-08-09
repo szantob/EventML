@@ -96,10 +96,9 @@ A decision is the residue left once those four have taken everything they cover:
 real alternatives, that costs something to reverse. If a project's decision count approaches its requirement
 count, the criterion is being applied loosely — most projects have far fewer choices that are both genuinely
 open and expensive to undo than they have things the system must achieve. That review signal is what
-justifies the `affects` exception in `03-relationships.md`: `affects` is allowed to point at ids from any
-layer, rather than following the single-layer discipline the other relations keep, precisely because a
-well-applied criterion keeps the list of things doing the pointing short enough that the exception never
-becomes a loophole.
+justifies the `affects` exception in `03-relationships.md`: `affects` may sit at the upper end of its edge,
+against the lower-end rule the other five relations keep, precisely because a well-applied criterion keeps
+the list short enough to scan.
 
 ## 6. Worked example
 
@@ -108,9 +107,9 @@ The garden-party audience decision, showing a `conflicting` value being resolved
 ```yaml
 - id: d-audience-450
   date: 2026-08-12
-  by: { party: client, person: "event manager" }
+  by: { party: production, person: "system engineer" }
   decision: "The system is sized for 450 guests."
-  why: "the guest list grew; the client confirmed the larger number"
+  why: "the guest list grew between the two client emails; sizing for the larger number now avoids rebuilding the PA plan later if it holds"
   alternatives:
     - { option: "300 guests", why_not: "superseded by the update of 5 August" }
   affects: [brief.audience, main-pa, r-speech-intelligible]

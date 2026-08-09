@@ -32,6 +32,14 @@ brief:
       excerpt: >-
         The house network is available for guests. There is a patch panel at the back of the room. Our
         technician will be on site from 07:00.
+    - id: s-client-panel-update
+      kind: email
+      date: 2026-10-21
+      from: client
+      subject: "Re: Annual partner meeting — event brief"
+      excerpt: >-
+        Quick update on the panel — it's five now, not four, one more of our directors wants to join.
+        Still two of them dialling in remotely.
 
   audience:
     value: 120
@@ -88,7 +96,16 @@ brief:
     - id: b-panel
       at: "14:00"
       what: Panel discussion
-      panellists: 4
+      panellists:
+        state: conflicting
+        alternatives:
+          - { value: 4, src: s-client-brief }
+          - { value: 5, src: s-client-panel-update }
+        notes: >-
+          The original brief said four; the follow-up email said five, with no indication of who the
+          fifth person is or whether they replace one of the original four or add a seat. Panel seating,
+          mic count and the video switcher's input list all depend on which number is right, and nobody
+          has confirmed it since.
       remote_panellists:
         value: 2
         state: stated

@@ -211,22 +211,20 @@ rather than a question — boundary rule 3 in `01-layers.md`.
 
 **Trigger.** A `Decision` carrying `needs_agreement: true` and no `agreed_by`.
 
-Somebody outside the team has to assent to this and has not. The decision may
-already be built into the design, ordered, and on the truck — nothing about an
-unagreed decision stops the work, which is exactly why it needs surfacing before
-the invoice does it instead.
+Somebody outside the team has to assent to this and has not. The decision may already be built into the
+design, ordered, and on the truck — nothing about an unagreed decision stops the work, which is exactly why
+it needs surfacing before the invoice does it instead.
 
-`needs_agreement` is set by the author rather than derived, which repeats a
-pattern the language already justifies: `ask: true` on an assumed value records
-the judgement at the point where it is made, by the only person able to make it.
-Whether a choice needs the client's assent is the same kind of judgement.
+`needs_agreement` is set by the author rather than derived, which repeats a pattern the language already
+justifies: `ask: true` on an assumed value records the judgement at the point where it is made, by the only
+person able to make it. Whether a choice needs the client's assent is the same kind of judgement.
 
-Like rules 3 and 6 the question is addressed to the project manager, though
-answering it usually means contacting somebody else.
+Like rules 3 and 6 the question is addressed to the project manager, though answering it usually means
+contacting somebody else.
 
 ```yaml
-- ask: "Can you confirm we are leaving out the backup generator? We agreed it in July but never put it in writing, and it means the show stops if the supply fails."
-  why: "d-no-backup-genset is unagreed and it moves a risk onto the client"
+- ask: "d-no-cover is unagreed: no cover is carried and no cover budget is quoted, and nobody has told the client that rain leaves the terrace with nowhere to go."
+  why: "d-no-cover is unagreed and it moves a weather risk onto the client"
   blocks: 0
 ```
 

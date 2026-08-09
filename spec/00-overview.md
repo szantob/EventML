@@ -16,7 +16,7 @@ EventML treats incompleteness as data: a value can be stated, assumed, derived, 
 the model stays valid at every one of those states. The language exists to hold a plan together while it is
 still full of gaps, and to make those gaps explicit rather than silently defaulted.
 
-## 3. What v0.1 covers
+## 3. What the kernel covers
 
 v0.1 establishes base concepts across five domains — audio, lighting, video, network, power — at a shallow,
 uniform depth. Every domain gets the same treatment: signal types, port kinds, core part categories, and a
@@ -46,8 +46,10 @@ language in use but do not extend it. Where an example and the spec disagree, th
 `eventml-core` (the metamodel defined in `spec/`) and `eventml-lib` (the domain vocabulary defined in
 `lib/`) version separately, because they move at different rates: the kernel should change rarely, the
 vocabulary can grow at any time. Every YAML file, in `lib/` and in `examples/` alike, declares the language
-version it was written against in an `eventml:` header key. At the v0.1 tag both `eventml-core` and
-`eventml-lib` are `0.1.0`, and every file declares `eventml: "0.1"`.
+version it was written against in an `eventml:` header key — the lowest version whose constructs the file
+actually uses, not the version of the repository as a whole. A project's four layer files can stay at
+`"0.1"` while its `decisions.yaml`, the only file using the `Decision` entity, declares `"0.2"`; mixed
+floors within one project are correct. At this tag both `eventml-core` and `eventml-lib` are `0.2.0`.
 
 ## 6. Relationship to existing standards
 

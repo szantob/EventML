@@ -346,6 +346,10 @@ established by looking at the parts.
   refines: brief.program.welcome_speech
 ```
 
+A fifth kind of record, `Decision`, lives in a project's model files alongside these four usages without
+being one of them: it names no `PartDef` or `RequirementDef` under `def:`, and one `Decision` can determine
+elements across every layer in a single edge. See `07-decisions.md`.
+
 ## 4. Connection and Flow are separate
 
 `Connection` and `Flow` describe the same cable run from two different angles, and both angles are needed.

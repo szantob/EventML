@@ -47,7 +47,7 @@ to it.
   touches a brief element, a requirement and a part in the same breath. It reuses the `kind` header key
   from library files — which answers "what is in this file" — rather than `layer`, which a decisions file
   has no answer to.
-- **Question rule 6**: an L2 `Part` with an empty `satisfies` generates a
+- **Question rule 6** (`spec/04-uncertainty.md`): an L2 `Part` with an empty `satisfies` generates a
   question. It is rule 3 seen from the other end — rule 3 reports something promised that nothing delivers,
   rule 6 reports something delivered that nothing promised. Restricted to L2, because an L3 part inherits
   its justification through `allocate`. Its `blocks` is always 0, so it ranks last, which is correct: an
@@ -77,7 +77,7 @@ to it.
   is the one rule 7 considers.
 - **Formalisation moved from v0.2 to v0.5.** The v0.1.0 notes below said a machine-readable schema, a
   validator and a derived question list were the first task of v0.2; this release carries the decision
-  record instead, so `CLAUDE.md`, `README.md`, `spec/02-metamodel.md` and `spec/04-uncertainty.md` are
+  record instead, so `CHANGELOG.md`, `README.md`, `spec/02-metamodel.md` and `spec/04-uncertainty.md` are
   corrected rather than left holding a promise the release did not keep.
 - **The version floor is now per file, not per repository.** `eventml:` in a file's header is the lowest
   version whose constructs the file actually uses, and marks capability rather than calendar: a project's

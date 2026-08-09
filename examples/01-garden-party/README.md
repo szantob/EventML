@@ -7,7 +7,7 @@ A small outdoor event, modelled from the brief quoted in the repository README:
 > send a quote?"*
 
 Two domains — audio and power, with network underneath the audio — across all four layers. The model is
-deliberately unfinished: it is what a project looks like eleven days after the first email, when three
+deliberately unfinished: it is what a project looks like thirteen days after the first email, when three
 answers are still outstanding and the quote has to go out anyway.
 
 ## Files
@@ -18,6 +18,7 @@ answers are still outstanding and the quote has to go out anyway.
 | `requirements.yaml` | L1 | Nine requirements, two of them unsatisfied |
 | `logical.yaml` | L2 | Eight function blocks, ten connections, four flows |
 | `physical.yaml` | L3 | Seventeen devices, twenty-two connections, eight flows |
+| `decisions.yaml` | — | Three decisions: an agreed one, an engineering choice, and one still unagreed |
 
 ## What this example demonstrates
 
@@ -27,9 +28,10 @@ microphone is `derived` from the absence of a lectern; and the guest count is `c
 first email, 450 in the second, both true when written, and the model refuses to silently pick one.
 
 **Two requirements are unsatisfied, for different reasons.** `r-band-monitoring` cannot be designed because
-nobody has said how many musicians there are. `r-weather-protection` could be designed today — the
-information exists — but nobody has decided whether the event moves indoors if it rains. Both fire question
-rule 3; only one of them is waiting on the client.
+nobody has said how many musicians there are. `r-weather-protection` is unsatisfied too, but not for want of
+a decision: `d-no-cover` in `decisions.yaml` records that production decided to carry no cover and no cover
+budget. What is missing there is not the design but the client's agreement to it, which is what question
+rule 7 fires on below. Only `r-band-monitoring` appears under rule 3 in the question list.
 
 **Two requirements have no `refines` edge.** `r-rcd-protection` and `r-input-capacity` came from
 professional judgement, not from anything the client said. No client asks for residual current protection.
@@ -99,11 +101,12 @@ vox1 ──f-vox-to-sb1──▶ sb1 ═adc═▶ sb1:net
 
 `decisions.yaml` holds three decisions, each demonstrating a different part of `spec/07-decisions.md`.
 
-`d-audience-450` is a client agreement resolving a `conflicting` value. `brief.audience` stays
-`conflicting` — the model does not turn 450 into a new `stated` fact, because both 300 and 450 were true
-when written. What changes is that the plan now depends on 450, and this decision is the record of who
-chose that number, when, and on what evidence: the client's update email as `src`, and the client's
-confirmation cited by `agreed_by.src` rather than assumed.
+`d-audience-450` is a production decision resolving a `conflicting` value, with the client's agreement
+recorded separately. `brief.audience` stays `conflicting` — the model does not turn 450 into a new `stated`
+fact, because both 300 and 450 were true when written. What changes is that the plan now depends on 450, and
+this decision is the record of who chose that number, when, and on what evidence: the client's update email
+as `src`, production's choice to size for the larger figure, and the client's confirmation cited by
+`agreed_by.src` rather than assumed.
 
 `d-digital-transport` is an engineering choice with no `agreed_by` — nothing outside the team needed to
 sign off on how the stage inputs reach front of house. It is also the sentence this README used to carry
@@ -120,7 +123,7 @@ knowledge. See the question list below.
 
 **This list is hand-written.** v0.1 has no validator and no traversal engine, so nothing here was computed
 — it is what the derivation defined in `spec/04-uncertainty.md` should produce from this model, written out
-by hand to show the intended output. v0.2 derives it. Where this list and the model disagree, the model is
+by hand to show the intended output. v0.5 derives it. Where this list and the model disagree, the model is
 right and this list is stale.
 
 Ranked by `blocks` — the number of requirements reachable downstream of the open node.
@@ -165,7 +168,7 @@ questions:
     blocks: 0
     internal: true   # for the project manager, not for the client
 
-  - ask: "Can you confirm we are not carrying a cover? If it rains on the 12th the terrace has nowhere to go, and we would rather agree now what happens than decide it on the night."
+  - ask: "d-no-cover is unagreed: no cover is carried and no cover budget is quoted, and nobody has told the client that rain leaves the terrace with nowhere to go."
     why: "d-no-cover is unagreed; it moves a weather risk onto the client without their knowledge"
     rule: 7
     source: d-no-cover
