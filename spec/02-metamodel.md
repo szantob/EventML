@@ -232,6 +232,7 @@ when those questions fire.
 ```yaml
 - id: audio.req.speech_intelligibility
   name: Speech intelligibility
+  applies_when: "the brief has any spoken-word programme item — a speech, a ceremony, a panel discussion"
   text: "Speech must be intelligible across {area} for an audience of {audience}."
   params:
     - { name: area,     type: string }
