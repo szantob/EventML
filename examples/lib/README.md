@@ -12,7 +12,7 @@ Where the two disagree, `spec/` wins.
 Every domain is a directory of four files, one per entity kind:
 
 ```
-lib/<domain>/
+<library>/<domain>/
 ├── items.yaml          # ItemDef      — what flows
 ├── ports.yaml          # PortDef      — connection points (and InterfaceDefs)
 ├── parts.yaml          # PartDef      — device types and abstract L2 blocks

@@ -5,7 +5,7 @@
 EventML separates **definitions** from **usages**, a split taken directly from SysML v2's `def`/`usage`
 pattern. A definition is a reusable catalogue type: the concept of a digital stage box, of an XLR 3-pin
 female socket, of balanced line-level audio. It describes what something *is*, independent of any event.
-Definitions live in `lib/` and carry catalogue IDs of the form `<domain>.<kind>.<name>`.
+Definitions live in a library and carry catalogue IDs of the form `<domain>.<kind>.<name>`.
 
 A usage is one occurrence of that type in one project: the stage box standing at the drum riser on 12
 September, with the label the crew wrote on its case. Usages live in model files under `examples/` or in a
@@ -13,20 +13,20 @@ project's own repository. A usage names its type under the key `def:` and carrie
 `id:`. These two keys are never inferred from one another — a model may hold six stage boxes, all with
 `def: audio.part.stage_box` and six distinct `id:` values.
 
-The split matters here for a practical reason. The catalogue is shared across every project and maps onto
-rental inventory: `audio.part.stage_box` is the row in the hire system, and a `catalog_ref` on the
-definition is what binds the model to it. Instances are per-event and disposable — they are created when a
-brief arrives and discarded when the truck comes back. Keeping the two apart is what lets the vocabulary
-accumulate while individual models stay small.
+The split matters here for a practical reason. The catalogue is shared across every project **of the
+organisation that owns it**, and maps onto their rental inventory: `audio.part.stage_box` is the row in the
+hire system, and a `catalog_ref` on the definition is what binds the model to it. Instances are per-event and
+disposable — they are created when a brief arrives and discarded when the truck comes back. Keeping the two
+apart is what lets the vocabulary accumulate while individual models stay small.
 
-The eleven entities and what each one references. Definitions sit above, in `lib/`, and reference only other
-definitions; usages sit below, in a project's model files, and the four arrows crossing the boundary are each
-a usage naming its catalogue type. `Decision`, added in v0.2, is the one record that crosses nothing — it
-names no definition at all, and reaches usages and brief paths directly, at any layer.
+The eleven entities and what each one references. Definitions sit above, in a library, and reference only
+other definitions; usages sit below, in a project's model files, and the four arrows crossing the boundary
+are each a usage naming its catalogue type. `Decision`, added in v0.2, is the one record that crosses
+nothing — it names no definition at all, and reaches usages and brief paths directly, at any layer.
 
 ```mermaid
 flowchart BT
-    subgraph lib["lib/ — definitions · catalogue types, shared across projects"]
+    subgraph lib["a library — definitions · catalogue types, shared across one organisation's projects"]
         direction LR
         ItemDef
         PortDef
@@ -69,7 +69,7 @@ only to show that `Decision` has no `def:` of its own.
 
 ## 2. Definition entities
 
-Six entities are definitions. All of them may appear in `lib/`; none of them may appear in a model file.
+Six entities are definitions. All of them may appear in a library; none of them may appear in a model file.
 
 ### ItemDef
 
@@ -270,7 +270,7 @@ model can apply it by hand.
 
 ## 3. Usage entities
 
-Four entities are usages. All of them appear in model files; none of them may appear in `lib/`.
+Four entities are usages. All of them appear in model files; none of them may appear in a library.
 
 ### Part
 
