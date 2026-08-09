@@ -188,6 +188,12 @@ sentence, and nothing can resolve it.
   written, not transliterated.
 - **Comments** explain why, not what. `# 32 A three-phase, confirmed on the site visit` earns its line;
   `# the stage box` does not.
+- **`notes` is permitted on any entry**, in `lib/` and in model files alike, and holds free text about the
+  entry rather than part of it. It is where a modeller says what a reader would otherwise have to
+  reconstruct: why a value was left unknown, what a decision would cost to reverse, which of two readings
+  of a brief sentence was taken. Nothing in the language derives anything from it. The entity tables in
+  `02-metamodel.md` and `07-decisions.md` do not repeat it — it is a property of entries, not of any one
+  entity, and a comment is the wrong tool because comments do not survive a round trip through a parser.
 
 ```yaml
 connections:

@@ -207,6 +207,11 @@ several decisions.
 The second reason is also a check on the first: if a project accumulates as many decisions as requirements,
 the fault lies in the recording rather than in the relation.
 
+**Containment.** An `affects` entry covers the element it names and every value inside it. Naming a
+requirement reaches the parameters within it; naming a part reaches its properties. Enumerating every
+nested value instead would make the lists long, fragile, and wrong the moment an element gained a field.
+`04-uncertainty.md` relies on this where rule 4 stops firing on a conflict a decision has settled.
+
 **When the edge is absent.** A decision with no `affects` determined nothing, which means it is not a
 decision. Unlike the other relations, an empty `affects` is a modelling error rather than a question.
 
