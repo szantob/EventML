@@ -9,7 +9,22 @@ versioned separately. Entries state which one changed.
 
 ## [Unreleased]
 
-Nothing yet. Work landing after v0.2.0 is recorded here until it is released.
+### Changed — eventml-core
+
+- **Six Mermaid diagrams in `spec/`**, one per claim the prose was carrying alone. `01-layers.md` gets the
+  four-layer stack with every arrow drawn the way the edge is stored, which is boundary rule 1 as a picture.
+  `02-metamodel.md` gets the eleven-entity reference graph, definitions above and usages below with the four
+  `def:` arrows crossing between them, and the `Connection` versus `Flow` worked case with the connections
+  drawn as elements rather than as lines — one flow riding three of them, which is the whole argument for
+  keeping the two entities apart. `03-relationships.md` gets the `affect` placement next to an ordinary
+  relation for contrast, and its traversal chain redrawn from ASCII art. `04-uncertainty.md` gets all seven
+  question rules as one tree, including the edge where a `Decision` takes a conflict off rule 4 and hands it
+  to rule 7. The language is unchanged: every diagram restates something already written beside it, and
+  `00-overview.md` now says so — where a diagram and the prose disagree, the prose wins.
+- **`03-relationships.md`'s traversal chain uses the model's own identifiers.** The ASCII version named
+  `req.monitor_coverage` and `part.monitor_world`, which are neither catalogue IDs nor instance IDs; the
+  diagram that replaces it names `r-monitor-coverage` and `monitor-world`, matching the field-read walk
+  printed directly below it.
 
 ## [0.2.0] - 2026-08-09
 

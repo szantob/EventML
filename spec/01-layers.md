@@ -13,6 +13,37 @@ answers a different question about the same event, at a different distance from 
 The `layer:` value is the literal string written in the header of every YAML file that models something at
 that layer. It is written exactly as it appears in the table above: lowercase, singular.
 
+The four layers and the edges between them, drawn so that every arrow points the way the edge is stored —
+from the concrete element upward to the abstract one it depends on. This is boundary rule 1 at the end of
+this file, seen as a picture: nothing on the diagram points downward.
+
+```mermaid
+flowchart BT
+    subgraph L3["L3 Physical — Physical Architecture"]
+        P3["Part · Port · Connection · Flow<br/>concrete PartDefs"]
+    end
+    subgraph L2["L2 Logical — Logical Architecture"]
+        P2["Part · Port · Connection · Flow<br/>abstract PartDefs"]
+    end
+    subgraph L1["L1 Requirement — System Analysis"]
+        R["Requirement"]
+    end
+    subgraph L0["L0 Brief — Operational Analysis"]
+        B["brief elements · sources<br/>free-form values, no entities"]
+    end
+
+    P3 -->|"Part.allocate"| P2
+    P3 -->|"Part.satisfies"| R
+    P2 -->|"Part.satisfies"| R
+    R -->|"Requirement.refines"| B
+```
+
+The `satisfy` edge is drawn from both L2 and L3 because either may carry it; `allocate` is mandatory on every
+L3 part and is what keeps the physical design traceable. Three relations are left off: `derive`, which runs
+from a requirement to its parent inside L1 and so crosses no boundary, and `trace` and `affect`, which run
+between a value and a source and between a decision and anything at all. All three are in
+`03-relationships.md`.
+
 ## L0 Brief
 
 **What belongs here.** Free-form structured values describing what the client and the audience do, in the

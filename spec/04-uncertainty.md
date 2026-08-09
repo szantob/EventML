@@ -90,6 +90,46 @@ A question is generated in exactly seven situations. Each generated question car
 - `why` — what the answer decides, in the project manager's terms
 - `blocks` — the number of requirements downstream of the open node
 
+All seven, as one tree. Three of them read a value's state, two read the shape of the traceability graph,
+one reads a constraint, and one reads a decision — so the first branch is not *which state is this* but
+*what am I looking at*.
+
+```mermaid
+flowchart TD
+    N{"what is being looked at?"}
+    N -->|"a value"| V{"state?"}
+    N -->|"a Requirement or a Part"| G{"which case?"}
+    N -->|"a ConstraintDef"| CN{"does the<br/>expression hold?"}
+    N -->|"a Decision"| DC{"needs_agreement: true<br/>and no agreed_by?"}
+
+    V -->|"stated"| NV(["no question"])
+    V -->|"derived"| NV
+    V -->|"assumed"| A{"ask: true?"}
+    V -->|"unknown"| U{"reachable from<br/>a Requirement?"}
+    V -->|"conflicting"| CF{"named in a<br/>Decision's affects?"}
+
+    A -->|"no"| NA(["no question"])
+    A -->|"yes"| R2["Rule 2 — an assumption<br/>somebody flagged"]
+    U -->|"no"| NU(["no question"])
+    U -->|"yes"| R1["Rule 1 — an unknown<br/>a requirement depends on"]
+    CF -->|"no"| R4["Rule 4 — an unresolved<br/>disagreement"]
+    CF -->|"yes · rule 4 stops here"| DC
+
+    G -->|"a Requirement no Part satisfies"| R3["Rule 3 — promised,<br/>nothing delivers it"]
+    G -->|"an L2 Part with empty satisfies"| R6["Rule 6 — delivered,<br/>nothing promised it"]
+    G -->|"an L3 Part with no allocate"| ERR["modelling error —<br/>boundary rule 3, not a question"]
+
+    CN -->|"yes"| NC(["no question"])
+    CN -->|"no"| R5["Rule 5 — a violated<br/>constraint"]
+
+    DC -->|"no"| ND(["no question"])
+    DC -->|"yes"| R7["Rule 7 — a decision<br/>nobody has agreed to"]
+```
+
+The one edge worth following twice is `conflicting` → *named in a Decision's `affects`* → the decision's own
+test. That is the handover set out under rule 4 below: the conflict stops being an information question and
+becomes an agreement question, or stops being a question at all.
+
 #### Rule 1 — an `unknown` value a requirement depends on
 
 **Trigger.** A value with `state: unknown` that is reachable from at least one `Requirement`, whether as a

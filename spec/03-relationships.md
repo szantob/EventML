@@ -196,6 +196,26 @@ tell an assumption from a fact. That is the failure mode `trace` exists to preve
 **Cardinality.** Many-to-many. One decision may determine several elements; one element may be determined by
 several decisions.
 
+The placement is easiest to see next to an ordinary relation. In both halves below, the arrow runs from the
+element that holds the field to the element the field names; only in `affect` does it run from the abstract
+record down to the concrete elements it determined.
+
+```mermaid
+flowchart TB
+    subgraph five["the other five — the field sits at the lower, concrete end"]
+        direction LR
+        PL["pa-left<br/>L3 · Part"] -->|"allocate"| MP["main-pa<br/>L2 · Part"]
+    end
+    subgraph one["affect — the field sits at the upper end, on the Decision"]
+        direction LR
+        D["d-digital-transport<br/>decisions.yaml"] -->|"affects"| E["sb1 · sw-stage · sw-foh<br/>L3 · Part"]
+    end
+    MP ~~~ D
+```
+
+Reaching from `pa-left` to the block it realises is a field read. Reaching from `sb1` to the decision that
+put it in the plan is a scan of `decisions.yaml` for an `affects` entry that names it.
+
 **Why it sits on the decision.** Two reasons, stated plainly:
 
 - A record must read as a record. A decision whose scope is split across five files cannot be reviewed, and
@@ -223,12 +243,18 @@ decision's history backward stays a field read.
 These relations chain into one path from a sentence in a client's email down to a cable. Following the
 band from the garden-party brief:
 
-```
-brief.program[1].size          (L0, state: unknown)
-   └─refine→ req.monitor_coverage        (L1)
-              └─satisfy→ part.monitor_world   (L2)
-                          └─allocate→ part.wedge_1..4  (L3)
-                                       └─connect→ c-amp-wedge-1..4
+```mermaid
+flowchart TD
+    B["brief.program#91;1#93;.size<br/>L0 · state: unknown"]
+    R["r-monitor-coverage<br/>L1 · Requirement"]
+    M["monitor-world<br/>L2 · Part"]
+    W["wedge_1 … wedge_4<br/>L3 · Part"]
+    C["c-amp-wedge-1 … 4<br/>L3 · Connection"]
+
+    B -->|"refine"| R
+    R -->|"satisfy"| M
+    M -->|"allocate"| W
+    W -->|"connect"| C
 ```
 
 Nobody has said how many musicians are in the band. That single unknown at L0 refines into a requirement

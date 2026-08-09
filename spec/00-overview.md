@@ -41,6 +41,10 @@ Read the files in order:
 `spec/` is normative: it defines the language. `lib/` and `examples/` are illustrative: they show the
 language in use but do not extend it. Where an example and the spec disagree, the spec wins.
 
+The diagrams in `spec/` are illustrative in the same sense. They are drawn in Mermaid, which renders in
+place on GitHub and stays diffable in the repository, and each one restates something the surrounding prose
+already says. Where a diagram and the prose beside it disagree, the prose wins.
+
 ## 5. Versioning
 
 `eventml-core` (the metamodel defined in `spec/`) and `eventml-lib` (the domain vocabulary defined in

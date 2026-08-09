@@ -19,6 +19,54 @@ definition is what binds the model to it. Instances are per-event and disposable
 brief arrives and discarded when the truck comes back. Keeping the two apart is what lets the vocabulary
 accumulate while individual models stay small.
 
+The eleven entities and what each one references. Definitions sit above, in `lib/`, and reference only other
+definitions; usages sit below, in a project's model files, and the four arrows crossing the boundary are each
+a usage naming its catalogue type. `Decision`, added in v0.2, is the one record that crosses nothing — it
+names no definition at all, and reaches usages and brief paths directly, at any layer.
+
+```mermaid
+flowchart BT
+    subgraph lib["lib/ — definitions · catalogue types, shared across projects"]
+        direction LR
+        ItemDef
+        PortDef
+        PartDef
+        InterfaceDef
+        RequirementDef
+        ConstraintDef
+    end
+
+    subgraph model["project model files — usages · one event, disposable"]
+        direction LR
+        Part
+        Connection
+        Flow
+        Requirement
+        Decision
+    end
+
+    PortDef -->|"item"| ItemDef
+    InterfaceDef -->|"item"| ItemDef
+    PartDef -->|"ports#91;#93;.def"| PortDef
+    InterfaceDef -->|"constraints"| ConstraintDef
+    RequirementDef -->|"constraints"| ConstraintDef
+
+    Part -->|"Part · def"| PartDef
+    Requirement -->|"Requirement · def"| RequirementDef
+    Connection -->|"Connection · interface"| InterfaceDef
+    Flow -->|"Flow · item"| ItemDef
+
+    Connection -->|"from · to · port refs"| Part
+    Flow -->|"from · to"| Part
+    Flow -->|"over"| Connection
+    Decision -.->|"affects"| Part
+    Decision -.->|"affects"| Requirement
+```
+
+Only type references are drawn. The traceability edges between usages — `refines`, `derived_from`,
+`satisfies`, `allocate` and `src` — are the subject of `03-relationships.md`; `affects` appears here dashed
+only to show that `Decision` has no `def:` of its own.
+
 ## 2. Definition entities
 
 Six entities are definitions. All of them may appear in `lib/`; none of them may appear in a model file.
@@ -381,6 +429,23 @@ flows:
     over: [c-sb1-swstage, c-swstage-swfoh, c-swfoh-fohm]
     properties:
       channels: 32
+```
+
+The same four devices, with the connections drawn as elements in their own right rather than as bare lines,
+because that is what they are. Rectangles are `Connection`s, rounded boxes are `Part`s, and the stadium is
+the one `Flow` — which does not lie between two devices at all, but rides the ordered chain named in its
+`over`.
+
+```mermaid
+flowchart LR
+    sb1("sb1<br/>stage box") --- c1["c-sb1-swstage<br/>cat6a · 12 m"] --- sws("sw-stage")
+    sws --- c2["c-swstage-swfoh<br/>cat6a · 60 m"] --- swf("sw-foh")
+    swf --- c3["c-swfoh-fohm<br/>cat6a · 5 m"] --- fohm("fohm<br/>console")
+
+    f(["f-stage-inputs · audio.item.dante_flow · 32 channels"])
+    f -.->|"over 1"| c1
+    f -.->|"over 2"| c2
+    f -.->|"over 3"| c3
 ```
 
 Three `Connection`s, one `Flow`, and the 32 channels recorded once — on the flow, where they belong, not
