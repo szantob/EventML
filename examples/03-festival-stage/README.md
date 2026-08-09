@@ -68,10 +68,14 @@ through the first fixture's `dmx_in → dmx_thru` edge. Remove that edge and `pr
 
 `decisions.yaml` carries three. Two of them resolve `brief.venue.cable_route`: `d-foh-ground-run`, made on
 the site visit itself when the site manager offered cable mats, and `d-foh-catenary`, made twelve days later
-once the council's refusal was acted on, which `supersedes` it. Reading the pair in order shows a plan
-changing under an external constraint, not a plan that was always right — the mats were a reasonable answer
-to what the team knew on 8 May, and flying the link on a catenary is the answer to what the council said in
-front of them on the same afternoon.
+once the council's objection had been confirmed as its actual position and could be acted on, which
+`supersedes` it. The council representative raised that objection on the same walk-round, in front of the
+site manager who had just made the offer — but a remark from one person during a site visit is not yet a
+ruling, so the production manager recorded the mats plan that same day on the strength of the offer, and it
+took the twelve days that follow to establish that the council meant it and to find a route that satisfied
+them. Reading the pair in order shows a plan changing under an external constraint, not a plan that was
+always right — mats were the reasonable call on 8 May with only a spoken objection to weigh against the
+venue's own suggestion, and flying the link on a catenary is the answer once that objection was confirmed.
 
 `d-foh-catenary` is also the one decision in this project whose `agreed_by` names an `authority` rather than
 the client. The party that has to assent to a decision is whoever can stop the show, and on a cable route
@@ -93,12 +97,6 @@ questions:
     source: brief.program[1].wireless_channels
     blocks: 2
 
-  - ask: "Which is it on the cable route — can we lay mats across the public path, or is nothing allowed on the ground there? The site manager offered mats and the council representative said no, in the same conversation on 8 May."
-    why: "decides whether the stage-to-FOH run goes on the ground or on fibre around the perimeter, and whether the generator feed is a 70 m run or a longer one"
-    rule: 4
-    source: brief.venue.cable_route
-    blocks: 2
-
   - ask: "What is going on the video screen — a camera of whoever is on stage, sponsor loops between bands, or both? If both, does someone need to switch between them live?"
     why: "brief.program[3].content is unknown; r-screen-content has nothing satisfying it and the answer decides whether an operator is needed at all"
     rule: 3
@@ -118,6 +116,6 @@ questions:
     blocks: 1
 ```
 
-Note the fourth question. It is rule 2 — an assumption marked `ask: true` — and its `why` does arithmetic
+Note the third question. It is rule 2 — an assumption marked `ask: true` — and its `why` does arithmetic
 the client will never see: 14.5 kW against a 20 kVA set is 90% of the headroom the model allows. The
 question put to the client is about a hire order; the reasoning behind it is a constraint check.

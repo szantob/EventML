@@ -136,7 +136,8 @@ same ranked list because it competes for the same attention, but its `ask` is ph
 
 #### Rule 4 — a `conflicting` value
 
-**Trigger.** A value with `state: conflicting`.
+**Trigger.** A value with `state: conflicting`, unless its path appears in the `affects` list of a
+`Decision`.
 
 Two sources disagree, and the model refuses to pick a winner silently. Both alternatives stay in the file
 with their sources attached, so the question can be put back to the client as a choice between two things
@@ -147,6 +148,21 @@ they themselves said, with dates.
   why: "decides crew call time and whether soundcheck fits before doors"
   blocks: 1
 ```
+
+**The exception.** Once a `Decision` names the conflicting value in its `affects`, the conflict is decided
+rather than unanswered, and the decision is the answer — asking the client to choose between the two sources
+again would ignore work already done. The value itself does not change: it stays `conflicting`, because both
+statements were genuinely made, and folding it to `stated` would erase the fact that one of them was
+overruled. What changes is which rule fires on it, not the value.
+
+The question does not disappear, it changes character. If the deciding decision carries
+`needs_agreement: true` and no `agreed_by`, rule 7 fires on the decision instead of rule 4 firing on the
+value — "which of these two is it?" becomes "nobody has agreed to the choice we made", an information
+question turning into an agreement question, and the model tracks the handover from one to the other rather
+than dropping the question on the floor. If the decision is already agreed, or needs no agreement at all,
+neither rule fires: the conflict was real, and it has genuinely been settled. Where one decision supersedes
+another and both name the same value, only the decision that is not itself superseded is the one rule 7
+considers — the superseded decision is history, not the current answer.
 
 #### Rule 5 — a violated `ConstraintDef`
 

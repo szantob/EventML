@@ -12,6 +12,10 @@ decisions:
       - { option: "route the long way round the tree line", why_not: "adds roughly 40 m and a second fibre join" }
     affects: [c-mc-mc, brief.venue.cable_route]
     src: s-venue-mats
+    notes: >-
+      Recorded the same day the council representative spoke against it, in the same conversation. A
+      spoken objection from one person on a walk-round is not yet the council's position, so the mats plan
+      stood until that position was confirmed — which is what d-foh-catenary records, twelve days later.
 
   - id: d-foh-catenary
     date: 2026-05-20
@@ -31,14 +35,19 @@ decisions:
     notes: >-
       The two statements behind this conflict came from different people on the same site visit, which is
       why `sources` holds them as separate entries. Without that split this decision could not cite the
-      council rather than the site manager, and the record would not say who overruled whom.
+      council rather than the site manager, and the record would not say who overruled whom. The twelve
+      days between the two decisions are the time it took to confirm the walk-round objection was the
+      council's actual position and to work out a route that satisfied it, not a delay in believing it.
 
   - id: d-generator-position
     date: 2026-05-20
     by: { party: production, person: "system engineer" }
     decision: "The generator stays behind the tree line at 70 m, and the long supply run is accepted."
-    why: "noise at the audience area governs; a closer position is audible between songs"
+    why: >-
+      The site visit established that noise is acceptable at 70 m behind the tree line, at the cost of a
+      long supply run. The system engineer's judgement is that noise at the audience area governs the
+      placement more than the run length does, and that a closer position risks being audible there.
     alternatives:
-      - { option: "move the generator 30 m closer", why_not: "audible from the audience area during quiet passages" }
+      - { option: "move the generator 30 m closer", why_not: "the system engineer judges this would be audible from the audience area during quiet passages between songs; the site visit checked only the 70 m position" }
     affects: [c-gen-rcd, c-gen-rcd16, gen-1]
     src: s-site-visit

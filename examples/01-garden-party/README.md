@@ -139,12 +139,6 @@ questions:
     source: brief.program[3].size
     blocks: 3        # r-band-monitoring, r-input-capacity, r-supply-capacity
 
-  - ask: "Are we planning for 300 guests or 450? The first email said 300 and the update on 5 August said 450 — we want to size the sound system for the right number."
-    why: "decides PA size and coverage; 450 on the same terrace changes the speaker choice"
-    rule: 4
-    source: brief.audience
-    blocks: 3        # r-speech-intelligible, r-music-reproduction, r-coverage-uniformity
-
   - ask: "Can you send a photo of the outdoor socket by the service door — and of the fuse box it comes from, if you can find it? Also roughly how many paces it is from there to where the band will play."
     why: "brief.power.rating is unknown; everything downstream of the supply is provisional until it is answered"
     rule: 1
@@ -179,7 +173,7 @@ questions:
     internal: true   # for the project manager, not for the client
 ```
 
-Eight questions, and the first three decide most of the plan. Forty things in this model are unspecified;
+Seven questions, and the first two decide most of the plan. Forty things in this model are unspecified;
 these are the ones with requirements hanging off them.
 
 Note what rule 2 does in the first question. Nobody stated that the terrace is uncovered — it was assumed

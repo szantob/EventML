@@ -124,3 +124,7 @@ disagreed for a moment, and `d-audience-450` is the record of how that was resol
 a new stated fact that quietly overwrote the old one, but by recording that somebody decided, on 12 August,
 to size the system for the larger number — with the smaller figure kept as the alternative it superseded,
 the reasoning attached, and the client's confirmation cited by source rather than assumed.
+
+Because `d-audience-450` names `brief.audience` in `affects`, question rule 4 in `04-uncertainty.md` no
+longer fires on the value — and since this decision is both `needs_agreement: true` and has an `agreed_by`,
+rule 7 does not fire either, so the conflict generates no question at all.
