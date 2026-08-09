@@ -228,6 +228,14 @@ examples must resolve against something. An organisation that copies entries fro
 its library versions independently from that point: nothing ties its version numbers to `eventml-example`'s
 after the copy is made.
 
+The reason is ownership. A library changes — a connector is added, a requirement template is reworded, a
+part gains a port — and whoever makes those changes has to answer for what they break in the models that
+resolve against it. This repository cannot answer for that. It edits `eventml-example` on its own release
+schedule, for reasons that have nothing to do with anybody's event, and a project resolving against it would
+find its vocabulary shifting underneath a model already quoted to a client. So the rule is not that the
+shipped library is unfit to use; it is that a library must be owned by whoever bears the cost of changing
+it, and this one is owned by the specification.
+
 ## 6. Conventions
 
 - **Indent two spaces. Never tabs.**
