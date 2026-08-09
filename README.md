@@ -4,7 +4,7 @@
 
 > **Status: v0.1.0 — the specification is complete; nothing is executable.** The kernel is here: four
 > layers, ten core entities, five traceability relations, the uncertainty model and the canonical YAML
-> syntax, in seven files under [`spec/`](spec/). Base vocabulary for five domains — 172 concepts — is in
+> syntax, in eight files under [`spec/`](spec/). Base vocabulary for five domains — 172 concepts — is in
 > [`lib/`](lib/), and three worked models under [`examples/`](examples/) exercise every one of them. There
 > is no schema, no validator and no tooling yet; those are the next stage. The syntax may still change
 > before 1.0. See [the design document](docs/superpowers/specs/2026-08-08-eventml-core-design.md).
@@ -87,7 +87,7 @@ client intent down to signal topology, and none treats missing information as a 
 | [GDTF / MVR](https://www.gdtf.eu/) | Signal type vocabulary and the pin-level wiring model |
 | [AMWA NMOS](https://specs.amwa.tv/nmos/) | The sender/receiver and flow abstraction for networked media |
 | [IFC4](https://ifc43-docs.standards.buildingsmart.org/) | Port direction semantics and port-to-port connection |
-| ISO/IEC/IEEE 42010 | Architecture Decision and Architecture Rationale; the requirement that a project state which decisions it records. EventML adopts the concepts and the names in `spec/07-decisions.md`. It is a standard for describing architectures, not a format — the vocabulary and the layers still have to be written |
+| [ISO/IEC/IEEE 42010](https://www.iso.org/standard/74393.html) | Architecture Decision and Architecture Rationale; the requirement that a project state which decisions it records. EventML adopts the concepts and the names in `spec/07-decisions.md`. It is a standard for describing architectures, not a format — the vocabulary and the layers still have to be written |
 
 EventML is **not** a UML profile. SysML v2 itself moved off UML to KerML, XMI is hostile to version control,
 and — decisively — an AI agent cannot write strict formal grammars reliably, while it writes YAML almost

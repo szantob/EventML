@@ -26,7 +26,7 @@ exercised is honest; mapping one that has only been imagined is not.
 | `Connection` | `connect` | Direct. `redundancy` has no counterpart and becomes metadata |
 | `Flow` | `flow` | Direct. SysML's `flow` carries a payload between features, which is exactly `Flow.item`; `over` maps to the `flow` declaration's route through connections |
 | `Requirement` | `requirement` usage | Direct |
-| `Decision` | `metadata def` + `metadata` usage | No dedicated SysML v2 construct. The nearest is a metadata definition applied to the elements it annotates, which gives a first-class element with its own identity — the structural property EventML needs. `alternatives`, `agreed_by` and the recording criterion have no counterpart and become attributes on the metadata definition |
+| `Decision` | `metadata def` + `metadata` usage | No dedicated SysML v2 construct. The nearest is a metadata definition applied to the elements it annotates, which gives a first-class element with its own identity — the structural property EventML needs. `alternatives` and `agreed_by` have no counterpart and become attributes on the metadata definition |
 
 The `def`/`usage` split is taken from SysML v2 unchanged, and it is the single most important thing EventML
 borrows. Everything else follows from it: a catalogue that is shared across projects, instances that are
@@ -41,7 +41,7 @@ per-event, and a clean statement of which is which on every element.
 | `satisfy` | `satisfy` | Direct, including which end carries it. SysML v2 nests `satisfy requirement : SomeReq;` inside the satisfying part, binding the requirement's subject to the enclosing element; the standalone form `satisfy R1 by vehicle;` names both ends. EventML's `Part.satisfies` is the first form with the reference written out |
 | `allocate` | `allocate` | Direct in meaning. SysML v2 reifies it as an `AllocationUsage` connecting two elements; EventML stores it as an attribute on the L3 part, which fixes the direction the SysML form leaves open |
 | `trace` | metadata annotation | No first-class SysML relation. Nearest is a metadata definition carrying a source reference, applied to the annotated element |
-| `affect` | annotated-element reference | A SysML metadata usage names the elements it annotates, which is the same direction EventML stores. This is the one relation where the two languages agree on placement for the same reason |
+| `affect` | annotated-element reference | A SysML metadata usage names the elements it annotates, which is the same direction EventML stores. Placement agrees; EventML's reasons for it, given in `03-relationships.md`, are its own and are not claimed for SysML |
 
 SysML v2 has no equivalent of the value-state model. A `stated` value and an `assumed` value both become
 plain attribute values on export, and the `why`, `src`, `ask` and `alternatives` that distinguish them are
