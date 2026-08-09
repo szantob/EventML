@@ -1,10 +1,11 @@
-eventml: "0.1"
+eventml: "0.3"
 kind: requirements
 domain: video
 ---
 requirements:
   - id: video.req.image_legibility
     name: Image legibility
+    applies_when: the audience must read something on a screen — slides, lyrics, captions, scores
     text: "Content shown on {display} must be legible from every seat in {area}."
     params:
       - { name: display, type: string }
@@ -27,6 +28,7 @@ requirements:
 
   - id: video.req.source_switching
     name: Source switching
+    applies_when: more than one image source reaches the same display
     text: "An operator must be able to switch between {sources} during {period} without visible interruption."
     params:
       - { name: sources, type: int }
@@ -40,6 +42,7 @@ requirements:
 
   - id: video.req.screen_coverage
     name: Screen coverage
+    applies_when: a screen is used and the audience area is wider than its useful viewing angle
     text: "Every seat in {area} must have an unobstructed view of at least one display."
     params:
       - { name: area, type: string }
@@ -51,6 +54,7 @@ requirements:
 
   - id: video.req.remote_participation
     name: Remote participation
+    applies_when: anyone takes part who is not in the room
     text: "Remote participants must see {content} and be seen and heard in {area}."
     params:
       - { name: content, type: string, default: "the speaker and the slides" }

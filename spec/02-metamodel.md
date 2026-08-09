@@ -217,6 +217,7 @@ to ask the client when a parameter is missing.
 | `id` | string | yes | Catalogue ID |
 | `name` | string | yes | Human-readable name |
 | `text` | string | yes | Template with `{param}` placeholders |
+| `applies_when` | string | no | One sentence stating when this template applies |
 | `params` | list | yes | Each: `name`, `type`, optional `default` |
 | `verification` | string | yes | How you would check it was met |
 | `constraints` | list of ConstraintDef refs | no | Rules that must hold for it to be met |
@@ -240,6 +241,21 @@ when those questions fire.
     - param: area
       question: "Where exactly will people be standing or sitting during the speeches?"
 ```
+
+**`applies_when` records what a project manager knows without thinking** — an outdoor event implies
+weather protection, a speech implies intelligibility. Today that knowledge reaches the model only if the
+modeller happens to remember it; written into the template, it survives the person.
+
+**It is prose, not an evaluable expression, for the reason `ConstraintDef.expression` already carries**
+(below): there is no validator to evaluate it, and inventing a syntax nothing executes would freeze a bad
+guess into the kernel. A rule that needs an evaluator before an evaluator exists is written so a human or
+an agent can apply it by hand, and formalising it is named for a later release along with `expression`.
+
+**Nothing derives from `applies_when` in v0.3.** A human or an agent reads the sentence against a brief
+and decides whether the template belongs in the model; the field does not trigger anything on its own.
+
+**`applies_when` is optional.** Its absence means the template's applicability has not been written down
+— a gap in the library — not that the template applies unconditionally. Only its presence is a claim.
 
 ### ConstraintDef
 

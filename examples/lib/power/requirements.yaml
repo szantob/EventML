@@ -1,10 +1,11 @@
-eventml: "0.1"
+eventml: "0.3"
 kind: requirements
 domain: power
 ---
 requirements:
   - id: power.req.supply_capacity
     name: Supply capacity
+    applies_when: always — every system draws power, and the supply is the first thing that stops a show
     text: "The supply at {location} must carry a peak demand of {demand_kw} kW."
     params:
       - { name: location,  type: string }
@@ -27,6 +28,7 @@ requirements:
 
   - id: power.req.phase_balance
     name: Phase balance
+    applies_when: the site supply is three-phase
     text: "Load across the three phases at {distribution_point} must stay within {tolerance} of the mean."
     params:
       - { name: distribution_point, type: string }
@@ -40,6 +42,7 @@ requirements:
 
   - id: power.req.residual_current_protection
     name: Residual current protection
+    applies_when: always — no client asks for it, and no event may run without it
     text: "Every circuit feeding {area} must be protected by an RCD rated at {trip_ma} mA or less."
     params:
       - { name: area,     type: string }
@@ -57,6 +60,7 @@ requirements:
 
   - id: power.req.silent_supply
     name: Silent supply
+    applies_when: the supply is a generator, or the programme has quiet passages the audience is meant to hear
     text: "The supply serving {area} must not raise the ambient noise level during {period}."
     params:
       - { name: area,   type: string }
