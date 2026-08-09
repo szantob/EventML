@@ -51,10 +51,12 @@ appears unfed.
 ## Layer boundary: where the judgement was needed
 
 `sb1`, `sw-stage` and `sw-foh` allocate to `mix-position`, which is not obvious. There is no transport block
-at L2 because at L2 nothing has decided the signal travels digitally at all — a 16-way analogue multicore
-would satisfy the same logical connection between `microphone-pool` and `mix-position`. The stage box and
-the switches exist only because a digital transport was chosen at L3, and they serve the mix position, so
-that is what they are allocated to.
+at L2, because at L2 nothing has decided how the stage inputs reach front of house — a 16-way analogue
+multicore would satisfy the same logical connection between `microphone-pool` and `mix-position` just as
+well as the digital path chosen at L3 (`d-digital-transport` in `decisions.yaml` has the reasoning). What
+the layer boundary has to explain is not that choice but its consequence: the stage box and the switches
+exist only because that choice was made, and they exist to serve the mix position, so that is what they
+are allocated to.
 
 `power-supply` has no L3 allocation at all. Nobody knows what the terrace socket is rated at, so no supply
 has been chosen. An L2 block with no L3 part underneath it is legitimate and is the visible form of an
