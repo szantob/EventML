@@ -105,7 +105,7 @@ Thirteen templates fire.
 | `audio.req.coverage_uniformity` | the audience area is deep or oddly shaped enough that one position cannot cover it evenly | `brief.venue.room_shape` (assumed) "long and narrow", 120 people theatre-seated (assumed) |
 | `video.req.image_legibility` | the audience must read something on a screen — slides, lyrics, captions, scores | `brief.program[0].slides: true`, all morning |
 | `video.req.source_switching` | more than one image source reaches the same display | presenter laptops (`brief.program[0].laptop_source`), the camera for the stream, and remote participants all reach the same screen |
-| `video.req.screen_coverage` | a screen is used and the room's shape or seating layout means some seats might not have a clear, adequately angled view of it — wide rooms, long narrow ones, obstructions, or seating split into blocks | `brief.venue.room_shape` (assumed) "long and narrow", theatre seating (assumed) — see the cross-check below, the sentence was fixed to fire on this |
+| `video.req.screen_coverage` | a screen is used and the room's proportions leave some seats unable to read it — too far off to the side in a wide room, or too far back in a long narrow one | `brief.venue.room_shape` (assumed) "long and narrow" — see the cross-check below, the sentence was fixed to fire on this |
 | `video.req.remote_participation` | anyone takes part who is not in the room | `brief.program[1].remote_panellists: 2`, and `brief.remote_audience` for the stream |
 | `network.req.bandwidth_headroom` | audio, video or control traffic shares a network link | the stream and the remote panellists' call (`brief.program[2]`) both have to travel over `brief.venue.house_network_available` |
 | `network.req.segregation` | two or more domains share network infrastructure | the only network anyone has mentioned is the hotel's guest network (`s-venue-email`); nothing suggests a separate production line |
@@ -140,9 +140,10 @@ seated room get even coverage from wherever the PA ends up. Both are gaps a late
 should close, not gaps in the walk.
 
 One template did not fire on its original wording, and a requirement for it already existed:
-`r-sightlines` uses `video.req.screen_coverage`, and the "derive chain" section above explains exactly why
-it belongs — "a long narrow room in theatre seating is the case where one screen at the front stops being
-enough." But the template's `applies_when` read "the audience area is wider than its useful viewing angle",
+`r-sightlines` uses `video.req.screen_coverage`, and that requirement's own `notes` in `requirements.yaml`
+say exactly why it belongs — "a long narrow room in theatre seating is the case where one screen at the
+front stops being enough." But the template's `applies_when` read "the audience area is wider than its
+useful viewing angle",
 and a *narrow* room is the opposite of a *wide* one: read literally, the brief would not have triggered it.
 That is a defect in the sentence, not in `r-sightlines` or in this walk, so the sentence was fixed in
 `examples/lib/video/requirements.yaml` to talk about sightlines generally — wide rooms, long narrow ones,

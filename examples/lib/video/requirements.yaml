@@ -43,9 +43,8 @@ requirements:
   - id: video.req.screen_coverage
     name: Screen coverage
     applies_when: >-
-      a screen is used and the room's shape or seating layout means some seats might not have a
-      clear, adequately angled view of it — wide rooms, long narrow ones, obstructions, or seating
-      split into blocks
+      a screen is used and the room's proportions leave some seats unable to read it — too far off
+      to the side in a wide room, or too far back in a long narrow one
     text: "Every seat in {area} must have an unobstructed view of at least one display."
     params:
       - { name: area, type: string }
