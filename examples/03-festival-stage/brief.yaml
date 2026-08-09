@@ -72,7 +72,9 @@ brief:
         representative present said no. Recorded as conflicting rather than resolved by whoever spoke
         last. The two statements are separate `sources` entries precisely so the conflict can name who
         said what; a single entry for the visit would have left both alternatives pointing at the same
-        `src` and the question unanswerable.
+        `src` and the question unanswerable. The conflict is resolved by `d-foh-catenary`, and the value
+        stays conflicting because both statements were made and the record of which one won belongs in the
+        decision, not here.
 
   power:
     source: generator

@@ -64,6 +64,23 @@ lx-desk ──f-lighting-sacn──▶ node-1 ═sacn_to_dmx═▶ node-1:dmx_ou
 Fifty metres of sACN carrying three universes, converted to DMX at the stage, then a physical daisy chain
 through the first fixture's `dmx_in → dmx_thru` edge. Remove that edge and `profile-2` is unreachable.
 
+## The decisions
+
+`decisions.yaml` carries three. Two of them resolve `brief.venue.cable_route`: `d-foh-ground-run`, made on
+the site visit itself when the site manager offered cable mats, and `d-foh-catenary`, made twelve days later
+once the council's refusal was acted on, which `supersedes` it. Reading the pair in order shows a plan
+changing under an external constraint, not a plan that was always right — the mats were a reasonable answer
+to what the team knew on 8 May, and flying the link on a catenary is the answer to what the council said in
+front of them on the same afternoon.
+
+`d-foh-catenary` is also the one decision in this project whose `agreed_by` names an `authority` rather than
+the client. The party that has to assent to a decision is whoever can stop the show, and on a cable route
+crossing a public path that is the council, not the person paying for the stage.
+
+`brief.venue.cable_route` itself stays `conflicting`, on purpose. Both statements were made, on the same
+site visit, by people with standing to say them; folding the value to `stated` once one side wins would
+erase the fact that somebody was overruled, and that fact now lives in `d-foh-catenary` instead.
+
 ## The question list
 
 Hand-written, as in the other examples.

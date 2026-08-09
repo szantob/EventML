@@ -1,0 +1,44 @@
+eventml: "0.2"
+kind: decisions
+project: festival-stage
+---
+decisions:
+  - id: d-foh-ground-run
+    date: 2026-05-08
+    by: { party: production, person: "production manager" }
+    decision: "The stage-to-front-of-house link runs along the ground under cable mats where it crosses the public path."
+    why: "the site manager offered mats on the walk-round, and it is what the food stalls do"
+    alternatives:
+      - { option: "route the long way round the tree line", why_not: "adds roughly 40 m and a second fibre join" }
+    affects: [c-mc-mc, brief.venue.cable_route]
+    src: s-venue-mats
+
+  - id: d-foh-catenary
+    date: 2026-05-20
+    by: { party: production, person: "production manager" }
+    decision: "The stage-to-front-of-house link is flown on a catenary at 5.2 m where it crosses the public path."
+    why: >-
+      The council prohibits any ground run across a public path for the duration of the festival, matted
+      or not. Flying it is the only route that keeps the 60 m fibre in one piece
+    alternatives:
+      - { option: "ground run under mats", why_not: "prohibited by the council; this decision supersedes d-foh-ground-run" }
+      - { option: "route the long way round the tree line", why_not: "adds a fibre join in a field with no lighting" }
+    affects: [c-mc-mc, brief.venue.cable_route]
+    src: s-council-paths
+    supersedes: d-foh-ground-run
+    needs_agreement: true
+    agreed_by: { party: authority, person: "council representative", src: s-council-paths }
+    notes: >-
+      The two statements behind this conflict came from different people on the same site visit, which is
+      why `sources` holds them as separate entries. Without that split this decision could not cite the
+      council rather than the site manager, and the record would not say who overruled whom.
+
+  - id: d-generator-position
+    date: 2026-05-20
+    by: { party: production, person: "system engineer" }
+    decision: "The generator stays behind the tree line at 70 m, and the long supply run is accepted."
+    why: "noise at the audience area governs; a closer position is audible between songs"
+    alternatives:
+      - { option: "move the generator 30 m closer", why_not: "audible from the audience area during quiet passages" }
+    affects: [c-gen-rcd, c-gen-rcd16, gen-1]
+    src: s-site-visit
