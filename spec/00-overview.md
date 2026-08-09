@@ -36,6 +36,7 @@ Read the files in order:
 5. `04-uncertainty.md` — value states and how the open-question list is derived
 6. `05-concrete-syntax.md` — the canonical YAML syntax
 7. `06-sysml-mapping.md` — the mapping from EventML back to SysML v2
+8. `07-decisions.md` — the `Decision` entity and the criterion for what gets recorded
 
 `spec/` is normative: it defines the language. `lib/` and `examples/` are illustrative: they show the
 language in use but do not extend it. Where an example and the spec disagree, the spec wins.
@@ -60,3 +61,4 @@ client intent down to signal topology, and none treats missing information as a 
 | GDTF / MVR | Signal type vocabulary and the pin-level wiring model |
 | AMWA NMOS | The sender/receiver and flow abstraction for networked media |
 | IFC4 | Port direction semantics and port-to-port connection |
+| ISO/IEC/IEEE 42010 | Architecture Decision and Architecture Rationale; the requirement that a project state which decisions it records. EventML adopts the concepts and the names in `spec/07-decisions.md`. It is a standard for describing architectures, not a format — the vocabulary and the layers still have to be written |

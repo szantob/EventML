@@ -26,6 +26,7 @@ exercised is honest; mapping one that has only been imagined is not.
 | `Connection` | `connect` | Direct. `redundancy` has no counterpart and becomes metadata |
 | `Flow` | `flow` | Direct. SysML's `flow` carries a payload between features, which is exactly `Flow.item`; `over` maps to the `flow` declaration's route through connections |
 | `Requirement` | `requirement` usage | Direct |
+| `Decision` | `metadata def` + `metadata` usage | No dedicated SysML v2 construct. The nearest is a metadata definition applied to the elements it annotates, which gives a first-class element with its own identity — the structural property EventML needs. `alternatives`, `agreed_by` and the recording criterion have no counterpart and become attributes on the metadata definition |
 
 The `def`/`usage` split is taken from SysML v2 unchanged, and it is the single most important thing EventML
 borrows. Everything else follows from it: a catalogue that is shared across projects, instances that are
@@ -40,6 +41,7 @@ per-event, and a clean statement of which is which on every element.
 | `satisfy` | `satisfy` | Direct, including which end carries it. SysML v2 nests `satisfy requirement : SomeReq;` inside the satisfying part, binding the requirement's subject to the enclosing element; the standalone form `satisfy R1 by vehicle;` names both ends. EventML's `Part.satisfies` is the first form with the reference written out |
 | `allocate` | `allocate` | Direct in meaning. SysML v2 reifies it as an `AllocationUsage` connecting two elements; EventML stores it as an attribute on the L3 part, which fixes the direction the SysML form leaves open |
 | `trace` | metadata annotation | No first-class SysML relation. Nearest is a metadata definition carrying a source reference, applied to the annotated element |
+| `affect` | annotated-element reference | A SysML metadata usage names the elements it annotates, which is the same direction EventML stores. This is the one relation where the two languages agree on placement for the same reason |
 
 SysML v2 has no equivalent of the value-state model. A `stated` value and an `assumed` value both become
 plain attribute values on export, and the `why`, `src`, `ask` and `alternatives` that distinguish them are
@@ -108,7 +110,7 @@ semantics, calculation definitions. EventML declines all of it deliberately — 
 
 ## 4. What does not map
 
-Three things in EventML have no SysML v2 counterpart. They are the reason EventML exists as its own
+Four things in EventML have no SysML v2 counterpart. They are the reason EventML exists as its own
 language rather than as a SysML profile.
 
 **Value states.** SysML has no notion of a value being `assumed` rather than `stated`, or of a value being
@@ -128,7 +130,11 @@ constraint on what may be written where. SysML has layers only by convention, th
 construct that forbids a logical part from naming a product. The rule that keeps the logical architecture
 reusable across equipment choices is not expressible.
 
+**The recording criterion.** SysML v2 can hold a decision as metadata but has nothing that says which
+decisions are worth holding. ISO 42010 requires the criterion and leaves its content to the project, so it
+lives in `07-decisions.md` and survives no translation.
+
 None of this is a criticism of SysML v2, which is domain-neutral by design and would have to carry all
-three as extensions anyway. It is the reason the design record chose a model library extension with a
-documented mapping over a profile: EventML keeps the metamodel it borrows and adds the three things the
+four as extensions anyway. It is the reason the design record chose a model library extension with a
+documented mapping over a profile: EventML keeps the metamodel it borrows and adds the four things the
 domain actually needs, without inheriting the machinery it does not.
