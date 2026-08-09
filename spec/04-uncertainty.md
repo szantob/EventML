@@ -84,7 +84,7 @@ band:
 
 ## 3. Question rules
 
-A question is generated in exactly six situations. Each generated question carries three fields:
+A question is generated in exactly seven situations. Each generated question carries three fields:
 
 - `ask` — the client-facing wording, written for someone who does not know the domain
 - `why` — what the answer decides, in the project manager's terms
@@ -185,6 +185,29 @@ rather than a question — boundary rule 3 in `01-layers.md`.
   blocks: 0
 ```
 
+#### Rule 7 — a decision nobody has agreed to
+
+**Trigger.** A `Decision` carrying `needs_agreement: true` and no `agreed_by`.
+
+Somebody outside the team has to assent to this and has not. The decision may
+already be built into the design, ordered, and on the truck — nothing about an
+unagreed decision stops the work, which is exactly why it needs surfacing before
+the invoice does it instead.
+
+`needs_agreement` is set by the author rather than derived, which repeats a
+pattern the language already justifies: `ask: true` on an assumed value records
+the judgement at the point where it is made, by the only person able to make it.
+Whether a choice needs the client's assent is the same kind of judgement.
+
+Like rules 3 and 6 the question is addressed to the project manager, though
+answering it usually means contacting somebody else.
+
+```yaml
+- ask: "Can you confirm we are leaving out the backup generator? We agreed it in July but never put it in writing, and it means the show stops if the supply fails."
+  why: "d-no-backup-genset is unagreed and it moves a risk onto the client"
+  blocks: 0
+```
+
 ## 4. Ranking
 
 `blocks` is computed by counting the `Requirement`s reachable downstream of the open node by following
@@ -214,6 +237,12 @@ has no requirements downstream of it by definition, so its `blocks` is always 0 
 That is the right place for it: an unjustified block costs money but decides nothing, so it should be
 settled once the questions that decide the plan have been answered — and never silently dropped, because
 it is the line on the quote the client will ask about.
+
+Rule 7 sorts to the bottom for the same reason. A `Decision` is not itself a node the traceability graph
+runs `refine`, `derive` or `satisfy` edges through, so an unagreed decision has no requirements downstream
+of it either, and its `blocks` is always 0. That is again the right place for it: leaving it open costs
+nothing until the questions that decide the plan are answered, and everything if it is still open when the
+invoice goes out.
 
 **In v0.1 this list is written by hand.** The examples under `examples/` contain hand-written `questions`
 blocks that demonstrate the intended output of the derivation. They are illustrations, not derived
