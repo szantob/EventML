@@ -7,7 +7,7 @@ A small outdoor event, modelled from the brief quoted in the repository README:
 > send a quote?"*
 
 Two domains — audio and power, with network underneath the audio — across all four layers. The model is
-deliberately unfinished: it is what a project looks like eleven days after the first email, when three
+deliberately unfinished: it is what a project looks like thirteen days after the first email, when three
 answers are still outstanding and the quote has to go out anyway.
 
 ## Files
@@ -18,6 +18,7 @@ answers are still outstanding and the quote has to go out anyway.
 | `requirements.yaml` | L1 | Nine requirements, two of them unsatisfied |
 | `logical.yaml` | L2 | Eight function blocks, ten connections, four flows |
 | `physical.yaml` | L3 | Seventeen devices, twenty-two connections, eight flows |
+| `decisions.yaml` | — | Three decisions: an agreed one, an engineering choice, and one still unagreed |
 
 ## What this example demonstrates
 
@@ -27,9 +28,10 @@ microphone is `derived` from the absence of a lectern; and the guest count is `c
 first email, 450 in the second, both true when written, and the model refuses to silently pick one.
 
 **Two requirements are unsatisfied, for different reasons.** `r-band-monitoring` cannot be designed because
-nobody has said how many musicians there are. `r-weather-protection` could be designed today — the
-information exists — but nobody has decided whether the event moves indoors if it rains. Both fire question
-rule 3; only one of them is waiting on the client.
+nobody has said how many musicians there are. `r-weather-protection` is unsatisfied too, but not for want of
+a decision: `d-no-cover` in `decisions.yaml` records that production decided to carry no cover and no cover
+budget. What is missing there is not the design but the client's agreement to it, which is what question
+rule 7 fires on below. Only `r-band-monitoring` appears under rule 3 in the question list.
 
 **Two requirements have no `refines` edge.** `r-rcd-protection` and `r-input-capacity` came from
 professional judgement, not from anything the client said. No client asks for residual current protection.
@@ -51,10 +53,12 @@ appears unfed.
 ## Layer boundary: where the judgement was needed
 
 `sb1`, `sw-stage` and `sw-foh` allocate to `mix-position`, which is not obvious. There is no transport block
-at L2 because at L2 nothing has decided the signal travels digitally at all — a 16-way analogue multicore
-would satisfy the same logical connection between `microphone-pool` and `mix-position`. The stage box and
-the switches exist only because a digital transport was chosen at L3, and they serve the mix position, so
-that is what they are allocated to.
+at L2, because at L2 nothing has decided how the stage inputs reach front of house — a 16-way analogue
+multicore would satisfy the same logical connection between `microphone-pool` and `mix-position` just as
+well as the digital path chosen at L3 (`d-digital-transport` in `decisions.yaml` has the reasoning). What
+the layer boundary has to explain is not that choice but its consequence: the stage box and the switches
+exist only because that choice was made, and they exist to serve the mix position, so that is what they
+are allocated to.
 
 `power-supply` has no L3 allocation at all. Nobody knows what the terrace socket is rated at, so no supply
 has been chosen. An L2 block with no L3 part underneath it is legitimate and is the visible form of an
@@ -93,11 +97,33 @@ vox1 ──f-vox-to-sb1──▶ sb1 ═adc═▶ sb1:net
 
 `══▶` is an internal edge inside a part; `──▶` is a flow over connections.
 
+## The decisions
+
+`decisions.yaml` holds three decisions, each demonstrating a different part of `spec/07-decisions.md`.
+
+`d-audience-450` is a production decision resolving a `conflicting` value, with the client's agreement
+recorded separately. `brief.audience` stays `conflicting` — the model does not turn 450 into a new `stated`
+fact, because both 300 and 450 were true when written. What changes is that the plan now depends on 450, and
+this decision is the record of who chose that number, when, and on what evidence: the client's update email
+as `src`, production's choice to size for the larger figure, and the client's confirmation cited by
+`agreed_by.src` rather than assumed.
+
+`d-digital-transport` is an engineering choice with no `agreed_by` — nothing outside the team needed to
+sign off on how the stage inputs reach front of house. It is also the sentence this README used to carry
+in prose, in the "Layer boundary" section above: the stage box and both switches exist only because a
+digital transport was chosen at L3, and nothing at L2 records that a digital transport exists at all. That
+sentence is now a `Decision`, not a paragraph — the model holds it, the README just points at it.
+
+`d-no-cover` is a decision nobody has agreed to. It carries `needs_agreement: true` and no `agreed_by`,
+so question rule 7 in `spec/04-uncertainty.md` fires on it: the client has not been told that a stage cover
+is out of scope, which means an outdoor event's weather risk is being carried by the client without their
+knowledge. See the question list below.
+
 ## The question list
 
 **This list is hand-written.** v0.1 has no validator and no traversal engine, so nothing here was computed
 — it is what the derivation defined in `spec/04-uncertainty.md` should produce from this model, written out
-by hand to show the intended output. v0.2 derives it. Where this list and the model disagree, the model is
+by hand to show the intended output. v0.5 derives it. Where this list and the model disagree, the model is
 right and this list is stale.
 
 Ranked by `blocks` — the number of requirements reachable downstream of the open node.
@@ -115,12 +141,6 @@ questions:
     rule: 1
     source: brief.program[3].size
     blocks: 3        # r-band-monitoring, r-input-capacity, r-supply-capacity
-
-  - ask: "Are we planning for 300 guests or 450? The first email said 300 and the update on 5 August said 450 — we want to size the sound system for the right number."
-    why: "decides PA size and coverage; 450 on the same terrace changes the speaker choice"
-    rule: 4
-    source: brief.audience
-    blocks: 3        # r-speech-intelligible, r-music-reproduction, r-coverage-uniformity
 
   - ask: "Can you send a photo of the outdoor socket by the service door — and of the fuse box it comes from, if you can find it? Also roughly how many paces it is from there to where the band will play."
     why: "brief.power.rating is unknown; everything downstream of the supply is provisional until it is answered"
@@ -147,9 +167,16 @@ questions:
     source: [mix-position, playback, monitor-world]
     blocks: 0
     internal: true   # for the project manager, not for the client
+
+  - ask: "d-no-cover is unagreed: no cover is carried and no cover budget is quoted, and nobody has told the client that rain leaves the terrace with nowhere to go."
+    why: "d-no-cover is unagreed; it moves a weather risk onto the client without their knowledge"
+    rule: 7
+    source: d-no-cover
+    blocks: 0
+    internal: true   # for the project manager, not for the client
 ```
 
-Seven questions, and the first three decide most of the plan. Forty things in this model are unspecified;
+Seven questions, and the first two decide most of the plan. Forty things in this model are unspecified;
 these are the ones with requirements hanging off them.
 
 Note what rule 2 does in the first question. Nobody stated that the terrace is uncovered — it was assumed
@@ -161,9 +188,10 @@ Note also the wording. Not "what is the service rating of the supply", which no 
 "send a photo of the socket and the fuse box" — which settles the question completely and which anyone can
 do while standing in the venue.
 
-The last question is rule 6, and `monitor-world` is why the rule earns its place. That block appears twice
-in this list: once under rule 3, because `r-band-monitoring` is satisfied by nothing, and once under rule 6,
-because the block satisfies nothing. It is one gap seen from both ends — a requirement and a block that
+The rule 6 question — the one about the three unjustified L2 blocks — is where `monitor-world` earns the
+rule its place. That block appears twice in this list: once under rule 3, because `r-band-monitoring` is
+satisfied by nothing, and once under rule 6, because the block satisfies nothing. It is one gap seen from
+both ends — a requirement and a block that
 ought to be joined and are not, because nobody knows how big the band is. Rule 3 alone would report the
 requirement and leave the block looking deliberate. `mix-position` and `playback` are the other kind: no
 requirement anywhere refers to them, and they are on the quote regardless.

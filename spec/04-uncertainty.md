@@ -84,7 +84,7 @@ band:
 
 ## 3. Question rules
 
-A question is generated in exactly six situations. Each generated question carries three fields:
+A question is generated in exactly seven situations. Each generated question carries three fields:
 
 - `ask` — the client-facing wording, written for someone who does not know the domain
 - `why` — what the answer decides, in the project manager's terms
@@ -136,7 +136,8 @@ same ranked list because it competes for the same attention, but its `ask` is ph
 
 #### Rule 4 — a `conflicting` value
 
-**Trigger.** A value with `state: conflicting`.
+**Trigger.** A value with `state: conflicting`, unless it — or an element containing it — appears in the
+`affects` list of a `Decision`.
 
 Two sources disagree, and the model refuses to pick a winner silently. Both alternatives stay in the file
 with their sources attached, so the question can be put back to the client as a choice between two things
@@ -147,6 +148,27 @@ they themselves said, with dates.
   why: "decides crew call time and whether soundcheck fits before doors"
   blocks: 1
 ```
+
+**Containment.** An `affects` entry covers the element it names and every value inside it. A decision that
+names `r-speech-intelligible` settles the conflicting `audience` parameter within it without listing that
+parameter separately. The alternative — requiring every nested value to be enumerated — would make `affects`
+lists long, fragile, and wrong the moment a requirement gained a parameter, and it would put the burden of
+completeness on the person least able to check it.
+
+**The exception.** Once a `Decision` names the conflicting value in its `affects`, the conflict is decided
+rather than unanswered, and the decision is the answer — asking the client to choose between the two sources
+again would ignore work already done. The value itself does not change: it stays `conflicting`, because both
+statements were genuinely made, and folding it to `stated` would erase the fact that one of them was
+overruled. What changes is which rule fires on it, not the value.
+
+The question does not disappear, it changes character. If the deciding decision carries
+`needs_agreement: true` and no `agreed_by`, rule 7 fires on the decision instead of rule 4 firing on the
+value — "which of these two is it?" becomes "nobody has agreed to the choice we made", an information
+question turning into an agreement question, and the model tracks the handover from one to the other rather
+than dropping the question on the floor. If the decision is already agreed, or needs no agreement at all,
+neither rule fires: the conflict was real, and it has genuinely been settled. Where one decision supersedes
+another and both name the same value, only the decision that is not itself superseded is the one rule 7
+considers — the superseded decision is history, not the current answer.
 
 #### Rule 5 — a violated `ConstraintDef`
 
@@ -185,12 +207,33 @@ rather than a question — boundary rule 3 in `01-layers.md`.
   blocks: 0
 ```
 
+#### Rule 7 — a decision nobody has agreed to
+
+**Trigger.** A `Decision` carrying `needs_agreement: true` and no `agreed_by`.
+
+Somebody outside the team has to assent to this and has not. The decision may already be built into the
+design, ordered, and on the truck — nothing about an unagreed decision stops the work, which is exactly why
+it needs surfacing before the invoice does it instead.
+
+`needs_agreement` is set by the author rather than derived, which repeats a pattern the language already
+justifies: `ask: true` on an assumed value records the judgement at the point where it is made, by the only
+person able to make it. Whether a choice needs the client's assent is the same kind of judgement.
+
+Like rules 3 and 6 the question is addressed to the project manager, though answering it usually means
+contacting somebody else.
+
+```yaml
+- ask: "d-no-cover is unagreed: no cover is carried and no cover budget is quoted, and nobody has told the client that rain leaves the terrace with nowhere to go."
+  why: "d-no-cover is unagreed and it moves a weather risk onto the client"
+  blocks: 0
+```
+
 ## 4. Ranking
 
 `blocks` is computed by counting the `Requirement`s reachable downstream of the open node by following
 `refine`, `derive` and `satisfy` edges. Questions sort by `blocks` descending.
 
-This is the payoff that justifies the cost of four layers and five traceability relations. Without the
+This is the payoff that justifies the cost of four layers and six traceability relations. Without the
 graph, a model's gaps are a flat list of forty items in the order somebody happened to write them, and the
 client answers the first five and stops. With it, the list opens on the questions that decide the most:
 
@@ -215,10 +258,16 @@ That is the right place for it: an unjustified block costs money but decides not
 settled once the questions that decide the plan have been answered — and never silently dropped, because
 it is the line on the quote the client will ask about.
 
+Rule 7 sorts to the bottom for the same reason. A `Decision` is not itself a node the traceability graph
+runs `refine`, `derive` or `satisfy` edges through, so an unagreed decision has no requirements downstream
+of it either, and its `blocks` is always 0. That is again the right place for it: leaving it open costs
+nothing until the questions that decide the plan are answered, and everything if it is still open when the
+invoice goes out.
+
 **In v0.1 this list is written by hand.** The examples under `examples/` contain hand-written `questions`
 blocks that demonstrate the intended output of the derivation. They are illustrations, not derived
 artefacts: v0.1 has no validator and no traversal engine, and the rule that the question list is derived
-rather than authored cannot execute until v0.2. Where a hand-written list and the model disagree, the model
+rather than authored cannot execute until v0.5. Where a hand-written list and the model disagree, the model
 is right and the list is stale.
 
 ## 5. Client language

@@ -32,6 +32,13 @@ brief:
         Spoke to the terrace manager. There is an outdoor socket by the service door; he did not know
         what it is rated at and will check. Load-in from 14:00 at the earliest, the restaurant serves
         lunch until 13:30.
+    - id: s-client-confirm
+      kind: email
+      date: 2026-08-12
+      from: client
+      subject: "Re: Garden party, 12 September — guest numbers"
+      excerpt: >-
+        Yes, plan for 450. Sorry for the back and forth — the list is final now.
 
   audience:
     state: conflicting

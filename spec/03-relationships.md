@@ -1,6 +1,6 @@
 # 03 — Relationships
 
-Five relations connect the four layers and the entities within them. Between them they answer one question:
+Six relations connect the four layers and the entities within them. Between them they answer one question:
 for any statement in the model, where did it come from and what depends on it.
 
 | Relation | Direction | Carried by | Meaning |
@@ -10,19 +10,24 @@ for any statement in the model, where did it come from and what depends on it.
 | `satisfy` | L2/L3 → L1 | `Part.satisfies` | This block or device meets that requirement |
 | `allocate` | L2 → L3 | `Part.allocate` | A logical block is realised by a concrete device |
 | `trace` | any → source | `Value.src` | Which client sentence, PM decision or default |
+| `affect` | Decision → any | `Decision.affects` | A decision determined this element |
 
-None of the five is a standalone entity. Each is an attribute on the element at the lower end of the edge —
-the requirement knows which brief element it refines, the device knows which block it realises, the block
-knows which requirement it meets. This holds without exception, and it is what boundary rule 1 in
-`01-layers.md` requires: a layer never references downward, so an L1 requirement stays valid no matter which
-L2 or L3 design ends up meeting it.
+None of the six is a standalone entity. Five are attributes on the element at the lower end of the edge — the
+requirement knows which brief element it refines, the device knows which block it realises, the block knows
+which requirement it meets — and that placement is what boundary rule 1 in `01-layers.md` requires: a layer
+never references downward, so an L1 requirement stays valid no matter which L2 or L3 design ends up meeting
+it. `affect` is the sixth, and it is a deliberate exception rather than an oversight: `affects` sits on the
+`Decision`, at the upper end of its edge, not on the elements it determines. The `affect` section below gives
+the reasons.
 
-The rule has a consequence worth stating plainly, because it is what makes the model readable backwards.
-Every edge points from the concrete toward the abstract, so tracing *back* from a cable to the sentence that
-caused it is a chain of field reads — `allocate`, then `satisfies`, then `refines`, then `src` — with no
-search at any step. Tracing *forward*, from a client sentence to the equipment it produced, is the direction
-that requires a scan. That asymmetry is deliberate: the backward question is the one asked under pressure,
-on site, about a device somebody is holding.
+The lower-end rule has a consequence worth stating plainly, because it is what makes the model readable
+backwards. Every one of the five edges points from the concrete toward the abstract, so tracing *back* from a
+cable to the sentence that caused it is a chain of field reads — `allocate`, then `satisfies`, then
+`refines`, then `src` — with no search at any step. Tracing *forward*, from a client sentence to the
+equipment it produced, is the direction that requires a scan. That asymmetry is deliberate: the backward
+question is the one asked under pressure, on site, about a device somebody is holding. `affect` is the one
+edge on that walk which cannot be followed this way: reaching from an element to the decision that determined
+it means scanning `decisions.yaml` for an `affects` entry that names it, not reading a field.
 
 The worked examples throughout this file use one scenario: a garden party for 300 on a terrace, with a
 welcome speech at 19:00 and a live band from 21:00, where nobody has yet said how many musicians there are.
@@ -172,9 +177,50 @@ the brief document itself, and repeating that on every line would be noise. For 
 `src` or `why` means the model has lost the reasoning behind a value, and the next person to read it cannot
 tell an assumption from a fact. That is the failure mode `trace` exists to prevent.
 
+## affect
+
+**YAML form.** `Decision.affects`, holding a list of instance ids and brief paths.
+
+```yaml
+- id: d-digital-transport
+  date: 2026-08-14
+  by: { party: production, person: "system engineer" }
+  decision: "Stage inputs reach front of house as Dante over Cat6a, not as an analogue multicore."
+  why: "sixteen channels the length of the terrace, and a load-in that cannot start before 14:00"
+  alternatives:
+    - { option: "16-way analogue multicore", why_not: "weight, and too short a load-in window to run it out" }
+  affects: [sb1, sw-stage, sw-foh]
+  src: s-venue-call
+```
+
+**Cardinality.** Many-to-many. One decision may determine several elements; one element may be determined by
+several decisions.
+
+**Why it sits on the decision.** Two reasons, stated plainly:
+
+- A record must read as a record. A decision whose scope is split across five files cannot be reviewed, and
+  reviewing it is the entire purpose of keeping it.
+- The backward scan is bounded. Moving `satisfy` in v0.1 avoided scanning 37 requirements; the recording
+  criterion in `07-decisions.md` holds decisions to roughly ten per project, and scanning ten entries costs
+  nothing.
+
+The second reason is also a check on the first: if a project accumulates as many decisions as requirements,
+the fault lies in the recording rather than in the relation.
+
+**Containment.** An `affects` entry covers the element it names and every value inside it. Naming a
+requirement reaches the parameters within it; naming a part reaches its properties. Enumerating every
+nested value instead would make the lists long, fragile, and wrong the moment an element gained a field.
+`04-uncertainty.md` relies on this where rule 4 stops firing on a conflict a decision has settled.
+
+**When the edge is absent.** A decision with no `affects` determined nothing, which means it is not a
+decision. Unlike the other relations, an empty `affects` is a modelling error rather than a question.
+
+**`supersedes`.** Unlike `affects`, it obeys the ordinary rule. It sits on the newer decision, so walking a
+decision's history backward stays a field read.
+
 ## Traversal
 
-The five relations chain into one path from a sentence in a client's email down to a cable. Following the
+These relations chain into one path from a sentence in a client's email down to a cable. Following the
 band from the garden-party brief:
 
 ```

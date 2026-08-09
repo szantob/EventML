@@ -16,7 +16,7 @@ EventML treats incompleteness as data: a value can be stated, assumed, derived, 
 the model stays valid at every one of those states. The language exists to hold a plan together while it is
 still full of gaps, and to make those gaps explicit rather than silently defaulted.
 
-## 3. What v0.1 covers
+## 3. What the kernel covers
 
 v0.1 establishes base concepts across five domains — audio, lighting, video, network, power — at a shallow,
 uniform depth. Every domain gets the same treatment: signal types, port kinds, core part categories, and a
@@ -36,6 +36,7 @@ Read the files in order:
 5. `04-uncertainty.md` — value states and how the open-question list is derived
 6. `05-concrete-syntax.md` — the canonical YAML syntax
 7. `06-sysml-mapping.md` — the mapping from EventML back to SysML v2
+8. `07-decisions.md` — the `Decision` entity and the criterion for what gets recorded
 
 `spec/` is normative: it defines the language. `lib/` and `examples/` are illustrative: they show the
 language in use but do not extend it. Where an example and the spec disagree, the spec wins.
@@ -45,8 +46,10 @@ language in use but do not extend it. Where an example and the spec disagree, th
 `eventml-core` (the metamodel defined in `spec/`) and `eventml-lib` (the domain vocabulary defined in
 `lib/`) version separately, because they move at different rates: the kernel should change rarely, the
 vocabulary can grow at any time. Every YAML file, in `lib/` and in `examples/` alike, declares the language
-version it was written against in an `eventml:` header key. At the v0.1 tag both `eventml-core` and
-`eventml-lib` are `0.1.0`, and every file declares `eventml: "0.1"`.
+version it was written against in an `eventml:` header key — the lowest version whose constructs the file
+actually uses, not the version of the repository as a whole. A project's four layer files can stay at
+`"0.1"` while its `decisions.yaml`, the only file using the `Decision` entity, declares `"0.2"`; mixed
+floors within one project are correct. At this tag both `eventml-core` and `eventml-lib` are `0.2.0`.
 
 ## 6. Relationship to existing standards
 
@@ -60,3 +63,4 @@ client intent down to signal topology, and none treats missing information as a 
 | GDTF / MVR | Signal type vocabulary and the pin-level wiring model |
 | AMWA NMOS | The sender/receiver and flow abstraction for networked media |
 | IFC4 | Port direction semantics and port-to-port connection |
+| ISO/IEC/IEEE 42010 | Architecture Decision and Architecture Rationale; the requirement that a project state which decisions it records. EventML adopts the concepts and the names in `spec/07-decisions.md`. It is a standard for describing architectures, not a format — the vocabulary and the layers still have to be written |

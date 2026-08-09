@@ -2,12 +2,13 @@
 
 **An open modelling language for live event AV systems — from client brief to signal topology.**
 
-> **Status: v0.1.0 — the specification is complete; nothing is executable.** The kernel is here: four
-> layers, ten core entities, five traceability relations, the uncertainty model and the canonical YAML
-> syntax, in seven files under [`spec/`](spec/). Base vocabulary for five domains — 172 concepts — is in
-> [`lib/`](lib/), and three worked models under [`examples/`](examples/) exercise every one of them. There
-> is no schema, no validator and no tooling yet; those are the next stage. The syntax may still change
-> before 1.0. See [the design document](docs/superpowers/specs/2026-08-08-eventml-core-design.md).
+> **Status: v0.2.0 — the specification is complete; nothing is executable.** The kernel is here: four
+> layers, eleven core entities, six traceability relations, the uncertainty model and the canonical YAML
+> syntax, in eight files under [`spec/`](spec/) — including the `Decision` entity, for recording who chose
+> something and whether anyone outside the team agreed to it. Base vocabulary for five domains — 172
+> concepts — is in [`lib/`](lib/), and three worked models under [`examples/`](examples/) exercise every one
+> of them. There is no schema, no validator and no tooling yet; those are planned for v0.5. The syntax may
+> still change before 1.0. See [the design document](docs/superpowers/specs/2026-08-08-eventml-core-design.md).
 
 ---
 
@@ -87,6 +88,7 @@ client intent down to signal topology, and none treats missing information as a 
 | [GDTF / MVR](https://www.gdtf.eu/) | Signal type vocabulary and the pin-level wiring model |
 | [AMWA NMOS](https://specs.amwa.tv/nmos/) | The sender/receiver and flow abstraction for networked media |
 | [IFC4](https://ifc43-docs.standards.buildingsmart.org/) | Port direction semantics and port-to-port connection |
+| [ISO/IEC/IEEE 42010](https://www.iso.org/standard/74393.html) | Architecture Decision and Architecture Rationale; the requirement that a project state which decisions it records. EventML adopts the concepts and the names in `spec/07-decisions.md`. It is a standard for describing architectures, not a format — the vocabulary and the layers still have to be written |
 
 EventML is **not** a UML profile. SysML v2 itself moved off UML to KerML, XMI is hostile to version control,
 and — decisively — an AI agent cannot write strict formal grammars reliably, while it writes YAML almost
@@ -95,7 +97,7 @@ perfectly. The reasoning is set out in full in the [design document](docs/superp
 ## Layout
 
 ```
-spec/       the language: layers, metamodel, relations, uncertainty, syntax, SysML mapping
+spec/       the language: layers, metamodel, relations, uncertainty, decisions, syntax, SysML mapping
 lib/        domain library: audio, lighting, video, network, power vocabulary
 examples/   worked models exercising all four layers
 docs/       design records and the Hungarian glossary
@@ -104,18 +106,19 @@ docs/       design records and the Hungarian glossary
 The **kernel** (`spec/`) is the language. The **domain library** (`lib/`) is data written in that language,
 and it is versioned separately — vocabulary grows without touching the language.
 
-## Scope of the first release
+## Current scope
 
 Base concepts across five domains — audio, lighting, video, ethernet network, electrical — with the kernel
-stable enough that adding depth later will not restructure it. v0.1 is a specification: prose and data, no
-executable code. A machine-readable schema, a validator, derived question lists and diagram generation follow
-in the next stage.
+stable enough that adding depth later will not restructure it, plus the `Decision` entity and the `affect`
+relation for recording who chose something and whether anyone outside the team agreed to it. v0.2 is a
+specification: prose and data, no executable code. A machine-readable schema, a validator, derived question
+lists and diagram generation follow in v0.5.
 
-Because there is no validator, **the worked examples are the only test v0.1 has**, under two rules: every
+Because there is no validator, **the worked examples are the only test v0.2 has**, under two rules: every
 defined concept must appear in at least one example, and every example must be walkable across all four
-layers. Both are met — 172 of 172 concepts exercised — and enforcing the first one is what produced the
-third example and found four real defects in the domain library. The question lists in the examples are
-hand-written to show the intended output; deriving them is a v0.2 task.
+layers. Both are met — 172 of 172 library concepts exercised — and enforcing the first one is what produced
+the third example and found four real defects in the domain library. The question lists in the examples are
+hand-written to show the intended output; deriving them is a v0.5 task.
 
 ## Language
 

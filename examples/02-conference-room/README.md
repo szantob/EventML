@@ -119,6 +119,12 @@ questions:
     source: brief.program[2].platform
     blocks: 2        # r-stream-bandwidth, r-stream-segregation
 
+  - ask: "Is the panel four people or five? The event brief on 2 October said four, but the update on 21 October said five, one more joining — just want to confirm before we plan seats and microphones."
+    why: "brief.program[1].panellists is conflicting; decides panel seating, mic count and the video switcher's input list"
+    rule: 4
+    source: brief.program[1].panellists
+    blocks: 2        # r-panel-inputs, r-remote-participation
+
   - ask: "Can the room's own lights be dimmed, and can we control them ourselves — or does the hotel's technician need to do it on cue?"
     why: "r-house-lights has no satisfying part and no agreement behind it; undimmed house light washes out the screen"
     rule: 3

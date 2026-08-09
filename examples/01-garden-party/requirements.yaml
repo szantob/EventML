@@ -75,9 +75,9 @@ requirements:
       conditions: "light rain and wind"
     refines: brief.venue.covered
     notes: >-
-      Also unsatisfied, and for a different reason from r-band-monitoring: here the information exists
-      but the decision has not been made. Nobody has said whether the event moves indoors, so no cover
-      has been designed.
+      Also unsatisfied, and for a different reason from r-band-monitoring: the decision is made, not
+      missing. `d-no-cover` in decisions.yaml records that production decided to carry no cover and no
+      cover budget. What is missing is the client's agreement to that decision, not the decision itself.
 
   - id: r-rcd-protection
     def: power.req.residual_current_protection

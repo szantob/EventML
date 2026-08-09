@@ -210,7 +210,7 @@ be checked against.
 
 **In v0.1 the expression is prose, not a formal expression language.** There is no validator to evaluate
 it, and inventing a syntax nothing executes would freeze a bad guess into the kernel. Formalising
-`expression` is the first task of v0.2; until then it is written so that a human or an agent reading the
+`expression` is the first task of v0.5; until then it is written so that a human or an agent reading the
 model can apply it by hand.
 
 ```yaml
@@ -345,6 +345,10 @@ established by looking at the parts.
     audience: 300
   refines: brief.program.welcome_speech
 ```
+
+A fifth kind of record, `Decision`, lives in a project's model files alongside these four usages without
+being one of them: it names no `PartDef` or `RequirementDef` under `def:`, and one `Decision` can determine
+elements across every layer in a single edge. See `07-decisions.md`.
 
 ## 4. Connection and Flow are separate
 
