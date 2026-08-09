@@ -32,7 +32,7 @@ they hold.
 | Path | Responsibility |
 |---|---|
 | `spec/` | The language: layers, metamodel, relations, uncertainty, decisions, concrete syntax, SysML v2 mapping. Normative |
-| `examples/` | Worked models exercising all four layers, and — under `examples/lib/` — the example library they resolve against. A library is not a model; it sits inside `examples/` so that fact is visible from the layout, not only from prose. These are the only test v0.1 has |
+| `examples/` | Worked models exercising all four layers, and — under `examples/lib/` — the example library they resolve against. A library is not a model; it sits inside `examples/` so that fact is visible from the layout, not only from prose. These are the only test this language has |
 | `decisions.yaml` | The one project file that is not a layer. Records decisions made among genuinely open alternatives; present only when a project records decisions |
 | `docs/` | Design records, implementation plans, and the Hungarian glossary |
 

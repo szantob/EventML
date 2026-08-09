@@ -123,7 +123,7 @@ knowledge. See the question list below.
 
 **This list is hand-written.** v0.1 has no validator and no traversal engine, so nothing here was computed
 — it is what the derivation defined in `spec/04-uncertainty.md` should produce from this model, written out
-by hand to show the intended output. v0.5 derives it. Where this list and the model disagree, the model is
+by hand to show the intended output. v0.6 derives it. Where this list and the model disagree, the model is
 right and this list is stale.
 
 Ranked by `blocks` — the number of requirements reachable downstream of the open node.
