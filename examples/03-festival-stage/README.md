@@ -77,13 +77,25 @@ them. Reading the pair in order shows a plan changing under an external constrai
 always right — mats were the reasonable call on 8 May with only a spoken objection to weigh against the
 venue's own suggestion, and flying the link on a catenary is the answer once that objection was confirmed.
 
-`d-foh-catenary` is also the one decision in this project whose `agreed_by` names an `authority` rather than
-the client. The party that has to assent to a decision is whoever can stop the show, and on a cable route
-crossing a public path that is the council, not the person paying for the stage.
+`d-foh-catenary` carries `needs_agreement: true` and no `agreed_by`, and it is worth reading closely why.
+`s-council-paths` is a prohibition, not a permission: the council representative said no cable may run on
+the ground across the path, matted or not, and said nothing whatever about a catenary flown at 5.2 m. The
+team solved the problem the council raised — but solving the problem is not the same thing as the council
+agreeing to the solution, and nobody went back to ask them. Citing the refusal as if it were consent would
+have hidden exactly the gap that matters: the party who can stop the show on the day is the council, not the
+client paying for the stage, and the council has not actually been asked. This is also an honest and common
+way real projects fail — the objection gets engineered around, the fix looks obviously right to the people
+who found it, and closing the loop with the one party whose sign-off counts gets forgotten.
 
 `brief.venue.cable_route` itself stays `conflicting`, on purpose. Both statements were made, on the same
 site visit, by people with standing to say them; folding the value to `stated` once one side wins would
-erase the fact that somebody was overruled, and that fact now lives in `d-foh-catenary` instead.
+erase the fact that somebody was overruled, and that fact now lives in `d-foh-catenary` instead. Because
+`d-foh-catenary` names `brief.venue.cable_route` in `affects`, question rule 4 no longer fires on the
+conflict — but because the decision itself is unagreed, rule 7 fires on the decision instead. That handoff
+from rule 4 to rule 7, described in prose in `spec/04-uncertainty.md`, is what this decision now
+demonstrates: the conflict was never really "which source do we believe", it is "has anyone actually
+confirmed the fix with the party who objected" — and until somebody does, the question stays open, just
+addressed to the project manager instead of the client.
 
 ## The question list
 
@@ -97,25 +109,32 @@ questions:
     source: brief.program[1].wireless_channels
     blocks: 2
 
-  - ask: "What is going on the video screen — a camera of whoever is on stage, sponsor loops between bands, or both? If both, does someone need to switch between them live?"
-    why: "brief.program[3].content is unknown; r-screen-content has nothing satisfying it and the answer decides whether an operator is needed at all"
-    rule: 3
-    source: r-screen-content
-    blocks: 1
-
   - ask: "The generator was a 20 kVA set last year, before the video screen. Can we confirm the same size is being hired, or check what is available? The screen adds about 2 kW."
     why: "gen-1.rated_kva is assumed. At 14.5 kW measured demand a 20 kVA set is inside the 80% headroom rule, but only just, and the dimmer rack is the largest single-phase load"
     rule: 2
     source: gen-1.rated_kva
     blocks: 2
 
+  - ask: "What is going on the video screen — a camera of whoever is on stage, sponsor loops between bands, or both? If both, does someone need to switch between them live?"
+    why: "brief.program[3].content is unknown; r-screen-content has nothing satisfying it and the answer decides whether an operator is needed at all"
+    rule: 3
+    source: r-screen-content
+    blocks: 1
+
   - ask: "Are the moving heads going in their extended mode or the basic one? Whoever operates them will know — it changes how many control channels they need."
     why: "f-dmx-effect.channels_used is unknown, and lighting.constraint.universe_capacity cannot be checked until it is known. The answer is in the fixtures' GDTF files"
     rule: 1
     source: f-dmx-effect.properties.channels_used
     blocks: 1
+
+  - ask: "Can you get confirmation in writing from the council that flying the cable on a catenary at 5.2 m over the path is acceptable to them? They told us what was not allowed on the ground; nobody has gone back to ask them about what we are doing instead."
+    why: "d-foh-catenary is unagreed; the council can still stop the show on the day if their objection was engineered around rather than actually settled"
+    rule: 7
+    source: d-foh-catenary
+    blocks: 0
+    internal: true   # for the project manager, not for the client
 ```
 
-Note the third question. It is rule 2 — an assumption marked `ask: true` — and its `why` does arithmetic
+Note the second question. It is rule 2 — an assumption marked `ask: true` — and its `why` does arithmetic
 the client will never see: 14.5 kW against a 20 kVA set is 90% of the headroom the model allows. The
 question put to the client is about a hire order; the reasoning behind it is a constraint check.

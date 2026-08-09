@@ -31,13 +31,19 @@ decisions:
     src: s-council-paths
     supersedes: d-foh-ground-run
     needs_agreement: true
-    agreed_by: { party: authority, person: "council representative", src: s-council-paths }
     notes: >-
       The two statements behind this conflict came from different people on the same site visit, which is
       why `sources` holds them as separate entries. Without that split this decision could not cite the
       council rather than the site manager, and the record would not say who overruled whom. The twelve
       days between the two decisions are the time it took to confirm the walk-round objection was the
       council's actual position and to work out a route that satisfied it, not a delay in believing it.
+      `s-council-paths` is a prohibition, not a permission: the council representative said no cable may
+      run on the ground, and said nothing at all about a catenary at 5.2 m. The team solved the problem the
+      council raised and never went back to ask whether the solution is acceptable to them, which is why
+      this decision carries `needs_agreement: true` and no `agreed_by` — the council is the party that can
+      stop the show on the day, and closing that loop is still outstanding. That is a common and realistic
+      way a project fails: the objection gets engineered around, the fix looks obviously right to the
+      people who found it, and nobody circles back to the one party whose sign-off actually counts.
 
   - id: d-generator-position
     date: 2026-05-20
