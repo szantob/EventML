@@ -136,8 +136,8 @@ same ranked list because it competes for the same attention, but its `ask` is ph
 
 #### Rule 4 — a `conflicting` value
 
-**Trigger.** A value with `state: conflicting`, unless its path appears in the `affects` list of a
-`Decision`.
+**Trigger.** A value with `state: conflicting`, unless it — or an element containing it — appears in the
+`affects` list of a `Decision`.
 
 Two sources disagree, and the model refuses to pick a winner silently. Both alternatives stay in the file
 with their sources attached, so the question can be put back to the client as a choice between two things
@@ -148,6 +148,12 @@ they themselves said, with dates.
   why: "decides crew call time and whether soundcheck fits before doors"
   blocks: 1
 ```
+
+**Containment.** An `affects` entry covers the element it names and every value inside it. A decision that
+names `r-speech-intelligible` settles the conflicting `audience` parameter within it without listing that
+parameter separately. The alternative — requiring every nested value to be enumerated — would make `affects`
+lists long, fragile, and wrong the moment a requirement gained a parameter, and it would put the burden of
+completeness on the person least able to check it.
 
 **The exception.** Once a `Decision` names the conflicting value in its `affects`, the conflict is decided
 rather than unanswered, and the decision is the answer — asking the client to choose between the two sources
