@@ -53,6 +53,11 @@ applies rather than leaving that judgement to the modeller's memory.
   diagram that replaces it names `r-monitor-coverage` and `monitor-world`, matching the field-read walk
   printed directly below it.
 
+> **The two entries above shipped inside the `v0.2.0` tag, not this one.** They merged to `main` after the
+> `[0.2.0]` section had been written but before the tag was cut, so `v0.2.0` contains them and its own entry
+> does not describe them. They are recorded here rather than added to a released section, and this note is
+> here so that anybody dating the diagrams from this entry is not misled.
+
 ### Added — eventml-lib
 
 - **`applies_when` on all 22 requirement templates**, across all five domains, prose stating when the
