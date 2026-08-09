@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 `eventml-core` (the metamodel) and `eventml-lib` (the domain vocabulary) are
 versioned separately. Entries state which one changed.
 
+## [Unreleased]
+
+Nothing yet. Work landing after v0.2.0 is recorded here until it is released.
+
 ## [0.2.0] - 2026-08-09
 
 Adds the decision record: who chose something, on what basis, and whether anyone outside the team agreed
