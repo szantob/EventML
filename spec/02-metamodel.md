@@ -275,7 +275,7 @@ be checked against.
 
 **In v0.1 the expression is prose, not a formal expression language.** There is no validator to evaluate
 it, and inventing a syntax nothing executes would freeze a bad guess into the kernel. Formalising
-`expression` is the first task of v0.5; until then it is written so that a human or an agent reading the
+`expression` is the first task of v0.6; until then it is written so that a human or an agent reading the
 model can apply it by hand.
 
 ```yaml

@@ -15,7 +15,7 @@ front light at an angle; the client described the symptom, and `r-face-lighting`
 
 Examples 01 and 02 exercise the language on small, tidy events. This one exists to satisfy **rule 1 of the
 verification in `docs/superpowers/specs/2026-08-08-eventml-core-design.md` §7**: every concept defined in
-`spec/` or `lib/` must appear in at least one example. After the first two examples, 62 of the library's
+`spec/` or `examples/lib/` must appear in at least one example. After the first two examples, 62 of the library's
 172 concepts had never been exercised — every one of them the kind of thing that only turns up on a bigger,
 messier job. A festival stage is where they all turn up at once.
 

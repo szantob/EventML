@@ -2,12 +2,14 @@
 
 **An open modelling language for live event AV systems — from client brief to signal topology.**
 
-> **Status: v0.2.0 — the specification is complete; nothing is executable.** The kernel is here: four
+> **Status: v0.3.0 — the specification is complete; nothing is executable.** The kernel is here: four
 > layers, eleven core entities, six traceability relations, the uncertainty model and the canonical YAML
 > syntax, in eight files under [`spec/`](spec/) — including the `Decision` entity, for recording who chose
 > something and whether anyone outside the team agreed to it. Base vocabulary for five domains — 172
-> concepts — is in [`examples/lib/`](examples/lib/), and three worked models under [`examples/`](examples/) exercise every one
-> of them. There is no schema, no validator and no tooling yet; those are planned for v0.5. The syntax may
+> concepts — is in [`examples/lib/`](examples/lib/), which now names and versions itself as `eventml-example`
+> in its own manifest. Three worked models under [`examples/`](examples/) each declare, in a manifest of
+> their own, which version of that library they resolve against, and exercise every one of its concepts.
+> There is no schema, no validator and no tooling yet; those are planned for v0.6. The syntax may
 > still change before 1.0. See [the design document](docs/superpowers/specs/2026-08-08-eventml-core-design.md).
 
 ---
@@ -98,27 +100,26 @@ perfectly. The reasoning is set out in full in the [design document](docs/superp
 
 ```
 spec/       the language: layers, metamodel, relations, uncertainty, decisions, syntax, SysML mapping
-lib/        domain library: audio, lighting, video, network, power vocabulary
-examples/   worked models exercising all four layers
+examples/   worked models exercising all four layers, plus the example library they resolve against
 docs/       design records and the Hungarian glossary
 ```
 
 The **kernel** (`spec/`) is the language. The **domain library** (`examples/lib/`) is data written in that language,
 and it is versioned separately — vocabulary grows without touching the language.
 
-## Current scope
+## Scope at v0.3
 
 Base concepts across five domains — audio, lighting, video, ethernet network, electrical — with the kernel
 stable enough that adding depth later will not restructure it, plus the `Decision` entity and the `affect`
-relation for recording who chose something and whether anyone outside the team agreed to it. v0.2 is a
+relation for recording who chose something and whether anyone outside the team agreed to it. v0.3 is a
 specification: prose and data, no executable code. A machine-readable schema, a validator, derived question
-lists and diagram generation follow in v0.5.
+lists and diagram generation follow in v0.6.
 
-Because there is no validator, **the worked examples are the only test v0.2 has**, under two rules: every
+Because there is no validator, **the worked examples are the only test v0.3 has**, under two rules: every
 defined concept must appear in at least one example, and every example must be walkable across all four
 layers. Both are met — 172 of 172 library concepts exercised — and enforcing the first one is what produced
 the third example and found four real defects in the domain library. The question lists in the examples are
-hand-written to show the intended output; deriving them is a v0.5 task.
+hand-written to show the intended output; deriving them is a v0.6 task.
 
 ## Language
 
