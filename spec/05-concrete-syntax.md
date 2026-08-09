@@ -1,6 +1,6 @@
 # 05 — Concrete syntax
 
-EventML's canonical concrete syntax is YAML 1.2. This file is the contract every file in `lib/` and
+EventML's canonical concrete syntax is YAML 1.2. This file is the contract every file in a library and
 `examples/` follows: where files live, how they open, how identifiers are formed, and how one element
 refers to another.
 
@@ -33,7 +33,7 @@ decisions, and it is absent from a model that records none — see `07-decisions
 **A library domain is a directory of four files, one per entity kind.**
 
 ```
-lib/<domain>/
+<library>/<domain>/
 ├── items.yaml
 ├── ports.yaml
 ├── parts.yaml
@@ -188,7 +188,7 @@ sentence, and nothing can resolve it.
   written, not transliterated.
 - **Comments** explain why, not what. `# 32 A three-phase, confirmed on the site visit` earns its line;
   `# the stage box` does not.
-- **`notes` is permitted on any entry**, in `lib/` and in model files alike, and holds free text about the
+- **`notes` is permitted on any entry**, in library files and in model files alike, and holds free text about the
   entry rather than part of it. It is where a modeller says what a reader would otherwise have to
   reconstruct: why a value was left unknown, what a decision would cost to reverse, which of two readings
   of a brief sentence was taken. Nothing in the language derives anything from it. The entity tables in

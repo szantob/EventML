@@ -6,7 +6,7 @@
 > layers, eleven core entities, six traceability relations, the uncertainty model and the canonical YAML
 > syntax, in eight files under [`spec/`](spec/) — including the `Decision` entity, for recording who chose
 > something and whether anyone outside the team agreed to it. Base vocabulary for five domains — 172
-> concepts — is in [`lib/`](lib/), and three worked models under [`examples/`](examples/) exercise every one
+> concepts — is in [`examples/lib/`](examples/lib/), and three worked models under [`examples/`](examples/) exercise every one
 > of them. There is no schema, no validator and no tooling yet; those are planned for v0.5. The syntax may
 > still change before 1.0. See [the design document](docs/superpowers/specs/2026-08-08-eventml-core-design.md).
 
@@ -103,7 +103,7 @@ examples/   worked models exercising all four layers
 docs/       design records and the Hungarian glossary
 ```
 
-The **kernel** (`spec/`) is the language. The **domain library** (`lib/`) is data written in that language,
+The **kernel** (`spec/`) is the language. The **domain library** (`examples/lib/`) is data written in that language,
 and it is versioned separately — vocabulary grows without touching the language.
 
 ## Current scope

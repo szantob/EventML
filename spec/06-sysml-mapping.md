@@ -50,7 +50,7 @@ EventML is a model library extension rather than a re-encoding.
 
 ## 3. Side by side
 
-`audio.part.stage_box` from `lib/audio/parts.yaml`, in both notations.
+`audio.part.stage_box` from `examples/lib/audio/parts.yaml`, in both notations.
 
 **EventML:**
 
