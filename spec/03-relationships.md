@@ -220,7 +220,7 @@ decision's history backward stays a field read.
 
 ## Traversal
 
-The five relations chain into one path from a sentence in a client's email down to a cable. Following the
+These relations chain into one path from a sentence in a client's email down to a cable. Following the
 band from the garden-party brief:
 
 ```

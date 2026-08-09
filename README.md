@@ -2,12 +2,13 @@
 
 **An open modelling language for live event AV systems — from client brief to signal topology.**
 
-> **Status: v0.1.0 — the specification is complete; nothing is executable.** The kernel is here: four
-> layers, ten core entities, five traceability relations, the uncertainty model and the canonical YAML
-> syntax, in eight files under [`spec/`](spec/). Base vocabulary for five domains — 172 concepts — is in
-> [`lib/`](lib/), and three worked models under [`examples/`](examples/) exercise every one of them. There
-> is no schema, no validator and no tooling yet; those are the next stage. The syntax may still change
-> before 1.0. See [the design document](docs/superpowers/specs/2026-08-08-eventml-core-design.md).
+> **Status: v0.2.0 — the specification is complete; nothing is executable.** The kernel is here: four
+> layers, eleven core entities, six traceability relations, the uncertainty model and the canonical YAML
+> syntax, in eight files under [`spec/`](spec/) — including the `Decision` entity, for recording who chose
+> something and whether anyone outside the team agreed to it. Base vocabulary for five domains — 172
+> concepts — is in [`lib/`](lib/), and three worked models under [`examples/`](examples/) exercise every one
+> of them. There is no schema, no validator and no tooling yet; those are planned for v0.5. The syntax may
+> still change before 1.0. See [the design document](docs/superpowers/specs/2026-08-08-eventml-core-design.md).
 
 ---
 
