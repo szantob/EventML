@@ -83,7 +83,7 @@ brief:
 
 | Key | Files | Values |
 |---|---|---|
-| `eventml` | all | The language version the file is written against. `"0.1"` in this release — quoted, so it stays a string |
+| `eventml` | all | The language version the file is written against, quoted so it stays a string. Per file, not per project: `"0.1"` for a file using only v0.1 constructs, `"0.2"` for one that needs `decisions.yaml`'s |
 | `kind` | library, decisions | Library: `items` \| `ports` \| `parts` \| `requirements`. Decisions file: `decisions` |
 | `domain` | library | `audio` \| `lighting` \| `video` \| `network` \| `power` |
 | `layer` | model | `brief` \| `requirement` \| `logical` \| `physical`, exactly as in `01-layers.md` |
