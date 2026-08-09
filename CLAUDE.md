@@ -22,8 +22,8 @@ they hold.
 | 3 | **Catalogue ID format:** `<domain>.<kind>.<name>` — lowercase, `snake_case` name, e.g. `audio.item.analog_line`, `audio.port.xlr3f`, `power.part.distro`, `audio.req.speech_intelligibility`. Domains: `audio`, `lighting`, `video`, `network`, `power`. Kinds: `item`, `port`, `part`, `interface`, `req`, `constraint`. |
 | 4 | **Type reference vs instance ID:** a usage names its catalogue type under key `def:`; its own identifier is `id:`. Never infer one from the other. |
 | 5 | **Port reference syntax:** `<part_id>:<port_id>[<index>]`, e.g. `sb1:dante[0]`. The index is omitted when the port count is 1. |
-| 6 | **Every YAML file opens with a three-key header document, then `---`, then the content.** Library files: `eventml`, `kind`, `domain`. Model files: `eventml`, `layer`, `project`. A library file never carries `layer` or `project`; a model file never carries `kind` or `domain`. |
-| 7 | **Version floors:** `eventml: "0.1"` in every YAML file. `eventml-core` and `eventml-lib` version separately; both are `0.1.0` at the v0.1 tag. |
+| 6 | **Every YAML file opens with a three-key header document, then `---`, then the content.** Library files: `eventml`, `kind`, `domain`. Layer model files: `eventml`, `layer`, `project`. The decisions file: `eventml`, `kind`, `project`. A library file never carries `layer` or `project`; a layer model file never carries `kind` or `domain`. `kind` is the key library files and the decisions file share, because both answer "what is in this file" rather than "which layer is this". |
+| 7 | **Version floors are per file and mark capability, not calendar.** `eventml` in a file's header is the lowest version whose constructs the file actually uses: a file written entirely in v0.1 constructs stays `eventml: "0.1"`; a `decisions.yaml`, which uses the v0.2 `Decision` entity, declares `eventml: "0.2"`. Mixed floors within one project are correct — a project's brief, requirement, logical and physical files can stay at `"0.1"` while its `decisions.yaml` sits at `"0.2"`. `eventml-core` and `eventml-lib` version separately, independent of any single file's floor. |
 | 8 | **Adopt, don't invent.** Where a term exists in GDTF, NMOS, IFC or SysML v2, use that term and record the source in a `source:` key. Only coin a term when no standard has one. |
 | 9 | **Commit after every task.** Never push — pushing is the user's decision. |
 
@@ -34,6 +34,7 @@ they hold.
 | `spec/` | The language: layers, metamodel, relations, uncertainty, concrete syntax, SysML v2 mapping. Normative |
 | `lib/` | Domain library for audio, lighting, video, network, power — YAML data written in the language. Illustrative |
 | `examples/` | Worked models exercising all four layers. These are the only test v0.1 has |
+| `decisions.yaml` | The one project file that is not a layer. Records decisions made among genuinely open alternatives; present only when a project records decisions |
 | `docs/` | Design records, implementation plans, and the Hungarian glossary |
 
 ## 4. House rules

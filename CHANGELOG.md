@@ -27,6 +27,12 @@ versioned separately. Entries state which one changed.
   running to about 170 characters — are more readable inline than split across six lines each. All 538
   inline records in the repository satisfy the structural rule.
 
+### Not in this release
+
+No machine-readable schema, no validator, no question-list derivation. This release adds the decision
+record instead. The v0.1.0 notes below said formalising the metamodel was the first task of v0.2; it is
+not — that work is now planned for v0.5.
+
 ## [0.1.0] - 2026-08-08
 
 First release. A specification only: prose and data, nothing executable.

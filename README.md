@@ -116,7 +116,7 @@ Because there is no validator, **the worked examples are the only test v0.1 has*
 defined concept must appear in at least one example, and every example must be walkable across all four
 layers. Both are met — 172 of 172 concepts exercised — and enforcing the first one is what produced the
 third example and found four real defects in the domain library. The question lists in the examples are
-hand-written to show the intended output; deriving them is a v0.2 task.
+hand-written to show the intended output; deriving them is a v0.5 task.
 
 ## Language
 
