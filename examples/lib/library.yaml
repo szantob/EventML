@@ -1,0 +1,11 @@
+eventml: "0.3"
+kind: library
+library: eventml-example
+---
+library:
+  version: "0.2.0"
+  description: >-
+    The vocabulary the worked examples resolve against. Illustrative: copy entries from it as a one-time
+    seed, and do not resolve a real project against it. An organisation that copies from it owns the
+    copies, and its own library versions independently from that point.
+  domains: [audio, lighting, video, network, power]

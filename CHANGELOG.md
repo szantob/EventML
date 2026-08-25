@@ -9,8 +9,35 @@ versioned separately. Entries state which one changed.
 
 ## [Unreleased]
 
-### Changed — eventml-core
+Nothing yet. Work landing after v0.3.0 is recorded here until it is released.
 
+## [0.3.0] - 2026-08-10
+
+Makes a library a named, versioned thing that a project resolves against by `name@version` rather than a
+directory a model happens to sit beside, and records in the library itself when each requirement template
+applies rather than leaving that judgement to the modeller's memory.
+
+### Added — eventml-core
+
+- **The library manifest** (`spec/05-concrete-syntax.md`, `examples/lib/library.yaml`): `library.yaml` at a
+  library's root, using the same three-key header shape as every other file — `eventml`, `kind: library`,
+  and `library` naming the library itself. Its body carries `version`, `description` and `domains`. A
+  library now declares its own identity instead of being identified by wherever it happens to sit.
+- **The project manifest** (`spec/05-concrete-syntax.md`, `examples/*/project.yaml`): `project.yaml` beside
+  the four layer files, header-shaped the same way, naming which library the project resolves against under
+  `project.library`. A project directory is now `project.yaml`, the four layer files, and `decisions.yaml`
+  when the project records decisions.
+- **The resolution rule** (`spec/05-concrete-syntax.md`): a model resolves against exactly one library,
+  named in its `project.yaml` — no search path, no fallback, no merging of two libraries. The reference
+  names a library and a version, `eventml-example@0.2.0`, not a location; where that vocabulary is stored
+  and how it is fetched belongs to whatever is running the model, so the reference means the same thing in a
+  git repository, a folder and a web interface. The shipped example library resolves nobody's real project —
+  it exists to be read and copied from as a one-time seed, and an organisation's own copy versions
+  independently from that point.
+- **`applies_when` on `RequirementDef`** (`spec/02-metamodel.md`): one prose sentence stating when a
+  template applies — an outdoor event implies weather protection, a spoken-word programme item implies
+  intelligibility. Nothing evaluates it in v0.3; a human or an agent reads it and decides, exactly as they
+  already do with a `ConstraintDef.expression`.
 - **Six Mermaid diagrams in `spec/`**, one per claim the prose was carrying alone. `01-layers.md` gets the
   four-layer stack with every arrow drawn the way the edge is stored, which is boundary rule 1 as a picture.
   `02-metamodel.md` gets the eleven-entity reference graph, definitions above and usages below with the four
@@ -25,6 +52,74 @@ versioned separately. Entries state which one changed.
   `req.monitor_coverage` and `part.monitor_world`, which are neither catalogue IDs nor instance IDs; the
   diagram that replaces it names `r-monitor-coverage` and `monitor-world`, matching the field-read walk
   printed directly below it.
+
+> **The two entries above shipped inside the `v0.2.0` tag, not this one.** They merged to `main` after the
+> `[0.2.0]` section had been written but before the tag was cut, so `v0.2.0` contains them and its own entry
+> does not describe them. They are recorded here rather than added to a released section, and this note is
+> here so that anybody dating the diagrams from this entry is not misled.
+
+### Added — eventml-lib
+
+- **`applies_when` on all 22 requirement templates**, across all five domains, prose stating when the
+  template applies rather than leaving that judgement to whoever is modelling.
+- **`examples/02-conference-room/README.md` derives by hand which templates the brief triggers** — the
+  first worked illustration of `applies_when`, walking the brief and the venue against every template's
+  condition the way a human or an agent would.
+
+### Changed — eventml-core
+
+- **The example library moved to `examples/lib/`**, carrying the new manifest that names it
+  `eventml-example`. A top-level `lib/` looked normative however carefully the prose denied it; the
+  directory now says what the words previously had to keep saying on its behalf. 22 path references updated
+  across seven files.
+- **The specification names the concept, not the path.** "Definitions live in `lib/`" becomes "definitions
+  live in a library"; every other rule anchored to the `lib/` path is restated the same way, including
+  `CLAUDE.md`'s verification rule, which no longer points at a directory that no longer exists. Three
+  further statements calling the catalogue "shared across projects" — twice in `spec/02-metamodel.md`,
+  including a diagram label, and once in `spec/06-sysml-mapping.md` — are sharpened to name the
+  organisation whose projects, since the shipped `lib/` is exactly the reading this release retires.
+- **`eventml-lib` is the version of this repository's example library, not a special package.** Every
+  library now carries a version of its own; `eventml-lib` is simply the first one to do so, generalising
+  rather than staying an exception.
+- **Formalisation moved from v0.5 to v0.6.** Six places named v0.5 for the machine-readable schema,
+  validator and derived question list — `README.md` (three places), `spec/02-metamodel.md`,
+  `spec/04-uncertainty.md`, and one outside `spec/` entirely, in
+  `examples/01-garden-party/README.md`'s hand-written question list. v0.3's scope grew to cover
+  applicability and the library instead, so all six are corrected to v0.6 rather than left holding a promise
+  this release did not keep.
+
+### Changed — eventml-lib
+
+- **`video.req.screen_coverage`'s `applies_when` corrected.** It originally read "wider than its useful
+  viewing angle", which excluded the long narrow room in `examples/02-conference-room` — a room that already
+  had a requirement written against this exact template. Narrowed to the condition the defect actually
+  required. Found by walking `applies_when` against a real example, the first time the construct was used
+  for anything.
+
+### Verification
+
+No validator ships in this release either, so the audits below were run by hand against the repository as a
+whole:
+
+- **All 38 YAML files parse** — the 34 carried over from v0.2.0 plus the library manifest and the three
+  project manifests.
+- **The library-resolution audit resolves cleanly.** One library declared, `eventml-example@0.2.0`; all
+  three project manifests (`01-garden-party`, `02-conference-room`, `03-festival-stage`) reference it;
+  unresolved references: none.
+- **The catalogue-coverage audit is empty.** 124 catalogue ids defined in `examples/lib/`, 124 distinct ids
+  used across `examples/0*/`; `comm -23` between them reports nothing — no library entry sits unused by an
+  example, with the library itself excluded from counting as its own consumer.
+- **Version floors are correct.** `"0.3"` on the library manifest, the three project manifests and the five
+  library `requirements.yaml` files (9 files in total); `"0.1"` on every `brief.yaml`.
+- **The applicability walk found a real defect in the library on its first real use.** Reading
+  `examples/02-conference-room`'s brief against every template's `applies_when` found that
+  `video.req.screen_coverage`'s condition excluded the very room a requirement already used it for — see
+  Changed — eventml-lib above. In a repository with no validator, this is the strongest evidence available
+  that a new construct is pulling its weight.
+- **Two templates fire with no requirement written** in `examples/02-conference-room` —
+  `audio.req.coverage_uniformity` and `power.req.residual_current_protection`. Both apply on the reading
+  above and neither has a requirement in the example. Recorded in the example's README as the applicability
+  rule doing its job, not silently patched.
 
 ## [0.2.0] - 2026-08-09
 

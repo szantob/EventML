@@ -5,7 +5,7 @@
 EventML separates **definitions** from **usages**, a split taken directly from SysML v2's `def`/`usage`
 pattern. A definition is a reusable catalogue type: the concept of a digital stage box, of an XLR 3-pin
 female socket, of balanced line-level audio. It describes what something *is*, independent of any event.
-Definitions live in `lib/` and carry catalogue IDs of the form `<domain>.<kind>.<name>`.
+Definitions live in a library and carry catalogue IDs of the form `<domain>.<kind>.<name>`.
 
 A usage is one occurrence of that type in one project: the stage box standing at the drum riser on 12
 September, with the label the crew wrote on its case. Usages live in model files under `examples/` or in a
@@ -13,20 +13,20 @@ project's own repository. A usage names its type under the key `def:` and carrie
 `id:`. These two keys are never inferred from one another — a model may hold six stage boxes, all with
 `def: audio.part.stage_box` and six distinct `id:` values.
 
-The split matters here for a practical reason. The catalogue is shared across every project and maps onto
-rental inventory: `audio.part.stage_box` is the row in the hire system, and a `catalog_ref` on the
-definition is what binds the model to it. Instances are per-event and disposable — they are created when a
-brief arrives and discarded when the truck comes back. Keeping the two apart is what lets the vocabulary
-accumulate while individual models stay small.
+The split matters here for a practical reason. The catalogue is shared across every project **of the
+organisation that owns it**, and maps onto their rental inventory: `audio.part.stage_box` is the row in the
+hire system, and a `catalog_ref` on the definition is what binds the model to it. Instances are per-event and
+disposable — they are created when a brief arrives and discarded when the truck comes back. Keeping the two
+apart is what lets the vocabulary accumulate while individual models stay small.
 
-The eleven entities and what each one references. Definitions sit above, in `lib/`, and reference only other
-definitions; usages sit below, in a project's model files, and the four arrows crossing the boundary are each
-a usage naming its catalogue type. `Decision`, added in v0.2, is the one record that crosses nothing — it
-names no definition at all, and reaches usages and brief paths directly, at any layer.
+The eleven entities and what each one references. Definitions sit above, in a library, and reference only
+other definitions; usages sit below, in a project's model files, and the four arrows crossing the boundary
+are each a usage naming its catalogue type. `Decision`, added in v0.2, is the one record that crosses
+nothing — it names no definition at all, and reaches usages and brief paths directly, at any layer.
 
 ```mermaid
 flowchart BT
-    subgraph lib["lib/ — definitions · catalogue types, shared across projects"]
+    subgraph lib["a library — definitions · catalogue types, shared across one organisation's projects"]
         direction LR
         ItemDef
         PortDef
@@ -69,7 +69,7 @@ only to show that `Decision` has no `def:` of its own.
 
 ## 2. Definition entities
 
-Six entities are definitions. All of them may appear in `lib/`; none of them may appear in a model file.
+Six entities are definitions. All of them may appear in a library; none of them may appear in a model file.
 
 ### ItemDef
 
@@ -217,6 +217,7 @@ to ask the client when a parameter is missing.
 | `id` | string | yes | Catalogue ID |
 | `name` | string | yes | Human-readable name |
 | `text` | string | yes | Template with `{param}` placeholders |
+| `applies_when` | string | no | One sentence stating when this template applies |
 | `params` | list | yes | Each: `name`, `type`, optional `default` |
 | `verification` | string | yes | How you would check it was met |
 | `constraints` | list of ConstraintDef refs | no | Rules that must hold for it to be met |
@@ -231,6 +232,7 @@ when those questions fire.
 ```yaml
 - id: audio.req.speech_intelligibility
   name: Speech intelligibility
+  applies_when: "the brief has any spoken-word programme item — a speech, a ceremony, a panel discussion"
   text: "Speech must be intelligible across {area} for an audience of {audience}."
   params:
     - { name: area,     type: string }
@@ -240,6 +242,21 @@ when those questions fire.
     - param: area
       question: "Where exactly will people be standing or sitting during the speeches?"
 ```
+
+**`applies_when` records what a project manager knows without thinking** — an outdoor event implies
+weather protection, a speech implies intelligibility. Today that knowledge reaches the model only if the
+modeller happens to remember it; written into the template, it survives the person.
+
+**It is prose, not an evaluable expression, for the reason `ConstraintDef.expression` already carries**
+(below): there is no validator to evaluate it, and inventing a syntax nothing executes would freeze a bad
+guess into the kernel. A rule that needs an evaluator before an evaluator exists is written so a human or
+an agent can apply it by hand, and formalising it is named for a later release along with `expression`.
+
+**Nothing derives from `applies_when` in v0.3.** A human or an agent reads the sentence against a brief
+and decides whether the template belongs in the model; the field does not trigger anything on its own.
+
+**`applies_when` is optional.** Its absence means the template's applicability has not been written down
+— a gap in the library — not that the template applies unconditionally. Only its presence is a claim.
 
 ### ConstraintDef
 
@@ -258,7 +275,7 @@ be checked against.
 
 **In v0.1 the expression is prose, not a formal expression language.** There is no validator to evaluate
 it, and inventing a syntax nothing executes would freeze a bad guess into the kernel. Formalising
-`expression` is the first task of v0.5; until then it is written so that a human or an agent reading the
+`expression` is the first task of v0.6; until then it is written so that a human or an agent reading the
 model can apply it by hand.
 
 ```yaml
@@ -270,7 +287,7 @@ model can apply it by hand.
 
 ## 3. Usage entities
 
-Four entities are usages. All of them appear in model files; none of them may appear in `lib/`.
+Four entities are usages. All of them appear in model files; none of them may appear in a library.
 
 ### Part
 

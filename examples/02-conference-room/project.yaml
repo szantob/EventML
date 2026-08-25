@@ -1,0 +1,6 @@
+eventml: "0.3"
+kind: project
+project: conference-room
+---
+project:
+  library: eventml-example@0.2.0

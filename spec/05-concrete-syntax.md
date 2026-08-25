@@ -1,6 +1,6 @@
 # 05 — Concrete syntax
 
-EventML's canonical concrete syntax is YAML 1.2. This file is the contract every file in `lib/` and
+EventML's canonical concrete syntax is YAML 1.2. This file is the contract every file in a library and
 `examples/` follows: where files live, how they open, how identifiers are formed, and how one element
 refers to another.
 
@@ -11,15 +11,16 @@ syntax — a mapping to SysML v2 textual notation, for export and interoperabili
 
 ## 1. File layout
 
-**A project model is a directory of four files, one per layer.**
+**A project model is a directory of four files, one per layer, plus a manifest.**
 
 ```
 <project>/
+├── project.yaml        # names the library this project resolves against
 ├── brief.yaml
 ├── requirements.yaml
 ├── logical.yaml
 ├── physical.yaml
-└── decisions.yaml     # optional
+└── decisions.yaml      # optional
 ```
 
 One file per layer rather than one file per project, because the layers are written at different times by
@@ -28,16 +29,21 @@ week before the event and revised on site. Keeping them apart means a change to 
 touch the file recording what the client asked for.
 
 `decisions.yaml` is the one project file that is not a layer. It is present only when the project records
-decisions, and it is absent from a model that records none — see `07-decisions.md`.
+decisions, and it is absent from a model that records none — see `07-decisions.md`. `project.yaml` is not a
+layer either — see §5's resolution rule for what it declares and why it stands apart.
 
-**A library domain is a directory of four files, one per entity kind.**
+**A library is a manifest plus a directory per domain, each a directory of four files, one per entity
+kind.**
 
 ```
-lib/<domain>/
-├── items.yaml
-├── ports.yaml
-├── parts.yaml
-└── requirements.yaml
+<library>/
+├── library.yaml         # the library's name and version
+├── audio/
+│   ├── items.yaml
+│   ├── ports.yaml
+│   ├── parts.yaml
+│   └── requirements.yaml
+└── <other domains>/
 ```
 
 Split by entity kind rather than gathered into one file per domain, because items, ports, parts and
@@ -81,19 +87,49 @@ brief:
     name: Gellért terrace
 ```
 
+A library manifest:
+
+```yaml
+eventml: "0.3"
+kind: library
+library: eventml-example
+---
+library:
+  version: "0.2.0"
+  domains: [audio, lighting, video, network, power]
+```
+
+A project manifest:
+
+```yaml
+eventml: "0.3"
+kind: project
+project: garden-party
+---
+project:
+  library: eventml-example@0.2.0
+```
+
 | Key | Files | Values |
 |---|---|---|
 | `eventml` | all | The language version the file is written against, quoted so it stays a string. Per file, not per project: `"0.1"` for a file using only v0.1 constructs, `"0.2"` for one using the `Decision` entity. A project whose four layer files stay at `"0.1"` alongside a `decisions.yaml` at `"0.2"` is correct |
-| `kind` | library, decisions | Library: `items` \| `ports` \| `parts` \| `requirements`. Decisions file: `decisions` |
-| `domain` | library | `audio` \| `lighting` \| `video` \| `network` \| `power` |
+| `kind` | library domain files, decisions, library manifest, project manifest | `items` \| `ports` \| `parts` \| `requirements` \| `decisions` \| `library` \| `project` |
+| `domain` | library domain files | `audio` \| `lighting` \| `video` \| `network` \| `power` |
 | `layer` | model | `brief` \| `requirement` \| `logical` \| `physical`, exactly as in `01-layers.md` |
-| `project` | model, decisions | Short kebab-case project identifier, the same in all files of the project |
+| `project` | model, decisions, project manifest | Short kebab-case project identifier, the same in all files of the project |
+| `library` | library manifest | The library's own name, e.g. `eventml-example` |
 
-A library file carries `kind` and `domain` and never `layer` or `project`. A model file carries `layer` and
-`project` and never `kind` or `domain`. `decisions.yaml` carries `kind: decisions` and `project` and never
-`layer` or `domain` — see `07-decisions.md`. The content document's single top-level key matches the header:
-a file with `kind: items` opens its body with `items:`, a file with `layer: brief` opens with `brief:`, and
-a file with `kind: decisions` opens with `decisions:`.
+A library domain file carries `kind` and `domain` and never `layer` or `project`. A model file carries
+`layer` and `project` and never `kind` or `domain`. `decisions.yaml` carries `kind: decisions` and `project`
+and never `layer` or `domain` — see `07-decisions.md`. A library manifest carries `kind: library` and
+`library` naming itself; a project manifest carries `kind: project` and `project` naming itself. The
+content document's single top-level key matches the header: a file with `kind: items` opens its body with
+`items:`, a file with `layer: brief` opens with `brief:`, a file with `kind: decisions` opens with
+`decisions:`, a library manifest opens with `library:`, and a project manifest opens with `project:`.
+
+The third header key has always named the thing a file belongs to: `domain` for a library's domain files,
+`project` for a model file. A manifest is no different — its third key names the thing it declares, a
+library naming itself with `library` or a project naming itself with `project`.
 
 ## 3. Identifiers
 
@@ -123,7 +159,7 @@ one kind cannot silently resolve as the other.
 
 ## 4. References
 
-Five reference forms, and no others.
+Six reference forms, and no others.
 
 | Form | Syntax | Example |
 |---|---|---|
@@ -132,6 +168,7 @@ Five reference forms, and no others.
 | Port | `<part_id>:<port_id>[<index>]` | `sb1:analog_in[3]` |
 | Brief path | dotted path from the `brief` root | `brief.program[1].size` |
 | Source | bare id under `src:` | `src: s-client-brief` |
+| Library | `<name>@<version>` under `project.library` | `eventml-example@0.2.0` |
 
 ```yaml
 parts:
@@ -170,7 +207,36 @@ nothing but the handle. Everything worth knowing about a source is a key on the 
 decoration on the reference to it: `src: "s-venue-call, production manager"` is not a reference but a
 sentence, and nothing can resolve it.
 
-## 5. Conventions
+## 5. Library resolution
+
+**A model resolves against exactly one library**, named in its `project.yaml`. There is no search path, no
+fallback, and no merging of two libraries. A `def:` the named library does not define is a dangling
+reference, not an invitation to look elsewhere. A model whose vocabulary could come from two places has no
+answer to "what does this id mean", and the answer has to survive the person who wrote it — a reviewer
+reading the model a year later, without whatever second library happened to be on the original author's
+machine, has to reach the same resolution they did.
+
+**The reference names a library, not a place.** `eventml-example@0.2.0` says which vocabulary at which
+version; where it is stored and how it is fetched belongs to whatever runs the model — a git repository, a
+folder on a machine, a web interface. This is the same separation `src:` already makes: a `src` names a
+`sources` entry, not a file offset, because a reference that means something on one machine and nothing on
+another is not a reference at all.
+
+**The shipped example library resolves no real project.** It exists to be read and to be copied from as a
+one-time seed — the manifests in `examples/` point at `eventml-example@0.2.0` only because the worked
+examples must resolve against something. An organisation that copies entries from it owns the copies, and
+its library versions independently from that point: nothing ties its version numbers to `eventml-example`'s
+after the copy is made.
+
+The reason is ownership. A library changes — a connector is added, a requirement template is reworded, a
+part gains a port — and whoever makes those changes has to answer for what they break in the models that
+resolve against it. This repository cannot answer for that. It edits `eventml-example` on its own release
+schedule, for reasons that have nothing to do with anybody's event, and a project resolving against it would
+find its vocabulary shifting underneath a model already quoted to a client. So the rule is not that the
+shipped library is unfit to use; it is that a library must be owned by whoever bears the cost of changing
+it, and this one is owned by the specification.
+
+## 6. Conventions
 
 - **Indent two spaces. Never tabs.**
 - **Inline flow mappings** carry one record on one line: a port declaration, an `internal` edge, a `params`
@@ -188,7 +254,7 @@ sentence, and nothing can resolve it.
   written, not transliterated.
 - **Comments** explain why, not what. `# 32 A three-phase, confirmed on the site visit` earns its line;
   `# the stage box` does not.
-- **`notes` is permitted on any entry**, in `lib/` and in model files alike, and holds free text about the
+- **`notes` is permitted on any entry**, in library files and in model files alike, and holds free text about the
   entry rather than part of it. It is where a modeller says what a reader would otherwise have to
   reconstruct: why a value was left unknown, what a decision would cost to reverse, which of two readings
   of a brief sentence was taken. Nothing in the language derives anything from it. The entity tables in

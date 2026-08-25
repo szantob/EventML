@@ -29,8 +29,8 @@ exercised is honest; mapping one that has only been imagined is not.
 | `Decision` | `metadata def` + `metadata` usage | No dedicated SysML v2 construct. The nearest is a metadata definition applied to the elements it annotates, which gives a first-class element with its own identity — the structural property EventML needs. `alternatives` and `agreed_by` have no counterpart and become attributes on the metadata definition |
 
 The `def`/`usage` split is taken from SysML v2 unchanged, and it is the single most important thing EventML
-borrows. Everything else follows from it: a catalogue that is shared across projects, instances that are
-per-event, and a clean statement of which is which on every element.
+borrows. Everything else follows from it: a catalogue that is shared across one organisation's projects,
+instances that are per-event, and a clean statement of which is which on every element.
 
 ## 2. Relations
 
@@ -50,7 +50,7 @@ EventML is a model library extension rather than a re-encoding.
 
 ## 3. Side by side
 
-`audio.part.stage_box` from `lib/audio/parts.yaml`, in both notations.
+`audio.part.stage_box` from `examples/lib/audio/parts.yaml`, in both notations.
 
 **EventML:**
 

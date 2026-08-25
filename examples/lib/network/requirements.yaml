@@ -1,10 +1,11 @@
-eventml: "0.1"
+eventml: "0.3"
 kind: requirements
 domain: network
 ---
 requirements:
   - id: network.req.bandwidth_headroom
     name: Bandwidth headroom
+    applies_when: audio, video or control traffic shares a network link
     text: "Every link carrying {traffic} must run below {headroom} of its rated capacity."
     params:
       - { name: traffic,  type: string, default: "media flows" }
@@ -20,6 +21,7 @@ requirements:
 
   - id: network.req.clock_stability
     name: Clock stability
+    applies_when: networked audio or video is used — Dante, AES67 or ST 2110
     text: "Every device carrying {media} must hold synchronisation to a single clock master throughout {period}."
     params:
       - { name: media,  type: string, default: "networked audio" }
@@ -38,6 +40,7 @@ requirements:
 
   - id: network.req.network_redundancy
     name: Network redundancy
+    applies_when: the failure of one link would stop the show rather than degrade it
     text: "A single cable failure must not interrupt {service} during {period}."
     params:
       - { name: service, type: string }
@@ -53,6 +56,7 @@ requirements:
 
   - id: network.req.segregation
     name: Traffic segregation
+    applies_when: two or more domains share network infrastructure
     text: "{domain_a} traffic must be isolated from {domain_b} traffic."
     params:
       - { name: domain_a, type: string }

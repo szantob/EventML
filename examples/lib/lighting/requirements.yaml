@@ -1,10 +1,11 @@
-eventml: "0.1"
+eventml: "0.3"
 kind: requirements
 domain: lighting
 ---
 requirements:
   - id: lighting.req.face_lighting
     name: Face lighting
+    applies_when: faces must be seen — by the audience, by a camera, or in photographs afterwards
     text: "Faces at {position} must be lit to {level} from the front, for {purpose}."
     params:
       - { name: position, type: string }
@@ -24,6 +25,7 @@ requirements:
 
   - id: lighting.req.stage_wash
     name: Stage wash
+    applies_when: a stage or performance area is used after dark or in a darkened room
     text: "{area} must be evenly lit to a level suitable for {activity}."
     params:
       - { name: area,     type: string }
@@ -38,6 +40,7 @@ requirements:
 
   - id: lighting.req.control_universes
     name: Control universes
+    applies_when: more fixtures or parameters are used than one DMX universe carries
     text: "The control system must address {fixtures} fixtures across {universes} universes from {position}."
     params:
       - { name: fixtures,  type: int }
@@ -56,6 +59,7 @@ requirements:
 
   - id: lighting.req.house_light_control
     name: House light control
+    applies_when: the venue's own lighting affects what the audience or a camera sees
     text: "House lighting in {area} must be dimmable from {position} during {period}."
     params:
       - { name: area,     type: string }

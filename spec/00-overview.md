@@ -38,8 +38,8 @@ Read the files in order:
 7. `06-sysml-mapping.md` — the mapping from EventML back to SysML v2
 8. `07-decisions.md` — the `Decision` entity and the criterion for what gets recorded
 
-`spec/` is normative: it defines the language. `lib/` and `examples/` are illustrative: they show the
-language in use but do not extend it. Where an example and the spec disagree, the spec wins.
+`spec/` is normative: it defines the language. `examples/` is illustrative: it shows the language in use but
+does not extend it. Where an example and the spec disagree, the spec wins.
 
 The diagrams in `spec/` are illustrative in the same sense. They are drawn in Mermaid, which renders in
 place on GitHub and stays diffable in the repository, and each one restates something the surrounding prose
@@ -47,13 +47,15 @@ already says. Where a diagram and the prose beside it disagree, the prose wins.
 
 ## 5. Versioning
 
-`eventml-core` (the metamodel defined in `spec/`) and `eventml-lib` (the domain vocabulary defined in
-`lib/`) version separately, because they move at different rates: the kernel should change rarely, the
-vocabulary can grow at any time. Every YAML file, in `lib/` and in `examples/` alike, declares the language
-version it was written against in an `eventml:` header key — the lowest version whose constructs the file
-actually uses, not the version of the repository as a whole. A project's four layer files can stay at
-`"0.1"` while its `decisions.yaml`, the only file using the `Decision` entity, declares `"0.2"`; mixed
-floors within one project are correct. At this tag both `eventml-core` and `eventml-lib` are `0.2.0`.
+`eventml-core` (the metamodel defined in `spec/`) versions separately from any library, because they move at
+different rates: the kernel should change rarely, a vocabulary can grow at any time. `eventml-lib` is the
+version of this repository's example library, declared in its manifest — the first instance of a general
+rule rather than a special case: every library carries a version of its own. Every YAML file declares the
+language version it was written against in an `eventml:` header key — the lowest version whose constructs
+the file actually uses, not the version of the repository as a whole. A project's four layer files can stay
+at `"0.1"` while its `decisions.yaml`, the only file using the `Decision` entity, declares `"0.2"`; mixed
+floors within one project are correct. At this tag `eventml-core` is `0.3.0` and `eventml-lib` is `0.2.0` —
+the divergence this release makes ordinary, since the two now move on their own schedules.
 
 ## 6. Relationship to existing standards
 

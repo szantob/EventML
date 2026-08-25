@@ -88,6 +88,73 @@ cam-1 ──f-camera-to-switcher──▶ switcher ═switch═▶ switcher:net
                                                                               └──f-server-to-screen──▶ screen
 ```
 
+## Which templates this brief triggers
+
+**Hand-derived, like the question list below.** v0.3 has nothing that evaluates `applies_when` —
+`spec/02-metamodel.md` says it plainly: "Nothing derives from `applies_when` in v0.3. A human or an agent
+reads the sentence against a brief and decides whether the template belongs in the model." What follows is
+that reading, done by hand against `brief.yaml`, against all 22 templates in `examples/lib/*/requirements.yaml`.
+A later release computes it.
+
+Thirteen templates fire.
+
+| Template | `applies_when` | What in the brief matched |
+|---|---|---|
+| `audio.req.speech_intelligibility` | the brief has any spoken-word programme item — a speech, a ceremony, a panel discussion | `brief.program[0]` (presentations) and `brief.program[1]` (panel discussion) are both spoken word |
+| `audio.req.input_capacity` | anything at all is amplified — this sizes the stage box and the console before either is chosen | presenters, panellists and a lectern all need inputs the moment anything is amplified |
+| `audio.req.coverage_uniformity` | the audience area is deep or oddly shaped enough that one position cannot cover it evenly | `brief.venue.room_shape` (assumed) "long and narrow", 120 people theatre-seated (assumed) |
+| `video.req.image_legibility` | the audience must read something on a screen — slides, lyrics, captions, scores | `brief.program[0].slides: true`, all morning |
+| `video.req.source_switching` | more than one image source reaches the same display | presenter laptops (`brief.program[0].laptop_source`), the camera for the stream, and remote participants all reach the same screen |
+| `video.req.screen_coverage` | a screen is used and the room's proportions leave some seats unable to read it — too far off to the side in a wide room, or too far back in a long narrow one | `brief.venue.room_shape` (assumed) "long and narrow" — see the cross-check below, the sentence was fixed to fire on this |
+| `video.req.remote_participation` | anyone takes part who is not in the room | `brief.program[1].remote_panellists: 2`, and `brief.remote_audience` for the stream |
+| `network.req.bandwidth_headroom` | audio, video or control traffic shares a network link | the stream and the remote panellists' call (`brief.program[2]`) both have to travel over `brief.venue.house_network_available` |
+| `network.req.segregation` | two or more domains share network infrastructure | the only network anyone has mentioned is the hotel's guest network (`s-venue-email`); nothing suggests a separate production line |
+| `lighting.req.face_lighting` | faces must be seen — by the audience, by a camera, or in photographs afterwards | `brief.program[2]` streams the presenters and panel to a remote audience |
+| `lighting.req.house_light_control` | the venue's own lighting affects what the audience or a camera sees | `s-client-call`: "The hotel's AV person handles the house lights" |
+| `power.req.supply_capacity` | always | always |
+| `power.req.residual_current_protection` | always | always |
+
+Nine do not. A rule that only ever fires teaches nothing about when it applies, so here is why each of
+these stays out:
+
+| Template | `applies_when` | Why it does not fire |
+|---|---|---|
+| `audio.req.music_reproduction` | the brief has live or recorded music the audience is meant to listen to rather than talk over | nothing in `brief.yaml` mentions music of any kind |
+| `audio.req.stage_monitoring` | performers play or speak together and need to hear themselves or each other | the panel (`brief.program[1]`) is people talking, seated close together — not performers who need a monitor mix to hear each other |
+| `audio.req.weather_protection` | any part of the system stands outside, whether or not the brief mentions rain | the whole event is inside the Danube room; nothing in the brief is outdoors |
+| `network.req.clock_stability` | networked audio or video is used — Dante, AES67 or ST 2110 | the brief never says how the stream or the remote link is carried; that is a design-layer choice made later, not something stated in `brief.yaml` |
+| `network.req.network_redundancy` | the failure of one link would stop the show rather than degrade it | nothing in the brief claims the stream cannot be interrupted; a dropped stream degrades things for the colleagues who cannot travel, it does not stop the meeting itself |
+| `lighting.req.stage_wash` | a stage or performance area is used after dark or in a darkened room | a daytime conference programme, no performance area, no darkened room |
+| `lighting.req.control_universes` | more fixtures or parameters are used than one DMX universe carries | no lighting rig is implied beyond the existing house lights and the face lighting above; nothing suggests more than a universe's worth of fixtures |
+| `power.req.phase_balance` | the site supply is three-phase | nothing in the brief states the supply is three-phase; only a patch panel is mentioned |
+| `power.req.silent_supply` | the supply is a generator, or the programme has quiet passages the audience is meant to hear | the room draws on hotel mains through a patch panel, not a generator, and nothing beyond ordinary speech calls for a quiet passage |
+
+### Cross-check against `requirements.yaml`
+
+Two templates fire with nothing written against them. `audio.req.coverage_uniformity` and
+`power.req.residual_current_protection` both apply on the reading above, and neither has a requirement in
+`requirements.yaml`. That is the applicability rule doing its job — it found something the modeller missed.
+`r-room-power` (`power.req.supply_capacity`) covers the supply's capacity, but nothing in the model checks
+that the circuits feeding it are RCD-protected, and nothing checks whether 120 people in a long theatre-
+seated room get even coverage from wherever the PA ends up. Both are gaps a later revision of this example
+should close, not gaps in the walk.
+
+One template did not fire on its original wording, and a requirement for it already existed:
+`r-sightlines` uses `video.req.screen_coverage`, and that requirement's own `notes` in `requirements.yaml`
+say exactly why it belongs — "a long narrow room in theatre seating is the case where one screen at the
+front stops being enough." But the template's `applies_when` read "the audience area is wider than its
+useful viewing angle",
+and a *narrow* room is the opposite of a *wide* one: read literally, the brief would not have triggered it.
+That is a defect in the sentence, not in `r-sightlines` or in this walk, so the sentence was fixed in
+`examples/lib/video/requirements.yaml` to talk about sightlines generally — wide rooms, long narrow ones,
+obstructions, or seating split into blocks — rather than only rooms that are wide. With the fix, the
+template fires for the reason the requirement was always written for.
+
+The remaining ten requirements in `requirements.yaml` — `r-speech-room`, `r-panel-inputs`,
+`r-slides-visible`, `r-screen-size`, `r-remote-participation`, `r-source-switching`, `r-stream-bandwidth`,
+`r-stream-segregation`, `r-face-lighting` and `r-house-lights` — all use templates the walk above says fire,
+on the brief evidence already cited for each template.
+
 ## The question list
 
 **Hand-written, as in example 01.** v0.1 has no traversal engine; this is what the derivation in

@@ -1,0 +1,6 @@
+eventml: "0.3"
+kind: project
+project: festival-stage
+---
+project:
+  library: eventml-example@0.2.0
