@@ -1,4 +1,4 @@
-eventml: "0.1"
+eventml: "0.4"
 layer: requirement
 project: garden-party
 ---
@@ -14,7 +14,7 @@ requirements:
         alternatives:
           - { value: 300, src: s-client-brief }
           - { value: 450, src: s-client-update }
-    refines: brief.program[1]
+    refines: [n-welcome-speech, n-audience]
 
   - id: r-music-reproduction
     def: audio.req.music_reproduction
@@ -27,7 +27,7 @@ requirements:
         state: assumed
         why: "'nothing fancy, but it should sound good' plus a 21:00 band slot"
         ask: true
-    refines: brief.program[3]
+    refines: [n-band, n-sound-quality]
 
   - id: r-band-monitoring
     def: audio.req.stage_monitoring
@@ -36,7 +36,7 @@ requirements:
         state: unknown
         notes: "waiting on brief.program[3].size"
       content: "their own instrument and the vocals"
-    refines: brief.program[3].size
+    refines: [n-band]
     notes: >-
       Deliberately unsatisfied. Nothing can be designed until the band's size is known, and the fact that
       no part lists this requirement in its `satisfies` is what makes that visible — question rule 3.
@@ -56,7 +56,7 @@ requirements:
       area:
         state: unknown
       tolerance_db: 6
-    refines: brief.program[1]
+    refines: [n-welcome-speech, n-audience]
     derived_from: r-speech-intelligible
 
   - id: r-supply-capacity
@@ -66,14 +66,14 @@ requirements:
       demand_kw:
         state: unknown
         notes: "waiting on brief.power.rating; the model can compute demand, not supply"
-    refines: brief.power
+    refines: [n-outdoor-socket, n-socket-rating]
 
   - id: r-weather-protection
     def: audio.req.weather_protection
     params:
       location: "the terrace"
       conditions: "light rain and wind"
-    refines: brief.venue.covered
+    refines: [n-venue]
     notes: >-
       Also unsatisfied, and for a different reason from r-band-monitoring: the decision is made, not
       missing. `d-no-cover` in decisions.yaml records that production decided to carry no cover and no
@@ -84,16 +84,18 @@ requirements:
     params:
       area: "the whole terrace, all equipment outdoors"
       trip_ma: 30
+    refines: [n-rcd]
     notes: >-
-      No `refines`. The client never asked for this and never will. An absent refine edge is legitimate
-      and worth seeing in review — see spec/03-relationships.md.
+      Its origin is a regulation, not a client request — and recording that regulation as a source is what
+      takes it out of question rule 9. Before v0.4 this requirement carried no `refines` at all, and the
+      specification called that a legitimate resting state.
 
   - id: r-silent-supply
     def: power.req.silent_supply
     params:
       area: "the terrace"
       period: "the welcome speech at 19:00"
-    refines: brief.program[1]
+    refines: [n-welcome-speech]
     notes: >-
       The requirement that decides whether a generator is viable at all. It exists only because someone
       asked what happens during the speech.
