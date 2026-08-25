@@ -112,7 +112,7 @@ project:
 
 | Key | Files | Values |
 |---|---|---|
-| `eventml` | all | The language version the file is written against, quoted so it stays a string. Per file, not per project: `"0.1"` for a file using only v0.1 constructs, `"0.2"` for one using the `Decision` entity. A project whose four layer files stay at `"0.1"` alongside a `decisions.yaml` at `"0.2"` is correct |
+| `eventml` | all | The language version the file is written against, quoted so it stays a string. Per file, not per project: `"0.1"` for a file using only v0.1 constructs, `"0.2"` for one using the `Decision` entity, `"0.4"` for one carrying `needs` or a `refines` that names one. A project whose four layer files stay at `"0.1"` alongside a `decisions.yaml` at `"0.2"` is correct |
 | `kind` | library domain files, decisions, library manifest, project manifest | `items` \| `ports` \| `parts` \| `requirements` \| `decisions` \| `library` \| `project` |
 | `domain` | library domain files | `audio` \| `lighting` \| `video` \| `network` \| `power` |
 | `layer` | model | `brief` \| `requirement` \| `logical` \| `physical`, exactly as in `01-layers.md` |
@@ -159,7 +159,7 @@ one kind cannot silently resolve as the other.
 
 ## 4. References
 
-Six reference forms, and no others.
+Seven reference forms, and no others.
 
 | Form | Syntax | Example |
 |---|---|---|
@@ -168,6 +168,7 @@ Six reference forms, and no others.
 | Port | `<part_id>:<port_id>[<index>]` | `sb1:analog_in[3]` |
 | Brief path | dotted path from the `brief` root | `brief.program[1].size` |
 | Source | bare id under `src:` | `src: s-client-brief` |
+| Passage | map under `src:` with `id`, `exact`, and optional `start` / `end` | `{ id: s-client-brief, exact: "about 300 people", start: 36, end: 52 }` |
 | Library | `<name>@<version>` under `project.library` | `eventml-example@0.2.0` |
 
 ```yaml
@@ -186,7 +187,7 @@ connections:
 requirements:
   - id: r-band-monitoring
     def: audio.req.performer_monitoring
-    refines: brief.program[1].size   # brief path
+    refines: [n-band]                # need ids
 ```
 
 **Port indices** are zero-based, and the index is omitted when the port's `count` is 1 — `vox1:out`, not
@@ -197,11 +198,33 @@ all sixteen analogue inputs reach the network port; it is never valid in a `Conn
 two specific ports.
 
 **Brief paths** index into the `brief` document with dots and, for sequences, bracketed integers.
-`brief.program[1].size` is the `size` field of the second entry in the brief's `program` list. This is the
-only form that reaches inside a document rather than naming a top-level element, and it exists because L0
-has no entities — see `01-layers.md`.
+`brief.program[1].size` is the `size` field of the second entry in the brief's `program` list. The form
+narrowed in v0.4: `refines` no longer uses it, because a `Need` is an addressable element with an id of its
+own. What remains reachable only by path is the structured values L0 still holds directly, which
+`Decision.affects` may name and a `notes` string may mention. It exists because those values are not
+entities, and a later release is expected to remove the last of them.
 
-**Source references** name an entry in the brief's `sources` list, defined in `01-layers.md`. A source
+**Passage references** name a source and a span within it. The form is the W3C Web Annotation Data Model's
+two text selectors written as one map: `exact` is its `TextQuoteSelector`, `start` and `end` its
+`TextPositionSelector`. Both are kept deliberately — the quotation survives an edit that shifts every offset
+in the file, the offsets stay exact where the same sentence occurs twice, and where the two disagree a
+reader can see that the source has been edited under the reference.
+
+```yaml
+src: { id: s-client-brief, exact: "about 300 people", start: 36, end: 52 }
+```
+
+**Offsets are zero-based, end-exclusive, and counted in Unicode code points, not bytes.** `Gellért` is seven
+characters. They are measured against the folded value of `excerpt` — what a YAML parser produces from a
+`>-` block, with line breaks turned into single spaces and no trailing newline — because that string is what
+the model holds, and a reference into the file's raw bytes would break the first time somebody rewrapped a
+line.
+
+`exact` alone is a valid passage reference; `start` and `end` are optional and always appear together. A
+reference into a source with no text — a drawing, a plan — has no form in this release, and the standard's
+other selectors will be adopted when an example needs one.
+
+**Source references** name an entry in the brief's `sources` list, defined in `02-metamodel.md`. A source
 reference is an instance reference like any other — no dots, resolved within the project — and it carries
 nothing but the handle. Everything worth knowing about a source is a key on the source entry, never a
 decoration on the reference to it: `src: "s-venue-call, production manager"` is not a reference but a
