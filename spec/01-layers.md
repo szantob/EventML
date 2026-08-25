@@ -53,8 +53,9 @@ layer closest to the source conversation — a note, an email, a phone call.
 **What does not belong here.** Anything phrased as a system property or measured against a technical
 standard. L0 records what people do, not what the system must achieve.
 
-**Which entities may appear.** Free-form structured values only. No `Part`, no `Connection`, no `Flow` — L0
-has no notion of equipment or signal path at all.
+**Which entities may appear.** `Source` and `Need`, defined in `02-metamodel.md`, alongside free-form
+structured values. No `Part`, no `Connection`, no `Flow` — L0 has no notion of equipment or signal path at
+all.
 
 **Worked examples.**
 
@@ -64,12 +65,19 @@ has no notion of equipment or signal path at all.
   measurable statement of what the system must achieve, not a description of what the client or audience do,
   so it belongs in L1 Requirement.
 
-### Sources
+### Sources and needs
 
-L0 carries one construct no other layer has: `sources`, a reserved key in the `brief` document holding the
-communications the brief was built from. Each entry records one statement — an email, a phone call, a
-document, a site visit — with its date, the party that made it, and the text itself, quoted rather than
-paraphrased.
+L0 carries two entities no other layer has, both defined in `02-metamodel.md`. A `Source` is one piece of
+material of record — an email, a call note, a site visit, a rider, a regulation — quoted rather than
+paraphrased. A `Need` is one elementary unit of information taken from a source, still in the stater's own
+words, anchored to the passage it came from.
+
+The two levels are why the chain from a cable back to a sentence can be walked and checked. Sources exist
+because `trace` needs somewhere to land; needs exist because `refine` needs something to point at. Without
+the middle level nothing could show that a request produced no requirement, or that a requirement came
+from no request. A paraphrase at either level would break the chain: it puts the modeller's reading of the
+brief where the brief itself should be, and the disagreement that surfaces three weeks later has nothing to
+be adjudicated against.
 
 ```yaml
 brief:
@@ -82,37 +90,17 @@ brief:
       excerpt: >-
         Hi — we're doing a garden party for about 300 people at the Gellért terrace on 12 September.
         There'll be a welcome speech around 7, then a live band later.
+
+  needs:
+    - id: n-audience
+      text: "about 300 people"
+      src: { id: s-client-brief, exact: "about 300 people", start: 36, end: 52 }
 ```
 
-| Key | Required | Meaning |
-|---|---|---|
-| `id` | yes | The handle `src:` references. An instance ID: short, lowercase, no dots |
-| `kind` | yes | `email` \| `call` \| `document` \| `site_visit` |
-| `date` | yes | When the statement was made, ISO 8601 |
-| `from` | yes | The party that made it: `client` \| `venue` \| `production` \| `authority` |
-| `sender` | no | The individual, where which person said it matters |
-| `subject` | for `email` and `document` | The subject line or title |
-| `excerpt` | yes | The text, verbatim |
-
-Sources exist because `trace` needs somewhere to land. Every `src:` anywhere in a model names one of these
-entries, so the chain from a cable back to the sentence that caused it ends in words the client actually
-wrote — `03-relationships.md` walks that chain. A paraphrase would break it: it puts the modeller's reading
-of the brief where the brief itself should be, and the disagreement that surfaces three weeks later has
-nothing to be adjudicated against.
-
-**Each fact gets its own key.** The date is not encoded in the `id`, and the person is not appended to the
-`src` string that points at the entry. An identifier is a handle, not a record. Two places holding the same
-fact eventually disagree, and nothing in v0.1 would catch it; worse, the `conflicting` state resolves by
-asking which statement came later, so it needs a date it can compare rather than one it has to parse out of
-a name.
-
-**One entry per statement, not per meeting.** A site visit at which three people say three things is three
-sources sharing a date, not one source with three sentences in its `excerpt`. The test is whether any value
-would ever need to cite one of them alone: a `conflicting` value whose alternatives both cite the same
-entry cannot say who said what, and question rule 4 — which puts the disagreement back as a choice between
-two attributed statements — has nothing to work with. `examples/03-festival-stage/brief.yaml` carries the
-worked case, where a site manager and a council representative contradict each other on the same
-afternoon.
+**What is not a need.** Values nobody has stated — whether a terrace is covered, how large an audience area
+is — are not statements at all. They are questions about the world carrying a provisional answer, and they
+keep the place they have in the brief today. Naming them properly is the work of a later release, and the
+seam is deliberate rather than an oversight.
 
 ## L1 Requirement
 
