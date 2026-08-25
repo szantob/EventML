@@ -29,7 +29,7 @@ flowchart BT
         R["Requirement"]
     end
     subgraph L0["L0 Brief — Operational Analysis"]
-        B["brief elements · sources<br/>free-form values, no entities"]
+        B["Need · Source<br/>plus free-form values"]
     end
 
     P3 -->|"Part.allocate"| P2
@@ -39,10 +39,10 @@ flowchart BT
 ```
 
 The `satisfy` edge is drawn from both L2 and L3 because either may carry it; `allocate` is mandatory on every
-L3 part and is what keeps the physical design traceable. Three relations are left off: `derive`, which runs
-from a requirement to its parent inside L1 and so crosses no boundary, and `trace` and `affect`, which run
-between a value and a source and between a decision and anything at all. All three are in
-`03-relationships.md`.
+L3 part and is what keeps the physical design traceable. Four relations are left off: `derive`, which runs from a
+requirement to its parent inside L1, and `answer`, which runs from one source to another inside L0, so
+neither crosses a boundary; and `trace` and `affect`, which run between a value and a source and between a
+decision and anything at all. All four are in `03-relationships.md`.
 
 ## L0 Brief
 
