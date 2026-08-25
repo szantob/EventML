@@ -326,7 +326,7 @@ promised; rule 9 says a requirement is promised that nothing asked for.
 `blocks` is computed by counting the `Requirement`s reachable downstream of the open node by following
 `refine`, `derive` and `satisfy` edges. Questions sort by `blocks` descending.
 
-This is the payoff that justifies the cost of four layers and six traceability relations. Without the
+This is the payoff that justifies the cost of four layers and seven traceability relations. Without the
 graph, a model's gaps are a flat list of forty items in the order somebody happened to write them, and the
 client answers the first five and stops. With it, the list opens on the questions that decide the most:
 
