@@ -26,6 +26,8 @@ exercised is honest; mapping one that has only been imagined is not.
 | `Connection` | `connect` | Direct. `redundancy` has no counterpart and becomes metadata |
 | `Flow` | `flow` | Direct. SysML's `flow` carries a payload between features, which is exactly `Flow.item`; `over` maps to the `flow` declaration's route through connections |
 | `Requirement` | `requirement` usage | Direct |
+| `Source` | none | No SysML v2 construct holds the material a model was built from. The nearest is a metadata annotation carrying a reference, which loses the text itself |
+| `Need` | `requirement` usage, lossily | SysML has one level where EventML has two. A need exported as a requirement usage loses the distinction this release exists to draw: that one is the stakeholder's sentence and the other is our restatement of it |
 | `Decision` | `metadata def` + `metadata` usage | No dedicated SysML v2 construct. The nearest is a metadata definition applied to the elements it annotates, which gives a first-class element with its own identity — the structural property EventML needs. `alternatives` and `agreed_by` have no counterpart and become attributes on the metadata definition |
 
 The `def`/`usage` split is taken from SysML v2 unchanged, and it is the single most important thing EventML
@@ -36,11 +38,12 @@ instances that are per-event, and a clean statement of which is which on every e
 
 | EventML | SysML v2 | Note |
 |---|---|---|
-| `refine` | `refine` | Direct. EventML's source is an L0 brief path rather than a model element, because L0 has no entities |
+| `refine` | `refine` | Direct, and from v0.4 both ends are model elements: the edge runs from a `Requirement` to the `Need`s it refines |
 | `derive` | `derive` | Direct |
 | `satisfy` | `satisfy` | Direct, including which end carries it. SysML v2 nests `satisfy requirement : SomeReq;` inside the satisfying part, binding the requirement's subject to the enclosing element; the standalone form `satisfy R1 by vehicle;` names both ends. EventML's `Part.satisfies` is the first form with the reference written out |
 | `allocate` | `allocate` | Direct in meaning. SysML v2 reifies it as an `AllocationUsage` connecting two elements; EventML stores it as an attribute on the L3 part, which fixes the direction the SysML form leaves open |
 | `trace` | metadata annotation | No first-class SysML relation. Nearest is a metadata definition carrying a source reference, applied to the annotated element |
+| `answer` | none | SysML models systems, not the correspondence that produced them. The relation has no counterpart and no natural home in an exported model |
 | `affect` | annotated-element reference | A SysML metadata usage names the elements it annotates, which is the same direction EventML stores. Placement agrees; EventML's reasons for it, given in `03-relationships.md`, are its own and are not claimed for SysML |
 
 SysML v2 has no equivalent of the value-state model. A `stated` value and an `assumed` value both become
@@ -110,7 +113,7 @@ semantics, calculation definitions. EventML declines all of it deliberately — 
 
 ## 4. What does not map
 
-Four things in EventML have no SysML v2 counterpart. They are the reason EventML exists as its own
+Five things in EventML have no SysML v2 counterpart. They are the reason EventML exists as its own
 language rather than as a SysML profile.
 
 **Value states.** SysML has no notion of a value being `assumed` rather than `stated`, or of a value being
@@ -119,7 +122,7 @@ premise — that incompleteness is the normal state of the data and must be mode
 has nowhere to live in SysML, and a translation flattens `{ value: outdoor, state: assumed, why: "…",
 ask: true }` to `outdoor`.
 
-**Question derivation.** The seven question rules in `04-uncertainty.md` are a derivation over the value
+**Question derivation.** The nine question rules in `04-uncertainty.md` are a derivation over the value
 states and the traceability graph. Half of their inputs do not survive translation, so the derived question
 list cannot be recomputed from an exported model. The `blocks` ranking, which depends only on the
 traceability graph, would survive; the questions themselves would not.
@@ -129,6 +132,13 @@ that if removing the manufacturer changes the meaning of a statement then it bel
 constraint on what may be written where. SysML has layers only by convention, through packages; there is no
 construct that forbids a logical part from naming a product. The rule that keeps the logical architecture
 reusable across equipment choices is not expressible.
+
+**The stage before the model.** SysML's requirements are already model elements by the time it sees them.
+The step from a document to an identified requirement happens beforehand, in a requirements tool, and
+ReqIF — the format for that exchange — decomposes a document into identified `SpecObject`s to do it.
+EventML deliberately models the stage before that, the raw client email, so the usual list of standards has
+no answer here and the W3C Web Annotation Data Model was adopted for passage references instead. This is
+the one place where EventML is not downstream of SysML but upstream of it.
 
 **The recording criterion.** SysML v2 can hold a decision as metadata but has nothing that says which
 decisions are worth holding. ISO 42010 requires the criterion and leaves its content to the project, so it

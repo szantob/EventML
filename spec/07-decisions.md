@@ -50,7 +50,7 @@ reuse even though the file sits among the project's model files rather than amon
 | `decision` | string | yes | The choice itself, in one sentence |
 | `why` | string | yes | The reasoning |
 | `alternatives` | list | no | Each: `option`, `why_not` |
-| `affects` | list | yes | Instance ids or brief paths |
+| `affects` | list | yes | Instance ids — `Need` ids included — or brief paths |
 | `src` | source ref | no | The `sources` entry the decision rests on |
 | `supersedes` | Decision id | no | The earlier decision this one replaces |
 | `needs_agreement` | bool | no | `true` when somebody outside the team must assent |
@@ -112,7 +112,7 @@ The garden-party audience decision, showing a `conflicting` value being resolved
   why: "the guest list grew between the two client emails; sizing for the larger number now avoids rebuilding the PA plan later if it holds"
   alternatives:
     - { option: "300 guests", why_not: "superseded by the update of 5 August" }
-  affects: [brief.audience, main-pa, r-speech-intelligible]
+  affects: [n-audience, main-pa, r-speech-intelligible]
   src: s-client-update
   needs_agreement: true
   agreed_by: { party: client, person: "event manager", src: s-client-confirm }
@@ -124,6 +124,6 @@ a new stated fact that quietly overwrote the old one, but by recording that some
 to size the system for the larger number — with the smaller figure kept as the alternative it superseded,
 the reasoning attached, and the client's confirmation cited by source rather than assumed.
 
-Because `d-audience-450` names `brief.audience` in `affects`, question rule 4 in `04-uncertainty.md` no
+Because `d-audience-450` names `n-audience` in `affects`, question rule 4 in `04-uncertainty.md` no
 longer fires on the value — and since this decision is both `needs_agreement: true` and has an `agreed_by`,
 rule 7 does not fire either, so the conflict generates no question at all.

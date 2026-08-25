@@ -84,21 +84,21 @@ band:
 
 ## 3. Question rules
 
-A question is generated in exactly seven situations. Each generated question carries three fields:
+A question is generated in exactly nine situations. Each generated question carries three fields:
 
 - `ask` — the client-facing wording, written for someone who does not know the domain
 - `why` — what the answer decides, in the project manager's terms
 - `blocks` — the number of requirements downstream of the open node
 
-All seven, as one tree. Three of them read a value's state, two read the shape of the traceability graph,
-one reads a constraint, and one reads a decision — so the first branch is not *which state is this* but
-*what am I looking at*.
+All nine, as one tree. Three read a value's state, four read the shape of the traceability graph, one reads
+a constraint, and one reads a decision — so the first branch is not *which state is this* but *what am I
+looking at*.
 
 ```mermaid
 flowchart TD
     N{"what is being looked at?"}
     N -->|"a value"| V{"state?"}
-    N -->|"a Requirement or a Part"| G{"which case?"}
+    N -->|"a Requirement, a Need or a Part"| G{"which case?"}
     N -->|"a ConstraintDef"| CN{"does the<br/>expression hold?"}
     N -->|"a Decision"| DC{"needs_agreement: true<br/>and no agreed_by?"}
 
@@ -117,7 +117,9 @@ flowchart TD
 
     G -->|"a Requirement no Part satisfies"| R3["Rule 3 — promised,<br/>nothing delivers it"]
     G -->|"an L2 Part with empty satisfies"| R6["Rule 6 — delivered,<br/>nothing promised it"]
-    G -->|"an L3 Part with no allocate"| ERR["modelling error —<br/>boundary rule 3, not a question"]
+    G -->|"an L3 Part with no allocate"| ERR["a failed check —<br/>boundary rule 3, not a question"]
+    G -->|"a Need no Requirement refines"| R8["Rule 8 — asked for,<br/>nothing refines it"]
+    G -->|"a Requirement naming no origin"| R9["Rule 9 — no origin<br/>on record"]
 
     CN -->|"yes"| NC(["no question"])
     CN -->|"no"| R5["Rule 5 — a violated<br/>constraint"]
@@ -268,12 +270,63 @@ contacting somebody else.
   blocks: 0
 ```
 
+#### Rule 8 — a `Need` no `Requirement` refines
+
+**Trigger.** A `Need` whose id appears in no requirement's `refines` list.
+
+Somebody stated something and nothing in the design answers it. This is the half of the `refine` edge that
+could not be checked before v0.4, and it is the direct answer to a client saying the plan ignores what they
+asked for.
+
+It is the one rule added in this release that can be put to a stakeholder in their own words, because the
+need *is* their words. The wording still asks about the world, per §7 below, not about the model.
+
+```yaml
+- ask: "You mentioned the restaurant serves lunch until 13:30. Is that something we have to work around?"
+  why: "n-lunch is stated and nothing refines it; it may or may not constrain the load-in"
+  blocks: 0
+```
+
+**When it fires, one of two things is true**, and the model cannot tell which: either the requirement is
+missing, or the statement should never have been taken as a need. Both are ordinary work. Deciding which
+statements in a source are worth taking is the L0 semantic check in §5 below, made once when somebody reads
+the source — which is why this rule needs no way to mark a need as deliberately unanswered.
+
+**Rule 8 and rule 3 are the same question one layer apart.** Rule 3 says a requirement was promised and
+nothing delivers it; rule 8 says a statement was made and nothing refines it.
+
+#### Rule 9 — a `Requirement` whose origin is not on record
+
+**Trigger.** A `Requirement` carrying neither `refines` nor `derived_from`.
+
+This one is addressed to the project manager. A requirement with no recorded origin is a line on the quote
+the model cannot justify — not because it is unjustified, but because nobody wrote the justification down.
+
+**One invariant defines it: every requirement names its origin.** It refines a need, it derives from another
+requirement, or it does both — a requirement can be a technical consequence of one requirement and an answer
+to a stakeholder's statement at the same time. What cannot happen is neither. A requirement with no origin
+edge is not a root; it is an incomplete record, and a derived requirement needs no need of its own because
+its parent already carries one.
+
+**Every requirement has an origin.** A residual current device comes from a wiring regulation, which is a
+source; a spare comes from our own judgement, which `from: production` records as readily as any client
+email. So closing this question means recording a source and a need, not inventing a client request.
+
+```yaml
+- ask: "r-house-lights has no recorded origin: nothing in the brief or in our own notes says why the room lights have to be controllable from our position."
+  why: "either the requirement is unnecessary, or the reasoning behind it was never written down"
+  blocks: 0
+```
+
+Rule 9 is rule 6 one layer up, and the symmetry is exact. Rule 6 says a block is delivered that nothing
+promised; rule 9 says a requirement is promised that nothing asked for.
+
 ## 4. Ranking
 
 `blocks` is computed by counting the `Requirement`s reachable downstream of the open node by following
 `refine`, `derive` and `satisfy` edges. Questions sort by `blocks` descending.
 
-This is the payoff that justifies the cost of four layers and six traceability relations. Without the
+This is the payoff that justifies the cost of four layers and seven traceability relations. Without the
 graph, a model's gaps are a flat list of forty items in the order somebody happened to write them, and the
 client answers the first five and stops. With it, the list opens on the questions that decide the most:
 
@@ -304,13 +357,72 @@ of it either, and its `blocks` is always 0. That is again the right place for it
 nothing until the questions that decide the plan are answered, and everything if it is still open when the
 invoice goes out.
 
+Rule 8 sorts to the bottom by the same arithmetic and for a different reason. A need nothing refines has no
+requirements beneath it, so its `blocks` is 0 — but unlike an unjustified block, an unanswered request costs
+nothing until the client reads the quote and everything afterwards. The ranking is honest about what it
+measures, which is downstream dependency inside the model.
+
+Rule 9 is the exception among the rules added in v0.4. A root requirement may have derived children, so its
+`blocks` can be greater than zero and it can reach the top of the list — which is right: an unjustified
+requirement that decides five others is worth settling before one that decides nothing.
+
 **In v0.1 this list is written by hand.** The examples under `examples/` contain hand-written `questions`
 blocks that demonstrate the intended output of the derivation. They are illustrations, not derived
 artefacts: v0.1 has no validator and no traversal engine, and the rule that the question list is derived
-rather than authored cannot execute until v0.6. Where a hand-written list and the model disagree, the model
+rather than authored cannot execute until a release that ships a traversal engine. Where a hand-written list and the model disagree, the model
 is right and the list is stale.
 
-## 5. Client language
+## 5. Checking a model, layer by layer
+
+The rules above are not a flat list. Every one of them belongs to a layer, and to one of two columns: what a
+script can decide, and what only a person or an agent can. The second column is not a gap waiting for a
+better validator. It is judgement, and a tool that claims to automate it produces answers nobody can trust.
+
+| Layer | Syntactic — a script decides | Semantic — a person or an agent decides |
+|---|---|---|
+| **L0** | Every `Need` anchors to exactly one passage of one source | Every relevant statement in a source has been taken into a need — §6 |
+| **L1** | Every requirement names its origin (rule 9); every need reaches a requirement (rule 8) | The need is turned into a technical requirement correctly and sensibly |
+| **L2** | Every requirement is satisfied by something (rule 3); every logical block has a requirement behind it (rule 6) | The block actually solves the requirement it claims to |
+| **L3** | Every physical part is allocated — boundary rule 3 in `01-layers.md` | The device chosen is the right one |
+
+Rules 1, 2, 4, 5 and 7 sit outside the table, because they read a value's state, a constraint or a decision
+rather than the shape of the graph. They are checks of a third kind: not *is the record complete* but *what
+is still unknown*.
+
+**A failed check is a problem to solve, not a state that blocks.** Where this specification says "a
+modelling error rather than a question", read it as a failed syntactic check with work outstanding — the
+same standing a brief full of unknowns has. The premise in `00-overview.md` covers both: incompleteness is
+data, whichever column it appears in.
+
+**Relevance is judged once, at extraction.** A statement that will never produce a requirement should not be
+taken as a need in the first place, and that decision belongs to the L0 semantic check, made by whoever
+reads the source. This is why rule 8 needs no mechanism for marking a need as deliberately unanswered.
+
+## 6. Source coverage
+
+The question list answers *what should I do next*. One more check answers a different question — *is the
+record complete* — and it is a report rather than a rule.
+
+**What it reports.** For one source, which passages of its `excerpt` no `Need` cites.
+
+**Why it is not a question rule.** Every source contains text no need will ever cite: greetings, thanks,
+"can you send a quote?". A condition that never clears is not a question, by the same reasoning rule 1 uses
+to ignore an unknown nothing depends on. And separating the uncited sentence that was a request from the one
+that was a pleasantry needs a classification of request, fact and preference that this language deliberately
+does not have — see `02-metamodel.md` on why a source is never decomposed.
+
+So the report lists the uncited passages and stops. A person reads them and decides, which is the same
+division of labour rules 3 and 6 already use.
+
+**When it is run.** Before a quote goes out, and at any review of what a client believes they asked for.
+`examples/02-conference-room/README.md` walks one source by hand.
+
+**Two kinds of passage are expected to stay uncited in any healthy model.** Text that carries no information
+about the event, and text whose information the model records elsewhere — a date that is the brief's own
+`date`, a venue name that is its `name`. Neither is a defect, and the report does not pretend to tell them
+apart.
+
+## 7. Client language
 
 The `ask` string is the only part of the model a client ever reads, and it is the point of the whole
 project. It is written for someone who does not know the domain — no jargon, no acronym, and no question

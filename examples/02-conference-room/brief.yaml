@@ -1,4 +1,4 @@
-eventml: "0.1"
+eventml: "0.4"
 layer: brief
 project: conference-room
 ---
@@ -40,6 +40,76 @@ brief:
       excerpt: >-
         Quick update on the panel — it's five now, not four, one more of our directors wants to join.
         Still two of them dialling in remotely.
+
+  needs:
+    - id: n-audience
+      text: "Annual partner meeting, 120 people"
+      src: { id: s-client-brief, exact: "Annual partner meeting, 120 people", start: 0, end: 34 }
+      value: 120
+
+    - id: n-presentations
+      text: "Morning is presentations from the floor"
+      src: { id: s-client-brief, exact: "Morning is presentations from the floor", start: 65, end: 104 }
+
+    - id: n-panel
+      text: "afternoon is a panel of four"
+      src: { id: s-client-brief, exact: "afternoon is a panel of four", start: 106, end: 134 }
+      value:
+        state: conflicting
+        alternatives:
+          - { value: 4, src: s-client-brief }
+          - { value: 5, src: s-client-panel-update }
+        notes: >-
+          Nobody has said whether the fifth person replaces one of the four or adds a seat. Panel seating,
+          microphone count and the switcher's input list all follow from it.
+
+    - id: n-stream
+      text: "We want to stream it for the colleagues who cannot travel"
+      src: { id: s-client-brief, exact: "We want to stream it for the colleagues who cannot travel", start: 136, end: 193 }
+
+    - id: n-remote-panellists
+      text: "two of the panellists are joining from abroad"
+      src: { id: s-client-brief, exact: "two of the panellists are joining from abroad", start: 199, end: 244 }
+      value: 2
+
+    - id: n-slides
+      text: "Slides throughout."
+      src: { id: s-client-brief, exact: "Slides throughout.", start: 246, end: 264 }
+
+    - id: n-same-as-last-year
+      text: "Same as last year but the streaming part is new."
+      src: { id: s-client-brief, exact: "Same as last year but the streaming part is new.", start: 265, end: 313 }
+      notes: >-
+        The most dangerous sentence in the brief, and now an addressable one. "Same as last year" refers to
+        a model nobody wrote down; nothing refines it, and question rule 8 keeps it visible instead of
+        letting it pass as background.
+
+    - id: n-room
+      text: "It is the Danube room, the long one."
+      src: { id: s-client-call, exact: "It is the Danube room, the long one.", start: 22, end: 58 }
+
+    - id: n-existing-screen
+      text: "They think there is a screen already but are not sure it is big enough."
+      src: { id: s-client-call, exact: "They think there is a screen already but are not sure it is big enough.", start: 59, end: 130 }
+
+    - id: n-house-lights
+      text: "The hotel's AV person handles the house lights."
+      src: { id: s-client-call, exact: "The hotel's AV person handles the house lights.", start: 131, end: 178 }
+      notes: >-
+        Who operates them, which is not the same as whether they can be dimmed from our position. That
+        second question is `r-house-lights`, and nothing states it — see question rule 9.
+
+    - id: n-house-network
+      text: "The house network is available for guests."
+      src: { id: s-venue-email, exact: "The house network is available for guests.", start: 0, end: 42 }
+
+    - id: n-patch-panel
+      text: "There is a patch panel at the back of the room."
+      src: { id: s-venue-email, exact: "There is a patch panel at the back of the room.", start: 43, end: 90 }
+
+    - id: n-venue-tech
+      text: "Our technician will be on site from 07:00."
+      src: { id: s-venue-email, exact: "Our technician will be on site from 07:00.", start: 91, end: 133 }
 
   audience:
     value: 120

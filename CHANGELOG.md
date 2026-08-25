@@ -9,7 +9,63 @@ versioned separately. Entries state which one changed.
 
 ## [Unreleased]
 
-Nothing yet. Work landing after v0.3.0 is recorded here until it is released.
+Adds the level between a stakeholder's sentence and a technical requirement, so that the model can show
+which statement produced nothing and which requirement nobody asked for.
+
+### Added — eventml-core
+
+- **The `Need` entity** (`spec/02-metamodel.md`, `spec/01-layers.md`): one elementary unit of information
+  taken from a source, in the stater's own words, anchored to the passage it came from. The name is
+  ISO/IEC/IEEE 29148's *stakeholder need*, and it is not only the client's — a venue, an authority, a
+  performer's rider and our own site visit all state needs.
+- **`Source` is an entity** rather than a reserved key, and it is material of record rather than only a
+  communication act: a tech rider and a wiring regulation are sources in the same sense an email is. `kind`
+  gains `rider` and `regulation`; `from` gains `performer`.
+- **Passage references** (`spec/05-concrete-syntax.md`): the W3C Web Annotation Data Model's two text
+  selectors, written as one map and kept deliberately redundant — the quotation survives editing, the
+  offsets stay exact, and a disagreement between them is visible rather than silent. Offsets are zero-based,
+  end-exclusive, and counted in Unicode code points against the folded value of `excerpt`.
+- **The `answer` relation** (`spec/03-relationships.md`): one source responds to an earlier one. Each edge
+  relates exactly one source to exactly one source; a source may carry any number in either direction, and
+  the thread — including its branches — is derived rather than stored. It changes no value: an answer is a
+  communication, and which statement the plan depends on remains a `Decision`.
+- **Question rules 8 and 9** (`spec/04-uncertainty.md`): a `Need` no `Requirement` refines, and a
+  `Requirement` naming no origin at all. They are rules 3 and 6 one layer up, and neither could exist
+  before, because the upper end of `refine` was a path into a document rather than an element.
+- **A table placing every check in its layer and its column** (`spec/04-uncertainty.md` §5): what a script
+  can decide, and what only a person or an agent can. It covers the seven older rules as well as the two new
+  ones, and it names where relevance is judged — once, when somebody decides what to take out of a source.
+- **The source coverage report** (`spec/04-uncertainty.md` §6): which passages of a source no need cites. A
+  report rather than a rule, because every source permanently contains uncited text, and telling a request
+  from a pleasantry is a judgement this language leaves to a person.
+
+### Changed — eventml-core
+
+- **`Requirement.refines` holds a list of `Need` ids**, not a path into the brief document. A requirement is
+  assembled from more than one statement — speech intelligibility answers what the client said about the
+  speech and takes its headcount from what they said about numbers. Which statement was the reason and which
+  supplied a figure is read from the requirement's text, not recorded in the edge.
+- **Every requirement names its origin** — `refines`, `derived_from`, or both. Carrying neither is an
+  incomplete record rather than a root, which is what rule 9 reports.
+- **`spec/06-sysml-mapping.md` no longer records the defect this release fixes.** Its `refine` row said
+  EventML's source was "an L0 brief path rather than a model element, because L0 has no entities".
+- **A failed check is work outstanding, not an invalid model.** Where the specification said "a modelling
+  error rather than a question", it now says what column the check sits in.
+- **Release order lives in one place**, `spec/00-overview.md` §5. Prose elsewhere says "a later release":
+  the ordering has changed three times, and each change left a stale version number for review to catch.
+
+### Changed — examples
+
+- **All three worked examples migrate.** Each brief gains a `needs` list, each requirements file retargets
+  its `refines`, and the garden party's `decisions.yaml` names a need in `affects`. The garden party gains
+  the regulation behind its residual current requirement and the question that produced the client's
+  confirmation; the festival gains the headliner's rider and the walk-round question two parties answered in
+  opposite directions.
+- **Question rule 9 is shown from both ends.** The garden party's residual current requirement stops firing
+  once its regulation is recorded; the conference room's house lights keep firing, because nothing states
+  why they must be controllable from our position.
+- **The source coverage report is walked by hand** in `examples/02-conference-room/README.md`, across the
+  client's own brief, ending on the one phrase no need cites.
 
 ## [0.3.0] - 2026-08-10
 

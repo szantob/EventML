@@ -1,4 +1,4 @@
-eventml: "0.1"
+eventml: "0.4"
 layer: requirement
 project: festival-stage
 ---
@@ -10,7 +10,7 @@ requirements:
       programme: "four bands, the last of them a six-piece"
       area: "the audience area out to the sound-desk position"
       level: "concert level"
-    refines: brief.program[0]
+    refines: [n-four-bands]
 
   - id: r-coverage-depth
     def: audio.req.coverage_uniformity
@@ -26,17 +26,18 @@ requirements:
   - id: r-band-monitoring
     def: audio.req.stage_monitoring
     params:
-      performers: 6
-      mixes: 6
-    refines: brief.program[1]
+      performers: 6      # n-headliner-size
+      mixes: 6           # n-monitor-mixes
+    refines: [n-monitor-mixes, n-headliner-size]
 
   - id: r-wireless-capacity
     def: audio.req.input_capacity
     params:
       inputs:
         state: unknown
-        notes: "brief.program[1].wireless_channels — the rider has not arrived"
+        notes: "brief.program[1].wireless_channels — three of the four riders have not arrived"
       position: "the stage"
+    refines: [n-radio-mics]
     derived_from: r-band-monitoring
     notes: >-
       Unsatisfied because the rider is missing. Frequency coordination for an unknown number of channels
@@ -47,7 +48,7 @@ requirements:
     params:
       inputs: 32
       position: "the stage, patched for all four bands at once"
-    refines: brief.program[0]
+    refines: [n-four-bands]
     notes: >-
       A 20-minute changeover is what turns input capacity into a real requirement: every band's inputs
       stay patched, so the stage must carry all of them simultaneously rather than in turn.
@@ -61,7 +62,7 @@ requirements:
         value: 14.5
         state: derived
         why: "sum of electrical_load_w across the physical parts, LED wall included"
-    refines: brief.power
+    refines: [n-generator, n-generator-position]
 
   - id: r-phase-balance
     def: power.req.phase_balance
@@ -78,14 +79,17 @@ requirements:
     params:
       area: "the audience area"
       period: "the whole programme"
-    refines: brief.power
+    refines: [n-generator]
 
   - id: r-console-continuity
     def: power.req.residual_current_protection
     params:
       area: "the stage and the sound-desk position, all outdoors"
       trip_ma: 30
-    notes: "No refine edge: professional judgement, and non-negotiable on a wet field."
+    notes: >-
+      No origin on record. Non-negotiable on a wet field, and the reasoning has never been written down —
+      question rule 9. The garden party shows the other half of this: the same requirement there refines
+      `n-rcd`, taken from the regulation that actually requires it.
 
   # --- Network --------------------------------------------------------------
   - id: r-long-haul
@@ -93,7 +97,7 @@ requirements:
     params:
       traffic: "the stage-to-front-of-house audio and control network"
       headroom: 0.7
-    refines: brief.venue.foh_distance_m
+    refines: [n-foh-distance, n-cable-route]
     notes: >-
       Refines a distance, not a programme item. 45 m of copper is inside the limit; the generator run at
       70 m is not, which is what puts fibre in the design.
@@ -112,14 +116,14 @@ requirements:
       area: "the performance area of the stage"
       activity: "a band seen by a standing audience and photographed"
       colour: "warm white, with colour available for the headliner"
-    refines: brief.program[2]
+    refines: [n-flat-photos]
 
   - id: r-face-lighting
     def: lighting.req.face_lighting
     params:
       position: "the front line of the stage, across its full width"
       purpose: "the audience and the photographers to see the performers' faces"
-    refines: brief.program[2]
+    refines: [n-flat-photos]
     notes: >-
       The requirement behind "the stage looked flat on the photos". Flatness in a photograph is the
       absence of front light at an angle, and the client described the symptom rather than the cause.
@@ -139,7 +143,7 @@ requirements:
       display: "the LED wall beside the stage"
       area: "the audience area"
       content_detail: "camera of the stage, at a distance"
-    refines: brief.program[3]
+    refines: [n-screen]
 
   - id: r-screen-content
     def: video.req.source_switching
@@ -148,5 +152,5 @@ requirements:
         state: unknown
         notes: "brief.program[3].content — camera, sponsor loops, or both"
       period: "the whole programme"
-    refines: brief.program[3]
+    refines: [n-screen]
     notes: "Unsatisfied: nobody has said what goes on the screen, so nothing can be designed to switch it."

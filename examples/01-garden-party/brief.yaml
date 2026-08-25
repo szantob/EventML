@@ -1,4 +1,4 @@
-eventml: "0.1"
+eventml: "0.4"
 layer: brief
 project: garden-party
 ---
@@ -32,13 +32,99 @@ brief:
         Spoke to the terrace manager. There is an outdoor socket by the service door; he did not know
         what it is rated at and will check. Load-in from 14:00 at the earliest, the restaurant serves
         lunch until 13:30.
+    - id: s-audience-query
+      kind: email
+      date: 2026-08-08
+      from: production
+      subject: "Garden party, 12 September — guest numbers"
+      excerpt: >-
+        Before we price the PA: should we plan for the 300 in the original brief, or the 450 in your
+        update? The two need different systems, so we would rather ask than average.
     - id: s-client-confirm
       kind: email
       date: 2026-08-12
       from: client
       subject: "Re: Garden party, 12 September — guest numbers"
+      answers: [s-audience-query]
       excerpt: >-
         Yes, plan for 450. Sorry for the back and forth — the list is final now.
+    - id: s-electrical-reg
+      kind: regulation
+      date: 2018-01-01
+      from: authority
+      subject: "MSZ HD 60364-7-711 — temporary electrical installations, outdoor events"
+      excerpt: >-
+        Socket outlets rated up to 32 A supplying equipment outdoors shall be protected by a residual
+        current device with a rated residual operating current not exceeding 30 mA.
+
+  needs:
+    - id: n-audience
+      text: "about 300 people"
+      src: { id: s-client-brief, exact: "about 300 people", start: 36, end: 52 }
+      value:
+        state: conflicting
+        alternatives:
+          - { value: 300, src: s-client-brief }
+          - { value: 450, src: s-client-update }
+        notes: >-
+          Not a correction — the second message says the guest list grew, so both numbers were true when
+          written. `s-client-confirm` answers our query and settles which to design for; the value stays
+          conflicting because both statements were made, and the record of which one won lives in
+          `d-audience-450`.
+
+    - id: n-venue
+      text: "at the Gellért terrace"
+      src: { id: s-client-brief, exact: "at the Gellért terrace", start: 53, end: 75 }
+
+    - id: n-welcome-speech
+      text: "There'll be a welcome speech around 7"
+      src: { id: s-client-brief, exact: "There'll be a welcome speech around 7", start: 93, end: 130 }
+
+    - id: n-band
+      text: "then a live band later"
+      src: { id: s-client-brief, exact: "then a live band later", start: 132, end: 154 }
+
+    - id: n-sound-quality
+      text: "Nothing fancy, but it should sound good."
+      src: { id: s-client-brief, exact: "Nothing fancy, but it should sound good.", start: 156, end: 196 }
+      notes: >-
+        The only quality statement the client has made. It is `r-music-reproduction`'s `level` parameter
+        that has to be negotiated against it, which is why that requirement names this need alongside the
+        band.
+
+    - id: n-outdoor-socket
+      text: "There is an outdoor socket by the service door"
+      src: { id: s-venue-call, exact: "There is an outdoor socket by the service door", start: 30, end: 76 }
+
+    - id: n-socket-rating
+      text: "he did not know what it is rated at and will check"
+      src: { id: s-venue-call, exact: "he did not know what it is rated at and will check", start: 78, end: 128 }
+      notes: >-
+        A statement that something is unknown is information, and it has a source. The unknown itself
+        lives on `brief.power.rating`, where question rule 1 finds it.
+
+    - id: n-load-in
+      text: "Load-in from 14:00 at the earliest"
+      src: { id: s-venue-call, exact: "Load-in from 14:00 at the earliest", start: 130, end: 164 }
+      notes: >-
+        Nothing refines it, so question rule 8 reports it. True finding: the load-in window shapes
+        `d-digital-transport` in prose, and no requirement states it.
+
+    - id: n-lunch
+      text: "the restaurant serves lunch until 13:30"
+      src: { id: s-venue-call, exact: "the restaurant serves lunch until 13:30", start: 166, end: 205 }
+      notes: >-
+        Also unrefined, and the other half of rule 8's worked pair: this one may constrain the load-in or
+        mean nothing at all, and only the venue can say which.
+
+    - id: n-rcd
+      text: >-
+        Socket outlets rated up to 32 A supplying equipment outdoors shall be protected by a residual
+        current device with a rated residual operating current not exceeding 30 mA.
+      src: { id: s-electrical-reg, exact: "protected by a residual current device with a rated residual operating current not exceeding 30 mA", start: 70, end: 168 }
+      notes: >-
+        A need whose stakeholder is a regulation. Before v0.4 `r-rcd-protection` carried no origin and the
+        specification called that legitimate; the origin existed all along and was never recorded.
 
   audience:
     state: conflicting
@@ -47,7 +133,8 @@ brief:
       - { value: 450, src: s-client-update }
     notes: >-
       Not a correction — the second message says the guest list grew, so both numbers were true when
-      written. What is unresolved is which one to design for, and it changes the PA.
+      written. What is unresolved is which one to design for, and it changes the PA. The statement itself
+      is `n-audience`; this value stays until a later release gives an open question a name of its own.
 
   venue:
     name: Gellért terrace

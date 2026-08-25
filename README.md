@@ -2,14 +2,14 @@
 
 **An open modelling language for live event AV systems — from client brief to signal topology.**
 
-> **Status: v0.3.0 — the specification is complete; nothing is executable.** The kernel is here: four
-> layers, eleven core entities, six traceability relations, the uncertainty model and the canonical YAML
+> **Status: v0.4.0 — the specification is complete; nothing is executable.** The kernel is here: four
+> layers, thirteen core entities, seven traceability relations, the uncertainty model and the canonical YAML
 > syntax, in eight files under [`spec/`](spec/) — including the `Decision` entity, for recording who chose
 > something and whether anyone outside the team agreed to it. Base vocabulary for five domains — 172
 > concepts — is in [`examples/lib/`](examples/lib/), which now names and versions itself as `eventml-example`
 > in its own manifest. Three worked models under [`examples/`](examples/) each declare, in a manifest of
 > their own, which version of that library they resolve against, and exercise every one of its concepts.
-> There is no schema, no validator and no tooling yet; those are planned for v0.6. The syntax may
+> There is no schema, no validator and no tooling yet; those are planned, and the order is in `spec/00-overview.md`. The syntax may
 > still change before 1.0. See [the design document](docs/superpowers/specs/2026-08-08-eventml-core-design.md).
 
 ---
@@ -73,7 +73,7 @@ It spans four layers, following the [ARCADIA](https://mbse-capella.org/arcadia.h
 
 | Layer | Content | Example |
 |---|---|---|
-| **L0 Brief** | What the client and audience do, in lay language | "300 guests, gala dinner, band from 21:00" |
+| **L0 Brief** | What stakeholders said, quoted whole as sources and broken into needs | "300 guests, gala dinner, band from 21:00" |
 | **L1 Requirement** | What the system must achieve, technology-independent | "speech intelligible across the audience area" |
 | **L2 Logical** | Function blocks and their signal paths, no technology chosen | main PA, delay line, monitor world |
 | **L3 Physical** | Concrete devices, ports, connections | Rio1608 · XLR3F/4 · Cat6a link |
@@ -122,13 +122,13 @@ each applies — an outdoor event implies weather protection, a spoken-word item
 so that judgement lives in the library rather than in whoever happens to be modelling.
 
 v0.3 is still a specification: prose and data, no executable code. A machine-readable schema, a validator,
-derived question lists and diagram generation follow in v0.6.
+derived question lists and diagram generation follow later.
 
 Because there is no validator, **the worked examples are the only test v0.3 has**, under two rules: every
 defined concept must appear in at least one example, and every example must be walkable across all four
 layers. Both are met — 172 of 172 library concepts exercised — and enforcing the first one is what produced
 the third example and found four real defects in the domain library. The question lists in the examples are
-hand-written to show the intended output; deriving them is a v0.6 task.
+hand-written to show the intended output; deriving them is a later task.
 
 ## Language
 

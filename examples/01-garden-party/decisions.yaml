@@ -1,4 +1,4 @@
-eventml: "0.2"
+eventml: "0.4"
 kind: decisions
 project: garden-party
 ---
@@ -10,12 +10,12 @@ decisions:
     why: "the guest list grew between the brief and the update; sizing for the larger number now avoids rebuilding the PA plan later if it holds"
     alternatives:
       - { option: "300 guests", why_not: "stated in the first email and superseded by the update of 5 August" }
-    affects: [brief.audience, main-pa, r-speech-intelligible, r-coverage-uniformity]
+    affects: [n-audience, main-pa, r-speech-intelligible, r-coverage-uniformity]
     src: s-client-update
     needs_agreement: true
     agreed_by: { party: client, person: "event manager", src: s-client-confirm }
     notes: >-
-      This is what resolves the conflicting value in brief.audience. The value does not become `stated`
+      This is what resolves the conflicting value on `n-audience`. The value does not become `stated`
       — both numbers were true when written. It becomes a value the model depends on because somebody
       chose it, and this record is where that choice lives.
 

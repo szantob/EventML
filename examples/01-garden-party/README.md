@@ -33,9 +33,20 @@ a decision: `d-no-cover` in `decisions.yaml` records that production decided to 
 budget. What is missing there is not the design but the client's agreement to it, which is what question
 rule 7 fires on below. Only `r-band-monitoring` appears under rule 3 in the question list.
 
-**Two requirements have no `refines` edge.** `r-rcd-protection` and `r-input-capacity` came from
-professional judgement, not from anything the client said. No client asks for residual current protection.
-Making that visible is the point: these are the lines on the quote that will be queried.
+**Every requirement now names its origin, and one of them only just does.** `r-rcd-protection` used to
+carry no `refines` at all, on the grounds that no client asks for residual current protection. That was
+never true: the regulation asks for it, and `s-electrical-reg` is now in `sources` with `n-rcd` taken from
+it. `r-input-capacity` needs no need of its own — it derives from `r-band-monitoring`, and inherits its
+origin from there. Question rule 9 finds nothing in this example, which is the point of the exercise.
+
+**Two needs are refined by nothing**, and question rule 8 reports both. `n-load-in` shapes
+`d-digital-transport` in that decision's prose and appears in no requirement; `n-lunch` may constrain the
+load-in or mean nothing at all. Each is either a missing requirement or a statement that should not have
+been taken as a need, and only a person can say which.
+
+**A requirement may be assembled from more than one statement.** `r-speech-intelligible` refines
+`n-welcome-speech` and `n-audience`: the speech is what the client asked for, the headcount is what sizes
+it. The edge does not record which was which — that is read from the requirement's own text.
 
 **Connection and Flow stay separate, and it pays off twice.** `f-stage-inputs` carries the stage inputs
 from `sb1` to `fohm` over three connections; `f-clock` carries PTP the other way over the same three. Two
@@ -73,7 +84,7 @@ that matched connectors rather than items could not express an adapter lead.
 Every requirement must be walkable from a brief element down to a cable. Taking `r-speech-intelligible`:
 
 ```
-brief.program[1]                          L0  "Welcome speech, 19:00"
+s-client-brief  ──trace→  n-welcome-speech  L0  "There'll be a welcome speech around 7"
   └─refine→  r-speech-intelligible        L1  audio.req.speech_intelligibility
                └─satisfy→  main-pa        L2  audio.part.main_pa
                              └─allocate→  amp-pa    L3  audio.part.amplifier
@@ -102,7 +113,7 @@ vox1 ──f-vox-to-sb1──▶ sb1 ═adc═▶ sb1:net
 `decisions.yaml` holds three decisions, each demonstrating a different part of `spec/07-decisions.md`.
 
 `d-audience-450` is a production decision resolving a `conflicting` value, with the client's agreement
-recorded separately. `brief.audience` stays `conflicting` — the model does not turn 450 into a new `stated`
+recorded separately. `n-audience` stays `conflicting` — the model does not turn 450 into a new `stated`
 fact, because both 300 and 450 were true when written. What changes is that the plan now depends on 450, and
 this decision is the record of who chose that number, when, and on what evidence: the client's update email
 as `src`, production's choice to size for the larger figure, and the client's confirmation cited by
@@ -174,9 +185,21 @@ questions:
     source: d-no-cover
     blocks: 0
     internal: true   # for the project manager, not for the client
+
+  - ask: "You mentioned the restaurant serves lunch until 13:30. Is that something we have to work around?"
+    why: "n-lunch is stated and nothing refines it; it may bound the load-in, or mean nothing"
+    rule: 8
+    source: n-lunch
+    blocks: 0
+
+  - ask: "Load-in from 14:00 at the earliest — is that firm, and does anything in the plan depend on it?"
+    why: "n-load-in shapes d-digital-transport in prose and appears in no requirement"
+    rule: 8
+    source: n-load-in
+    blocks: 0
 ```
 
-Seven questions, and the first two decide most of the plan. Forty things in this model are unspecified;
+Nine questions, and the first two decide most of the plan. Forty things in this model are unspecified;
 these are the ones with requirements hanging off them.
 
 Note what rule 2 does in the first question. Nobody stated that the terrace is uncovered — it was assumed
@@ -195,3 +218,21 @@ both ends — a requirement and a block that
 ought to be joined and are not, because nobody knows how big the band is. Rule 3 alone would report the
 requirement and leave the block looking deliberate. `mix-position` and `playback` are the other kind: no
 requirement anywhere refers to them, and they are on the quote regardless.
+
+## What stayed in the brief
+
+The needs took everything anybody stated. What is left under `venue:`, `power:` and `program:` is the other
+kind of value — the ones nobody has stated: whether the terrace is covered, how large the audience area is,
+how far the socket is from the stage. They are not statements, so they have no source and no need. They are
+open questions carrying a provisional answer, and giving them a name of their own is a later release's work.
+The seam is deliberate.
+
+## The answer that settled the headcount
+
+`s-audience-query` is a source like any other — an email, from `production`, asking which of the two guest
+numbers to design for. `s-client-confirm` carries `answers: [s-audience-query]`, and that edge is the whole
+record of the exchange: a question was put and answered, on 8 and 12 August.
+
+What the answer did not do is change a value. `n-audience` is still `conflicting`, because both 300 and 450
+were said and both were true when written. Which one the plan depends on is `d-audience-450`'s business, not
+the statement's.

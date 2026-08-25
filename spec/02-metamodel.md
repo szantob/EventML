@@ -19,10 +19,11 @@ hire system, and a `catalog_ref` on the definition is what binds the model to it
 disposable — they are created when a brief arrives and discarded when the truck comes back. Keeping the two
 apart is what lets the vocabulary accumulate while individual models stay small.
 
-The eleven entities and what each one references. Definitions sit above, in a library, and reference only
+The thirteen entities and what each one references. Definitions sit above, in a library, and reference only
 other definitions; usages sit below, in a project's model files, and the four arrows crossing the boundary
-are each a usage naming its catalogue type. `Decision`, added in v0.2, is the one record that crosses
-nothing — it names no definition at all, and reaches usages and brief paths directly, at any layer.
+are each a usage naming its catalogue type. Three records cross nothing and name no definition at all:
+`Decision`, added in v0.2, which reaches usages at any layer; and `Source` and `Need`, added in v0.4, which
+sit in L0 and are named from above.
 
 ```mermaid
 flowchart BT
@@ -43,6 +44,8 @@ flowchart BT
         Flow
         Requirement
         Decision
+        Source
+        Need
     end
 
     PortDef -->|"item"| ItemDef
@@ -61,6 +64,8 @@ flowchart BT
     Flow -->|"over"| Connection
     Decision -.->|"affects"| Part
     Decision -.->|"affects"| Requirement
+    Need -->|"src"| Source
+    Requirement -->|"refines"| Need
 ```
 
 Only type references are drawn. The traceability edges between usages — `refines`, `derived_from`,
@@ -275,7 +280,7 @@ be checked against.
 
 **In v0.1 the expression is prose, not a formal expression language.** There is no validator to evaluate
 it, and inventing a syntax nothing executes would freeze a bad guess into the kernel. Formalising
-`expression` is the first task of v0.6; until then it is written so that a human or an agent reading the
+`expression` is the work of a later release; until then it is written so that a human or an agent reading the
 model can apply it by hand.
 
 ```yaml
@@ -389,12 +394,17 @@ traceability recorded.
 | `id` | string | yes | Instance identifier |
 | `def` | RequirementDef ref | yes | The template |
 | `params` | map | yes | Fills the template's placeholders |
-| `refines` | L0 path | no | The brief element this requirement refines |
+| `refines` | list of Need ids | no | The stakeholder statements this requirement refines |
 | `derived_from` | Requirement id | no | The parent requirement, when decomposed |
 
-**Relations.** References one `RequirementDef`, optionally one L0 brief element, and optionally one parent
+**Relations.** References one `RequirementDef`, any number of L0 `Need`s, and optionally one parent
 `Requirement`. A `Requirement` never names a `Part` — the `satisfy` edge is carried by `Part.satisfies`,
 pointing upward.
+
+**Every requirement names its origin:** `refines`, `derived_from`, or both. A requirement can be a
+technical consequence of another and an answer to a stakeholder's statement at the same time. What cannot
+happen is neither — that is not a root but an incomplete record, and question rule 9 in `04-uncertainty.md`
+reports it.
 
 A requirement that no part satisfies is not a modelling error; it is the normal state of one that has been
 captured but not yet designed for. It is question rule 3 in `04-uncertainty.md`, and the model is expected
@@ -408,12 +418,120 @@ established by looking at the parts.
   params:
     area: "the terrace seating area"
     audience: 300
-  refines: brief.program.welcome_speech
+  refines: [n-welcome-speech, n-audience]
 ```
 
-A fifth kind of record, `Decision`, lives in a project's model files alongside these four usages without
-being one of them: it names no `PartDef` or `RequirementDef` under `def:`, and one `Decision` can determine
-elements across every layer in a single edge. See `07-decisions.md`.
+The requirement names both statements it was assembled from: what the client said about the speech, and
+what they said about numbers. Which of the two was the reason it exists and which supplied a figure is read
+from the requirement's text, not from the edge — the structure carries what a check can decide, and the
+meaning stays where a person or an agent judges it.
+
+### Source
+
+**Purpose.** One piece of material of record — what somebody said or wrote, whole and unmodified.
+
+| Attribute | Type | Required | Meaning |
+|---|---|---|---|
+| `id` | string | yes | The handle `src:` references. An instance ID: short, lowercase, no dots |
+| `kind` | see below | yes | What the material is |
+| `date` | date | yes | When the statement was made, ISO 8601 |
+| `from` | see below | yes | The party that made it |
+| `sender` | string | no | The individual, where which person said it matters |
+| `subject` | string | for `email`, `document` and `rider` | The subject line or title |
+| `excerpt` | string | yes | The text, verbatim |
+| `answers` | list of Source ids | no | The earlier sources this one responds to — see `03-relationships.md` |
+
+`kind` is `email` | `call` | `document` | `site_visit` | `rider` | `regulation`.
+`from` is `client` | `venue` | `production` | `authority` | `performer`.
+
+**A source is material of record, not only a communication act.** A tech rider and a wiring regulation are
+sources in exactly the sense an email is: somebody stated something, the statement is quoted whole, and
+elementary units of information come out of it as `Need`s. A rider is the clearest case ISO/IEC/IEEE 29148
+describes — a stakeholder's own list of what the act needs on stage.
+
+**A source is never decomposed.** Granularity lives in the reference: a `Need` names a passage within the
+source. Splitting the source itself would need a taxonomy of request, fact and preference whose boundaries
+would be argued forever.
+
+**One entry per statement, not per meeting.** A site visit at which three people say three things is three
+sources sharing a date, not one source with three sentences in its `excerpt`. The test is whether any value
+would ever need to cite one of them alone: a `conflicting` value whose alternatives both cite the same
+entry cannot say who said what, and question rule 4 in `04-uncertainty.md` has nothing to work with.
+`examples/03-festival-stage/brief.yaml` carries the worked case, where a site manager and a council
+representative contradict each other on the same afternoon.
+
+**Each fact gets its own key.** The date is not encoded in the `id`, and the person is not appended to the
+`src` string that points at the entry. An identifier is a handle, not a record. Two places holding the same
+fact eventually disagree; worse, the `conflicting` state resolves by asking which statement came later, so
+it needs a date it can compare rather than one it has to parse out of a name.
+
+**Every source carries text in this release.** A floor plan is a source by the definition above and yields
+needs the same way, but anchoring a passage inside a drawing needs a selector no example here exercises —
+see `05-concrete-syntax.md`. An unexercised construct is an unproven one, so it waits.
+
+```yaml
+- id: s-venue-call
+  kind: call
+  date: 2026-08-06
+  from: venue
+  sender: "terrace manager"
+  excerpt: >-
+    Spoke to the terrace manager. There is an outdoor socket by the service door; he did not know
+    what it is rated at and will check. Load-in from 14:00 at the earliest, the restaurant serves
+    lunch until 13:30.
+```
+
+### Need
+
+**Purpose.** One elementary unit of information taken from a source, in the stater's own words, anchored
+to the passage it came from.
+
+| Attribute | Type | Required | Meaning |
+|---|---|---|---|
+| `id` | string | yes | Instance identifier, unique within the model |
+| `text` | string | yes | The stater's words, quoted rather than paraphrased |
+| `src` | passage ref | yes | The source and the passage within it — see `05-concrete-syntax.md` |
+| `value` | Value | no | The quantity the statement carries, wrapped as any other value |
+
+**Relations.** References one `Source` through `src`. Referenced by `Requirement.refines` and by
+`Decision.affects`. A `Need` names no catalogue type: there is no `NeedDef`, because a stakeholder's
+sentence is not an instance of a reusable type.
+
+A need is not only the client's. The venue states distances, an authority states prohibitions, a
+performer's rider states what the act needs on stage, and a site visit states what was measured. The word
+is ISO/IEC/IEEE 29148's *stakeholder need*, and the standard's separation of stakeholder needs from system
+requirements is the same separation EventML draws between L0 and L1.
+
+```yaml
+- id: n-welcome-speech
+  text: "There'll be a welcome speech around 7"
+  src: { id: s-client-brief, exact: "There'll be a welcome speech around 7", start: 93, end: 130 }
+```
+
+**`text` is quoted, never paraphrased.** The moment it becomes the modeller's reading of the sentence, the
+model loses the thing an argument three weeks later has to be adjudicated against — the same reason a
+source's `excerpt` is quoted.
+
+**A `Need` with no `src` fails the L0 syntactic check** in `04-uncertainty.md` §5. An elementary statement
+nobody made is not a statement, and the fix is to record the source rather than to ask anybody anything.
+
+**Where a need carries a quantity it uses the value wrapper unchanged** — `state`, `why`, `src`, `ask`,
+`alternatives`, all as defined in `04-uncertainty.md`. Where it carries none, it is text only.
+
+```yaml
+- id: n-audience
+  text: "about 300 people"
+  src: { id: s-client-brief, exact: "about 300 people", start: 36, end: 52 }
+  value:
+    state: conflicting
+    alternatives:
+      - { value: 300, src: { id: s-client-brief, exact: "about 300 people", start: 36, end: 52 } }
+      - { value: 450, src: { id: s-client-update, exact: "we're now looking at 450" } }
+```
+
+Three further kinds of record live in a project's model files without being usages: they name no `PartDef`
+or `RequirementDef` under `def:`. `Decision`, added in v0.2, can determine elements across every layer in a
+single edge — see `07-decisions.md`. `Source` and `Need`, added in v0.4, sit in L0 and are defined above.
 
 ## 4. Connection and Flow are separate
 
