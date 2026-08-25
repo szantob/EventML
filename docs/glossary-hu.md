@@ -26,6 +26,10 @@ használja változatlanul, ott az szerepel**, nem egy senki által nem használt
 | `PortDef` / `Port` | portdefiníció / port | A szakma a *port* és a *csatlakozó* szót is használja; a *port* a logikai, a *csatlakozó* a fizikai |
 | `PartDef` / `Part` | eszköztípus / eszköz, elem | L2-n *funkcióblokk*, L3-on *eszköz* |
 | `InterfaceDef` | kapcsolattípus | A két port közti link típusa — kábel, médium, kapacitás |
+| `Source` | forrás | Amit valaki mondott vagy leírt, egészben — e-mail, hívás, bejárás, rider, előírás |
+| `Need` | igény | Egy elemi információegység egy forrásból, a mondó saját szavaival. Nem *követelmény*: az a feldolgozott, szakmai nyelvű állítás, ami ebből lesz |
+| passage · szövegrészlet | szövegrészlet | A forrás azon darabja, amire az igény horgonyoz |
+| `answers` | válaszol | Az él, ami egy közlést egy korábbihoz köt |
 | `Connection` | kapcsolat, kábelezés | Az, hogy *létezik* a kábel |
 | `Flow` | jelfolyam | Az, hogy *mi fut rajta és milyen útvonalon* |
 | `RequirementDef` / `Requirement` | követelménysablon / követelmény | |

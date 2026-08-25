@@ -2,8 +2,8 @@
 
 **An open modelling language for live event AV systems — from client brief to signal topology.**
 
-> **Status: v0.3.0 — the specification is complete; nothing is executable.** The kernel is here: four
-> layers, eleven core entities, six traceability relations, the uncertainty model and the canonical YAML
+> **Status: v0.4.0 — the specification is complete; nothing is executable.** The kernel is here: four
+> layers, thirteen core entities, seven traceability relations, the uncertainty model and the canonical YAML
 > syntax, in eight files under [`spec/`](spec/) — including the `Decision` entity, for recording who chose
 > something and whether anyone outside the team agreed to it. Base vocabulary for five domains — 172
 > concepts — is in [`examples/lib/`](examples/lib/), which now names and versions itself as `eventml-example`
@@ -73,7 +73,7 @@ It spans four layers, following the [ARCADIA](https://mbse-capella.org/arcadia.h
 
 | Layer | Content | Example |
 |---|---|---|
-| **L0 Brief** | What the client and audience do, in lay language | "300 guests, gala dinner, band from 21:00" |
+| **L0 Brief** | What stakeholders said, quoted whole as sources and broken into needs | "300 guests, gala dinner, band from 21:00" |
 | **L1 Requirement** | What the system must achieve, technology-independent | "speech intelligible across the audience area" |
 | **L2 Logical** | Function blocks and their signal paths, no technology chosen | main PA, delay line, monitor world |
 | **L3 Physical** | Concrete devices, ports, connections | Rio1608 · XLR3F/4 · Cat6a link |
