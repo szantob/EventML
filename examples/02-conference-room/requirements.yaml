@@ -1,4 +1,4 @@
-eventml: "0.1"
+eventml: "0.4"
 layer: requirement
 project: conference-room
 ---
@@ -9,7 +9,7 @@ requirements:
     params:
       area: "the whole seated area of the Danube room"
       audience: 120
-    refines: brief.program[0]
+    refines: [n-presentations, n-audience]
 
   - id: r-panel-inputs
     def: audio.req.input_capacity
@@ -19,11 +19,11 @@ requirements:
         state: derived
         why: >-
           Four panellists at one microphone each, a lectern microphone, two spare handhelds, one laptop
-          feed. Takes the lower arm of the conflicting brief.program[1].panellists; if the count settles
+          feed. Takes the lower arm of n-panel's conflicting value; if the count settles
           at five this derives to nine, which is why the conflict is worth resolving before the input
           list is ordered.
       position: "the stage end of the room"
-    refines: brief.program[1]
+    refines: [n-panel]
 
   # --- Video, with a derive chain -------------------------------------------
   # r-slides-visible decomposes into two children: one about the screen being
@@ -39,7 +39,7 @@ requirements:
         state: assumed
         why: "a partner meeting; last year's deck is not available to check"
         ask: true
-    refines: brief.program[0]
+    refines: [n-slides]
 
   - id: r-screen-size
     def: video.req.image_legibility
@@ -47,9 +47,11 @@ requirements:
       display: "the room's main screen"
       area: "the back row"
       content_detail: "slides with body text and financial tables"
+    refines: [n-existing-screen]
     derived_from: r-slides-visible
     notes: >-
-      Unsatisfied and blocking. The existing screen's size is unknown and the furthest seat is
+      Both edges at once: a technical child of r-slides-visible, and an answer to what the client said about
+      the screen they already have. Unsatisfied and blocking. The existing screen's size is unknown and the furthest seat is
       unmeasured, so nothing can be shown to satisfy this — and it fires question rule 5 as well as
       rule 3, because the ratio the constraint checks cannot be computed at all.
 
@@ -68,7 +70,7 @@ requirements:
     params:
       content: "the speaker, the slides and the panel"
       area: "the Danube room"
-    refines: brief.program[1]
+    refines: [n-remote-panellists, n-stream]
 
   - id: r-source-switching
     def: video.req.source_switching
@@ -78,7 +80,7 @@ requirements:
         state: derived
         why: "presenter laptop, camera, remote participants, holding slide"
       period: "the whole day"
-    refines: brief.program[0]
+    refines: [n-slides, n-presentations]
 
   # --- Network --------------------------------------------------------------
   - id: r-stream-bandwidth
@@ -86,7 +88,7 @@ requirements:
     params:
       traffic: "the outbound stream, the remote panellists' call, and NDI between the camera and the switcher"
       headroom: 0.7
-    refines: brief.program[2]
+    refines: [n-stream, n-house-network]
 
   - id: r-stream-segregation
     def: network.req.segregation
@@ -104,7 +106,7 @@ requirements:
     params:
       position: "the lectern and the four panel chairs"
       purpose: "the camera and the remote audience to see who is speaking"
-    refines: brief.program[2]
+    refines: [n-stream]
     notes: >-
       Traces to the stream, not to the lighting. Nobody asked to be lit; the requirement exists because
       somebody asked what the remote audience would see. That is the whole argument for L0 → L1
@@ -117,8 +119,10 @@ requirements:
       position: "the operating position at the back"
       period: "the presentations"
     notes: >-
-      No refine edge and no satisfying part: the venue controls the house lights and nobody has agreed
-      how they will be dimmed. Both a design gap and a negotiation.
+      No origin on record and no satisfying part. The client said who operates the house lights, not that
+      they must be controllable from our position — that follows from the slides being legible, and nobody
+      wrote it down. Question rule 9 keeps asking until somebody does, and the fix is a source of our own,
+      not a client request.
 
   # --- Power ----------------------------------------------------------------
   - id: r-room-power
@@ -129,4 +133,4 @@ requirements:
         value: 3.1
         state: derived
         why: "sum of electrical_load_w across the physical parts, at the 0.8 headroom factor"
-    refines: brief.venue
+    refines: [n-patch-panel]

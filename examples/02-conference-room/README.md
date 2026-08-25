@@ -27,7 +27,7 @@ Example 01 covers audio and power, all five value states, and question rules 1 t
 they fail differently:
 
 ```
-brief.program[0]                        L0  "Presentations from the floor, slides throughout"
+n-slides                                L0  "Slides throughout."
   └─refine→  r-slides-visible           L1  video.req.image_legibility
                ├─derive→  r-screen-size L1  is the existing screen big enough?      no part satisfies it
                └─derive→  r-sightlines  L1  can every seat see it?                  main-display satisfies it
@@ -56,20 +56,21 @@ is what lets the gap be seen.
 
 ## The requirement that traces to the stream, not to the lights
 
-`r-face-lighting` refines `brief.program[2]` — the live stream — not any lighting statement. Nobody asked
+`r-face-lighting` refines `n-stream` — the live stream — not any lighting statement. Nobody asked
 to be lit. The requirement exists because someone asked what the remote audience would see, and the answer
 was "a dark shape at a lectern". That single edge is the argument for L0 → L1 traceability in one line: the
 lighting budget on this quote is defensible only because it is traceable to something the client did ask
 for.
 
-`r-house-lights` has neither a `refines` edge nor a satisfying part. The venue controls the house lights,
-nobody has agreed how they will be dimmed, and it is both a design gap and a negotiation. The model holds
-it in that state rather than resolving it prematurely.
+`r-house-lights` has no origin on record and no satisfying part, and it is this example's worked case for
+question rule 9. The client did say who operates the house lights — that is `n-house-lights` — but not that
+they must be controllable from our position. That follows from the slides having to be legible, and nobody
+wrote it down. Closing the question means recording a source of our own, not inventing a client request.
 
 ## The four-layer walk
 
 ```
-brief.program[1]                            L0  "Panel discussion, 4 panellists, 2 remote"
+n-remote-panellists · n-stream              L0  "two of the panellists are joining from abroad"
   └─refine→  r-remote-participation         L1  video.req.remote_participation
                └─satisfy→  camera-1         L2  video.part.image_source
                              └─allocate→  cam-1     L3  video.part.camera
@@ -203,9 +204,43 @@ questions:
     rule: 2
     source: brief.program[0].laptop_source
     blocks: 1        # r-source-switching
+
+  - ask: "r-house-lights has no recorded origin: nothing anybody said asks for the room lights to be controllable from our position."
+    why: "either the requirement is unnecessary, or the reasoning behind it was never written down"
+    rule: 9
+    source: r-house-lights
+    blocks: 0
+    internal: true   # for the project manager, not for the client
+
+  - ask: "\"Same as last year but the streaming part is new\" — what, concretely, was last year's setup?"
+    why: "n-same-as-last-year is refined by nothing, and it refers to a model nobody wrote down"
+    rule: 8
+    source: n-same-as-last-year
+    blocks: 0
 ```
 
 Note the first question. It is rule 5 — a constraint that cannot be satisfied — and it is ranked first not
 because a constraint outranks an unknown, but because three requirements hang off it. The wording asks for
 a measurement and a photograph, both of which a hotel event manager can produce in five minutes, rather
 than for a screen specification, which they cannot produce at all.
+
+## Source coverage, walked by hand
+
+`spec/04-uncertainty.md` §6 defines this report: for one source, which passages no need cites. There is no
+validator, so here it is done by hand, against `s-client-brief`.
+
+| Passage | Cited by | Reading |
+|---|---|---|
+| "Annual partner meeting, 120 people" | `n-audience` | |
+| "our usual room at the hotel" | nothing | The room is named in `s-client-call` and became `n-room`. The phrase carries no information the model does not already hold |
+| "Morning is presentations from the floor" | `n-presentations` | |
+| "afternoon is a panel of four" | `n-panel` | Contradicted by a later source, which is why the need carries a conflicting value |
+| "We want to stream it for the colleagues who cannot travel" | `n-stream` | |
+| "two of the panellists are joining from abroad" | `n-remote-panellists` | |
+| "Slides throughout." | `n-slides` | |
+| "Same as last year but the streaming part is new." | `n-same-as-last-year` | Cited, and refined by nothing — question rule 8 |
+
+One phrase is uncited, and reading it is a person's job rather than the model's. "Our usual room at the
+hotel" says the booking is a repeat, which the model records elsewhere and acts on nowhere. Had the sentence
+read *our usual setup*, the same report would have surfaced a statement nobody had turned into a
+requirement — and telling those two apart is exactly the judgement `spec/02-metamodel.md` refuses to encode.
