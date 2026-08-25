@@ -69,4 +69,6 @@ client intent down to signal topology, and none treats missing information as a 
 | GDTF / MVR | Signal type vocabulary and the pin-level wiring model |
 | AMWA NMOS | The sender/receiver and flow abstraction for networked media |
 | IFC4 | Port direction semantics and port-to-port connection |
+| ISO/IEC/IEEE 29148 | The term *stakeholder need*, and its separation from a system requirement — the standard's StRS and SyRS. EventML draws the same line, and draws it at the L0/L1 boundary |
+| W3C Web Annotation Data Model | Passage references: the quotation selector and the position selector, kept together and deliberately redundant |
 | ISO/IEC/IEEE 42010 | Architecture Decision and Architecture Rationale; the requirement that a project state which decisions it records. EventML adopts the concepts and the names in `spec/07-decisions.md`. It is a standard for describing architectures, not a format — the vocabulary and the layers still have to be written |
