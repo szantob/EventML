@@ -46,7 +46,7 @@ things.**
 ## The four-layer walk
 
 ```
-brief.program[2]                          L0  "the stage looked flat on the photos"
+n-flat-photos                             L0  "the stage looked flat on the photos"
   └─refine→  r-face-lighting              L1  lighting.req.face_lighting
                └─satisfy→  key-light      L2  lighting.part.key_light
                              └─allocate→  profile-1  L3  lighting.part.profile_fixture
@@ -66,7 +66,7 @@ through the first fixture's `dmx_in → dmx_thru` edge. Remove that edge and `pr
 
 ## The decisions
 
-`decisions.yaml` carries three. Two of them resolve `brief.venue.cable_route`: `d-foh-ground-run`, made on
+`decisions.yaml` carries three. Two of them resolve `n-cable-route`: `d-foh-ground-run`, made on
 the site visit itself when the site manager offered cable mats, and `d-foh-catenary`, made twelve days later
 once the council's objection had been confirmed as its actual position and could be acted on, which
 `supersedes` it. The council representative raised that objection on the same walk-round, in front of the
@@ -87,10 +87,10 @@ client paying for the stage, and the council has not actually been asked. This i
 way real projects fail — the objection gets engineered around, the fix looks obviously right to the people
 who found it, and closing the loop with the one party whose sign-off counts gets forgotten.
 
-`brief.venue.cable_route` itself stays `conflicting`, on purpose. Both statements were made, on the same
+`n-cable-route` itself stays `conflicting`, on purpose. Both statements were made, on the same
 site visit, by people with standing to say them; folding the value to `stated` once one side wins would
 erase the fact that somebody was overruled, and that fact now lives in `d-foh-catenary` instead. Because
-`d-foh-catenary` names `brief.venue.cable_route` in `affects`, question rule 4 no longer fires on the
+`d-foh-catenary` names `n-cable-route` in `affects`, question rule 4 no longer fires on the
 conflict — but because the decision itself is unagreed, rule 7 fires on the decision instead. That handoff
 from rule 4 to rule 7, described in prose in `spec/04-uncertainty.md`, is what this decision now
 demonstrates: the conflict was never really "which source do we believe", it is "has anyone actually
@@ -133,8 +133,52 @@ questions:
     source: d-foh-catenary
     blocks: 0
     internal: true   # for the project manager, not for the client
+
+  - ask: "r-console-continuity has no recorded origin: nothing anybody said asks for residual current protection, and the reasoning has never been written down."
+    why: "non-negotiable on a wet field, and the model cannot justify it — the garden party closes the same gap with a regulation as its source"
+    rule: 9
+    source: r-console-continuity
+    blocks: 0
+    internal: true   # for the project manager, not for the client
+
+  - ask: "The brief says the stage is in the park by the river. Does anything about the location itself need designing for — ground, access, the water?"
+    why: "n-park is refined by nothing; either a requirement is missing or the location is context rather than a request"
+    rule: 8
+    source: n-park
+    blocks: 0
 ```
 
 Note the second question. It is rule 2 — an assumption marked `ask: true` — and its `why` does arithmetic
 the client will never see: 14.5 kW against a 20 kVA set is 90% of the headroom the model allows. The
 question put to the client is about a hire order; the reasoning behind it is a constraint check.
+
+## The thread branches
+
+Three sources form one exchange. The production manager asked, on the walk-round, whether cable could cross
+the public path; the site manager said yes with mats, and the council representative, standing there, said
+no. Both replies carry `answers: [s-cable-question]`, and both are alternatives of `n-cable-route`.
+
+```mermaid
+flowchart BT
+    Q["s-cable-question<br/>production · 8 May"]
+    M["s-venue-mats<br/>venue · 8 May"]
+    C["s-council-paths<br/>authority · 8 May"]
+    M -->|"answers"| Q
+    C -->|"answers"| Q
+```
+
+All three share a date, which the `answer` relation permits: the answered source's date must not be *later*
+than the answering one's, and a question put on site is usually answered on the spot. The branch is not an
+anomaly to be resolved — it is the disagreement, recorded as it happened, and `d-foh-catenary` is what
+settles it.
+
+## A need taken from a rider
+
+`s-headliner-rider` is a source in exactly the sense the client's email is: somebody stated something, and
+it is quoted whole. Three needs come out of it — `n-headliner-size`, `n-monitor-mixes` and `n-radio-mics` —
+and `r-band-monitoring` refines two of them. The stakeholder here is the act, not the client, which is why
+the entity is called a need rather than a client request.
+
+It does not close everything. `brief.program[1].wireless_channels` is still `unknown`, because three of the
+four bands have not sent riders and frequency coordination needs the total. One rider arriving is visible
+progress against a gap that is still open.
