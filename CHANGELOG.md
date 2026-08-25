@@ -9,6 +9,10 @@ versioned separately. Entries state which one changed.
 
 ## [Unreleased]
 
+Nothing yet. Work landing after v0.4.0 is recorded here until it is released.
+
+## [0.4.0] - 2026-08-26
+
 Adds the level between a stakeholder's sentence and a technical requirement, so that the model can show
 which statement produced nothing and which requirement nobody asked for.
 
@@ -66,6 +70,10 @@ which statement produced nothing and which requirement nobody asked for.
   why they must be controllable from our position.
 - **The source coverage report is walked by hand** in `examples/02-conference-room/README.md`, across the
   client's own brief, ending on the one phrase no need cites.
+
+> **The `v0.4.0` tag was cut before this section was renamed.** The tree at that tag carries these entries
+> under `[Unreleased]`. They describe `v0.4.0`, and this note is here so that nobody reading the tagged tree
+> concludes the release was never closed out.
 
 ## [0.3.0] - 2026-08-10
 
