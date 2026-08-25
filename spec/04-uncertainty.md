@@ -369,7 +369,7 @@ requirement that decides five others is worth settling before one that decides n
 **In v0.1 this list is written by hand.** The examples under `examples/` contain hand-written `questions`
 blocks that demonstrate the intended output of the derivation. They are illustrations, not derived
 artefacts: v0.1 has no validator and no traversal engine, and the rule that the question list is derived
-rather than authored cannot execute until v0.6. Where a hand-written list and the model disagree, the model
+rather than authored cannot execute until a release that ships a traversal engine. Where a hand-written list and the model disagree, the model
 is right and the list is stale.
 
 ## 5. Checking a model, layer by layer

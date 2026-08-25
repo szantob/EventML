@@ -54,8 +54,20 @@ rule rather than a special case: every library carries a version of its own. Eve
 language version it was written against in an `eventml:` header key — the lowest version whose constructs
 the file actually uses, not the version of the repository as a whole. A project's four layer files can stay
 at `"0.1"` while its `decisions.yaml`, the only file using the `Decision` entity, declares `"0.2"`; mixed
-floors within one project are correct. At this tag `eventml-core` is `0.3.0` and `eventml-lib` is `0.2.0` —
+floors within one project are correct. At this tag `eventml-core` is `0.4.0` and `eventml-lib` is `0.2.0` —
 the divergence this release makes ordinary, since the two now move on their own schedules.
+
+**What is planned, in order.** This list is the only place in the specification where release order is
+stated. Prose elsewhere says "a later release" and points here, because this ordering has changed three
+times and every change left a stale promise somewhere else for review to catch.
+
+1. The question lifecycle — an open question as a first-class element, the outbound question, and the state
+   it moves through as answers arrive or fail to.
+2. Formalisation — `ConstraintDef.expression` and `RequirementDef.applies_when` as evaluable expressions
+   rather than prose.
+3. Tooling — a schema, a validator, and the derived question list the language has specified since v0.1.
+
+Nothing here is a commitment to a version number. A release takes the next item that is ready.
 
 ## 6. Relationship to existing standards
 
