@@ -8,8 +8,9 @@ during the session. The constraint stated at the outset was "after `eventml-core
 the reading that EventML's own roadmap is about to spend five releases building kernel material inside
 EventML, and then replaced by K14 — serialised work rather than an MVP running alongside. K15 settles what
 that 1.0 is: the metamodel, described in text and diagrams, with no notation and no filled-in definitions.
-**How a metamodel that exercises nothing on its own is verified is not settled** — see OQ7. Version numbers
-are ceremony at this stage; see the note opening §4. Nothing here changes `spec/` as it stands.
+OQ7 settles how a metamodel that exercises nothing on its own is verified, and **its answer turns out to be
+circular with K14's freeze** — see OQ8, which blocks starting and is the first thing to resolve. Version
+numbers are ceremony at this stage; see the note opening §4. Nothing here changes `spec/` as it stands.
 
 **Date:** 2026-08-26
 **Branch at time of writing:** `eventml-core-v0.5`
@@ -76,6 +77,8 @@ step 4's questions by rules 1 and 2. Steps 3b, 4a and 5 have nothing.
 | K14 | **The work is serialised, not parallel.** The kernel gets its own repository, built from what exists today and carried to its own 1.0 with `eventml-core` frozen for the duration. EventML resumes afterwards, as the kernel's first consumer | The five releases on EventML's own roadmap are kernel work, so serialising does that work once instead of twice. It also dissolves the moving-target risk by decree rather than by mitigation: nothing can fork underneath a specification that is not moving. And a specification resumed against a finished kernel is a far better test of K2 than two that co-evolve and quietly accommodate each other |
 | K15 | **The metamodel and its implementations are separate things.** The metamodel is the kernel proper — the L0/L1 types, the edges, the states, the rules, the binding contract — described in text and diagrams only. It defines what a `RequirementDef` *is*; **it contains no filled-in `RequirementDef`, and the moment any element goes into one, that is implementation.** Notation, the requirement types themselves and a base rule-set a project may vary as it runs all belong to an implementation: a self-contained package that can be adopted and carried forward on its own. **The metamodel is what reaches 1.0** | The abstract-syntax / concrete-syntax split, and what makes K2 reachable rather than merely stated. A design language attaching underneath brings its own notation, so any notation inside the metamodel would be imposed on it. EventML did not have to face this — `spec/05-concrete-syntax.md` sits inside `eventml-core` today because EventML has one audience. The kernel has many, so it cuts one notch higher |
 | K16 | **An implementation is itself a metamodel**, for the project models built with it | Three levels, not two: the metamodel says what a `RequirementDef` is; an implementation is the filled set of them, and that set is what a project model is checked against. `examples/lib/` already plays this middle role in EventML — `audio.req.speech_intelligibility` is a filled `RequirementDef`, and `eventml-lib` versions separately from `eventml-core` for exactly this reason. The layering is not new; ProjectML only moves the notation from the first level to the second |
+| K17 | **A binding lives with whoever owns the language it binds; where nobody does, it lives in the kernel.** The SysML v2 binding is written on paper and kept in the ProjectML repository, as the kernel's own reference and proof. EventML's practical implementation — notation, filled definitions, rule-set — lives in the EventML repository | The v0.3 ownership rule one level up: a vocabulary belongs to whoever owns it. Nobody outside ProjectML would maintain a SysML binding, so it is ProjectML's artefact; EventML's implementation has an owner and a library already, so it stays there. It also keeps the kernel repository tight — a metamodel and one reference binding, nothing else |
+| K18 | **A binding is not an implementation.** The SysML artefact is a binding: K4's four declarations and nothing more. EventML's is an implementation, and it contains a binding | Keeping the words apart keeps the done-test sharp. An implementation carries notation, filled definitions and a rule-set; the SysML paper artefact carries none of the three, and calling it one would let OQ7's test be declared passed by a document that exercises nothing |
 
 ## 4. Open questions
 
@@ -220,11 +223,36 @@ far down that chain the metamodel's own done-test reaches.
 - **Two implementations in two domains.** An event one and a software one, both running the loop. The only
   version that fully tests neutrality, and roughly twice the work before anything is finished.
 
-**Recommended: the second.** One implementation proves the metamodel can be built on; it does not prove the
-metamodel is neutral, and neutrality is the entire thesis. Two implementations prove it and double the work
-first. The second option tests neutrality **where neutrality actually lives** — at the seam, which K3 and K4
-say is one field and four declarations — for the cost of one document. It is also the earliest point at
-which a false K2 becomes visible.
+**Answered: the second**, with the placement settled by K17. One implementation proves the metamodel can be
+built on; it does not prove the metamodel is neutral, and neutrality is the entire thesis. Two
+implementations prove it and double the work first. The second option tests neutrality **where neutrality
+actually lives** — at the seam, which K3 and K4 say is one field and four declarations — for the cost of one
+document, and it is the earliest point at which a false K2 becomes visible.
+
+**OQ8 — The done-test and the freeze are circular as they stand.** Answering OQ7 with the second option
+produces a conflict with K14 that neither decision shows on its own:
+
+- K14 freezes `eventml-core` until the kernel is finished.
+- OQ7 says the kernel is finished when an implementation runs the loop end to end.
+- K17 puts that implementation in the EventML repository.
+
+So the kernel is finished when EventML does something, and EventML is frozen until the kernel is finished.
+Three ways out:
+
+- **Read the freeze narrowly.** What K14 freezes is EventML *growing its own specification* — the five
+  roadmap releases of kernel material. Building EventML's ProjectML implementation is a different activity,
+  and it is the resumption K14 already anticipates. The two phases then **overlap by exactly one step**:
+  the last thing the kernel needs is the first thing EventML does on resuming.
+- **Host the practical implementation in the kernel repository temporarily** and migrate it to EventML
+  afterwards. Keeps the phases strictly serial, at the cost of contradicting K17 for the duration.
+- **Weaken the done-test** to the paper binding alone, which is OQ7's first option with the exercise
+  removed — and then nothing runs the loop before the kernel is declared finished.
+
+**Recommended: the first.** It is a clarification of what the freeze covers rather than a change to any
+decision, and the overlap it describes is not a compromise: an implementation built against a metamodel that
+is still settling is exactly the pressure that finds the metamodel's mistakes. The third is the one to
+refuse — a kernel finished without anything having run the loop is precisely the unexercised release OQ7
+exists to prevent.
 
 **A consequence of the implementation half, worth recording before it is designed.** K15 puts "a base
 rule-set a project may vary as it runs" in the implementation. If the rules can change mid-project, then a
@@ -287,11 +315,11 @@ something, and an infrastructure block that satisfies nothing is a fair question
 
 ## 7. Resume here
 
-**OQ7 first**, because a 1.0 that cannot be verified is not a release and K15 has just made that the live
-risk. Then what remains of OQ6 — the starting tag, and whether v0.5's subject moves or is deferred. Then
-OQ1, which K15 partly reshapes: the value-state model splits along the same seam, and the states are
-portable where progressive wrapping is notation and is not, so the conformance-level question is less about
-what a binding can take and more about what a notation can carry. Then OQ2, OQ3 — the problem this record
+**OQ8 first**, because it is a circularity between decisions already taken rather than a question about what
+to build, and it blocks starting. Then what remains of OQ6 — the starting tag, and whether v0.5's subject
+moves or is deferred. Then OQ1, which K15 partly reshapes: the value-state model splits along the same seam,
+and the states are portable where progressive wrapping is notation and is not — so the conformance-level
+question is less about what a binding can take and more about what a notation can carry. Then OQ2, OQ3 — the problem this record
 was asked to capture — and OQ4. OQ5 last, waiting for the others on purpose.
 
 Nothing in §3 has been checked against a release plan. §6 bears on `eventml-core` whatever OQ6 decides,
