@@ -1,11 +1,13 @@
 # A project-organisation kernel — Brainstorm record
 
-**Status: brainstorm only.** This is not a design and not a plan. **Nothing here is scheduled, and nothing
-here may be implemented.** No decision below has been weighed against a release, and several of them would
-change constructs that are already tagged and shipped.
+**Status: brainstorm only.** This is not a design and not a plan. No decision below has been weighed against
+a release, and several of them would change constructs that are already tagged and shipped.
 
-**Scope: after `eventml-core` 1.0.** Stated as a constraint at the top of the session and repeated here,
-because the material touches v0.4 and v0.5 constructs and would otherwise read as work in hand.
+**Scope: an MVP project of its own, probably in a separate repository.** Revised during the session. The
+constraint stated at the outset was "after `eventml-core` 1.0"; it was withdrawn, on the reading that
+`eventml-core`'s own roadmap is about to spend five releases building kernel material inside EventML. **The
+shape of that MVP is not settled** — see OQ6. Nothing here is scheduled against an EventML release, and
+nothing here changes `spec/` as it stands.
 
 **Date:** 2026-08-26
 **Branch at time of writing:** `eventml-core-v0.5`
@@ -129,6 +131,52 @@ K5, K6 and K10 all point that way without settling it.
 **OQ5 — What is the kernel called?** Never discussed. Deliberately: naming a language before its scope is
 settled fixes the scope by accident.
 
+**OQ6 — What is the MVP, and where does it live?** The session opened under an "after 1.0" constraint and
+withdrew it: the extraction should be an MVP project of its own, probably in a separate repository.
+
+**The argument for not waiting.** Read the v0.5 WIP §4 release order — a library declares its requirement
+kinds, then project-management logic, then what produces a decision, then how the model survives change,
+then the question lifecycle. **Not one of those five is AV-specific.** `eventml-core` is about to spend five
+releases building kernel material inside EventML. Waiting for 1.0 does not avoid the work; it does the work
+in the wrong repository and moves it afterwards.
+
+**The argument for caution.** The kernel's own content is the part of EventML moving fastest. `Source` and
+`Need` became entities in v0.4, and the five releases above all land on the same material. An extraction now
+forks a moving target, and the MVP has to be designed against that rather than around it.
+
+**What "viable" means for a specification.** There is no software to ship, so the MVP is minimum *provable*
+rather than minimum runnable, and CLAUDE.md §5 already fixes the standard: a concept that appears in no
+example is unproven. The decisive test is therefore not that the kernel has the entities — moving files
+proves nothing — but that **a second, non-AV domain walks end to end without the kernel changing**, and that
+**two bindings can be written**, one to EventML and one to SysML v2. K2 is either true or false, and one
+non-AV binding decides it.
+
+**What failure would look like**, stated in advance so the MVP can fail honestly:
+
+- the SysML binding cannot be written without changing the kernel's entities — K2 is false
+- the non-AV example needs a concept L0/L1 does not have — the cut is in the wrong place
+- the domain leaks in §5 turn out to number thirty rather than three
+
+Three shapes were put:
+
+- **Thin.** Snapshot L0/L1 from the `v0.4.0` tag — released and stable, rather than the moving v0.5 branch —
+  write the two bindings and one non-AV example, and leave EventML untouched. Accepts temporary duplication
+  as the price of not disturbing v0.5.
+- **Thick.** The kernel repository becomes where the v0.5 requirement-kinds work happens, and EventML
+  consumes it from there. Stops the duplicated effort immediately, at the cost of making an EventML release
+  depend on an unproven repository.
+- **No repository yet.** Write the two binding documents against L0/L1 as it stands. If K2 holds, create the
+  repository knowing it does; if not, nothing was built on a false premise.
+
+**Recommended: thin, with the SysML binding written first as the gate.** This sequences the third shape into
+the first rather than choosing between them. The decisive uncertainty is whether a SysML binding can be
+written against L0/L1 unchanged, and that is answerable in one document with no repository at all. If it
+cannot be, the repository should not exist.
+
+A related question follows the answer and is not settled either: how EventML eventually relates to the
+kernel — a hard fork, a citation with the kernel authoritative, or a parallel copy until the MVP proves
+itself. Only the third is compatible with an MVP; the second is what a successful MVP graduates into.
+
 ## 5. Findings worth keeping
 
 **The value-state model is not confined to L0/L1.** `spec/04-uncertainty.md` §1 says wrapping applies to
@@ -183,9 +231,9 @@ something, and an infrastructure block that satisfies nothing is a fair question
 
 ## 7. Resume here
 
-The five open questions in §4, in that order. OQ1 and OQ2 are the two that were put and left unanswered;
-OQ3 is the problem this record was asked to capture; OQ4 was recommended but never confirmed; OQ5 waits for
-the other four on purpose.
+**OQ6 first**, because it decides whether the others are answered here or in another repository. Then OQ1
+and OQ2, the two that were put and left unanswered; OQ3, the problem this record was asked to capture; OQ4,
+recommended but never confirmed; OQ5 last, waiting for the other five on purpose.
 
-Nothing in §3 has been checked against a release plan, and §6 is the only part with a bearing on work that
-could begin now.
+Nothing in §3 has been checked against a release plan. §6 bears on `eventml-core` whatever OQ6 decides,
+since rule 9 is already released and its recategorisation needs no kernel.
