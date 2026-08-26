@@ -7,8 +7,9 @@ a release, and several of them would change constructs that are already tagged a
 during the session. The constraint stated at the outset was "after `eventml-core` 1.0"; it was withdrawn, on
 the reading that EventML's own roadmap is about to spend five releases building kernel material inside
 EventML, and then replaced by K14 — serialised work rather than an MVP running alongside. K15 settles what
-that 1.0 is: the metamodel, with no description language in it. **How a metamodel with no notation can be
-verified is not settled** — see OQ7. Nothing here changes `spec/` as it stands.
+that 1.0 is: the metamodel, described in text and diagrams, with no notation and no filled-in definitions.
+**How a metamodel that exercises nothing on its own is verified is not settled** — see OQ7. Version numbers
+are ceremony at this stage; see the note opening §4. Nothing here changes `spec/` as it stands.
 
 **Date:** 2026-08-26
 **Branch at time of writing:** `eventml-core-v0.5`
@@ -73,9 +74,19 @@ step 4's questions by rules 1 and 2. Steps 3b, 4a and 5 have nothing.
 | K12 | The cycle ends in a **baseline**: a dated, identified cut of the requirements in force. A design language binds to a *named* baseline, not to "the requirements" | ISO/IEC/IEEE 29148's term, adopted under house rule 8 rather than coined. Without it the implementing team designs against a set that moves under them, which is the experience that makes engineers distrust requirement models. The cost is an identifier and a date |
 | K13 | The baseline is a simplification for a different audience, not a model that must pass the kernel's checks. Its condition is losslessness and recoverability: everything in force is present, nothing in force was dropped, and everything dropped stays in the working model | The baseline drops the need layer, so need-coverage rules cannot apply to it — running them on it is a category error. People building the thing do not need to know what the candidate requirements were |
 | K14 | **The work is serialised, not parallel.** The kernel gets its own repository, built from what exists today and carried to its own 1.0 with `eventml-core` frozen for the duration. EventML resumes afterwards, as the kernel's first consumer | The five releases on EventML's own roadmap are kernel work, so serialising does that work once instead of twice. It also dissolves the moving-target risk by decree rather than by mitigation: nothing can fork underneath a specification that is not moving. And a specification resumed against a finished kernel is a far better test of K2 than two that co-evolve and quietly accommodate each other |
-| K15 | **The metamodel and its implementations are separate things.** The metamodel is the kernel proper — entities, types, edges, states, rules, the binding contract — and carries **no description language**. Concrete syntax, the requirement types and a base rule-set that a project may vary as it runs belong to an implementation: a self-contained package that can be adopted and carried forward on its own. **1.0 is the metamodel** | This is the abstract-syntax / concrete-syntax split, and it is what makes K2 reachable rather than merely stated. A design language attaching underneath brings its own notation; a metamodel that bundled YAML would impose EventML's notation on SysML, which is the opposite of symmetric attachment. EventML could bundle its notation in `eventml-core` because it had one audience — `spec/05-concrete-syntax.md` sits inside core today. The kernel has many, so it cuts one notch higher |
+| K15 | **The metamodel and its implementations are separate things.** The metamodel is the kernel proper — the L0/L1 types, the edges, the states, the rules, the binding contract — described in text and diagrams only. It defines what a `RequirementDef` *is*; **it contains no filled-in `RequirementDef`, and the moment any element goes into one, that is implementation.** Notation, the requirement types themselves and a base rule-set a project may vary as it runs all belong to an implementation: a self-contained package that can be adopted and carried forward on its own. **The metamodel is what reaches 1.0** | The abstract-syntax / concrete-syntax split, and what makes K2 reachable rather than merely stated. A design language attaching underneath brings its own notation, so any notation inside the metamodel would be imposed on it. EventML did not have to face this — `spec/05-concrete-syntax.md` sits inside `eventml-core` today because EventML has one audience. The kernel has many, so it cuts one notch higher |
+| K16 | **An implementation is itself a metamodel**, for the project models built with it | Three levels, not two: the metamodel says what a `RequirementDef` is; an implementation is the filled set of them, and that set is what a project model is checked against. `examples/lib/` already plays this middle role in EventML — `audio.req.speech_intelligibility` is a filled `RequirementDef`, and `eventml-lib` versions separately from `eventml-core` for exactly this reason. The layering is not new; ProjectML only moves the notation from the first level to the second |
 
 ## 4. Open questions
+
+**A calibration that applies to all of them.** Version numbers are ceremony at this stage: one developer,
+no users, nothing to coordinate. Several recommendations below were argued partly from release discipline
+and should be read with that discounted. It affects K14 least — **its content is the ordering and the
+freeze, not the number.** Finish the kernel before resuming EventML is a real constraint whether or not the
+finishing point is called 1.0. It affects OQ1 most: conformance levels are a coordination mechanism for
+parties who do not exist yet, and the case for them is not the levels but the information they carry — what
+an exported model loses — which could be written as prose today and formalised only when somebody else
+needs it.
 
 **OQ1 — One specification or two?** The kernel has two separable pieces: the evidence chain, which attaches
 at exactly one seam, and the value-state model, which attaches to every value or to none. They cannot be
@@ -192,26 +203,28 @@ The question that follows 1.0, and is not settled: how EventML then relates to t
 the kernel authoritative, or a copy. K14 makes the first much more likely, since a frozen EventML resuming
 against a finished kernel has no reason to keep a copy.
 
-**OQ7 — How is a metamodel with no notation verified?** K15 makes 1.0 the metamodel and puts the description
-language in an implementation. That collides with the only verification this family of specifications has.
-CLAUDE.md §5 says a concept appearing in no example is unproven, and the v0.4 plan applies the same test to
-refuse a construct outright: *"An unexercised construct is an unproven one, so it waits."* Examples are
-written in a notation. **A metamodel with no notation can exercise nothing, so on its own terms it cannot
-reach 1.0 at all.**
+**OQ7 — What is the metamodel's done-test?** K15 puts the notation in an implementation, and that collides
+with the only verification this family of specifications has. CLAUDE.md §5 says a concept appearing in no
+example is unproven, and the v0.4 plan applies the same test to refuse a construct outright: *"An
+unexercised construct is an unproven one, so it waits."* Examples are written in a notation. **A metamodel
+with no notation exercises nothing on its own.**
 
-Three ways out:
+K16 says where the exercise has to come from instead: an implementation is the middle level, so the chain is
+metamodel ← implementation ← project model, and the metamodel is reached last. What is being chosen is how
+far down that chain the metamodel's own done-test reaches.
 
-- **Gate the metamodel's 1.0 on an implementation existing.** They still version separately — locked
-  decision 7 already runs `eventml-core` and `eventml-lib` on independent schedules — but the metamodel does
-  not reach 1.0 unexercised. Released together, versioned apart.
-- **Give the metamodel its own non-serialised examples**: model-level walkthroughs, diagrams, structured
-  tables that are not a description language. Keeps 1.0 independent, at the cost that "is this a valid
-  model?" has no answer until a notation exists.
-- **Exempt the metamodel repository from the rule**, and defer verification to implementations.
+- **One implementation runs the loop.** The metamodel is done when one implementation exists and carries the
+  §2 procedure end to end on one project, terminating in a baseline. Proves the metamodel is implementable.
+- **One implementation, plus the SysML binding on paper.** The same, and one binding document — K4's four
+  declarations — written against SysML v2 without a second library behind it.
+- **Two implementations in two domains.** An event one and a software one, both running the loop. The only
+  version that fully tests neutrality, and roughly twice the work before anything is finished.
 
-**Recommended: the first**, because both halves of it are already this repository's practice rather than a
-new idea — separate version numbers for things that move at different rates, and a refusal to ship what no
-example exercises.
+**Recommended: the second.** One implementation proves the metamodel can be built on; it does not prove the
+metamodel is neutral, and neutrality is the entire thesis. Two implementations prove it and double the work
+first. The second option tests neutrality **where neutrality actually lives** — at the seam, which K3 and K4
+say is one field and four declarations — for the cost of one document. It is also the earliest point at
+which a false K2 becomes visible.
 
 **A consequence of the implementation half, worth recording before it is designed.** K15 puts "a base
 rule-set a project may vary as it runs" in the implementation. If the rules can change mid-project, then a
