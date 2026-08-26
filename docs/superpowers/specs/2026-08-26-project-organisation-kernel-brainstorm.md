@@ -6,8 +6,9 @@ a release, and several of them would change constructs that are already tagged a
 **Scope: a repository of its own, carried to its own 1.0 before `eventml-core` resumes.** Revised twice
 during the session. The constraint stated at the outset was "after `eventml-core` 1.0"; it was withdrawn, on
 the reading that EventML's own roadmap is about to spend five releases building kernel material inside
-EventML, and then replaced by K14 — serialised work rather than an MVP running alongside. **What that 1.0
-contains is not settled** — see OQ6. Nothing here changes `spec/` as it stands.
+EventML, and then replaced by K14 — serialised work rather than an MVP running alongside. K15 settles what
+that 1.0 is: the metamodel, with no description language in it. **How a metamodel with no notation can be
+verified is not settled** — see OQ7. Nothing here changes `spec/` as it stands.
 
 **Date:** 2026-08-26
 **Branch at time of writing:** `eventml-core-v0.5`
@@ -72,6 +73,7 @@ step 4's questions by rules 1 and 2. Steps 3b, 4a and 5 have nothing.
 | K12 | The cycle ends in a **baseline**: a dated, identified cut of the requirements in force. A design language binds to a *named* baseline, not to "the requirements" | ISO/IEC/IEEE 29148's term, adopted under house rule 8 rather than coined. Without it the implementing team designs against a set that moves under them, which is the experience that makes engineers distrust requirement models. The cost is an identifier and a date |
 | K13 | The baseline is a simplification for a different audience, not a model that must pass the kernel's checks. Its condition is losslessness and recoverability: everything in force is present, nothing in force was dropped, and everything dropped stays in the working model | The baseline drops the need layer, so need-coverage rules cannot apply to it — running them on it is a category error. People building the thing do not need to know what the candidate requirements were |
 | K14 | **The work is serialised, not parallel.** The kernel gets its own repository, built from what exists today and carried to its own 1.0 with `eventml-core` frozen for the duration. EventML resumes afterwards, as the kernel's first consumer | The five releases on EventML's own roadmap are kernel work, so serialising does that work once instead of twice. It also dissolves the moving-target risk by decree rather than by mitigation: nothing can fork underneath a specification that is not moving. And a specification resumed against a finished kernel is a far better test of K2 than two that co-evolve and quietly accommodate each other |
+| K15 | **The metamodel and its implementations are separate things.** The metamodel is the kernel proper — entities, types, edges, states, rules, the binding contract — and carries **no description language**. Concrete syntax, the requirement types and a base rule-set that a project may vary as it runs belong to an implementation: a self-contained package that can be adopted and carried forward on its own. **1.0 is the metamodel** | This is the abstract-syntax / concrete-syntax split, and it is what makes K2 reachable rather than merely stated. A design language attaching underneath brings its own notation; a metamodel that bundled YAML would impose EventML's notation on SysML, which is the opposite of symmetric attachment. EventML could bundle its notation in `eventml-core` because it had one audience — `spec/05-concrete-syntax.md` sits inside core today. The kernel has many, so it cuts one notch higher |
 
 ## 4. Open questions
 
@@ -177,10 +179,8 @@ material entire. **The recommendation is that it moves to the kernel rather than
 `eventml-core` v0.5 as currently conceived does not happen at all. Deferring it would leave a designed
 release pointing at material that no longer lives in the repository.
 
-*What 1.0 means.* Undefined, and the plan rests on it. A 1.0 defined as a feature list is a horizon, not a
-release. **The recommendation is to define it by the procedure in §2: 1.0 is reached when the loop runs end
-to end and terminates in a baseline** — which makes it walkable, in the sense CLAUDE.md §5 already requires,
-rather than countable.
+*What 1.0 means.* **Answered by K15: 1.0 is the metamodel.** The question that replaces it is not what 1.0
+contains but how it can be verified — see OQ7.
 
 **One constraint to fix now, because schedule pressure will take it first.** A 1.0 whose only worked
 examples are events has not proved neutrality; it is EventML's L0/L1 under a new name. **A non-AV worked
@@ -191,6 +191,34 @@ precondition for the repository, so that a false K2 is discovered in week two in
 The question that follows 1.0, and is not settled: how EventML then relates to the kernel — a citation with
 the kernel authoritative, or a copy. K14 makes the first much more likely, since a frozen EventML resuming
 against a finished kernel has no reason to keep a copy.
+
+**OQ7 — How is a metamodel with no notation verified?** K15 makes 1.0 the metamodel and puts the description
+language in an implementation. That collides with the only verification this family of specifications has.
+CLAUDE.md §5 says a concept appearing in no example is unproven, and the v0.4 plan applies the same test to
+refuse a construct outright: *"An unexercised construct is an unproven one, so it waits."* Examples are
+written in a notation. **A metamodel with no notation can exercise nothing, so on its own terms it cannot
+reach 1.0 at all.**
+
+Three ways out:
+
+- **Gate the metamodel's 1.0 on an implementation existing.** They still version separately — locked
+  decision 7 already runs `eventml-core` and `eventml-lib` on independent schedules — but the metamodel does
+  not reach 1.0 unexercised. Released together, versioned apart.
+- **Give the metamodel its own non-serialised examples**: model-level walkthroughs, diagrams, structured
+  tables that are not a description language. Keeps 1.0 independent, at the cost that "is this a valid
+  model?" has no answer until a notation exists.
+- **Exempt the metamodel repository from the rule**, and defer verification to implementations.
+
+**Recommended: the first**, because both halves of it are already this repository's practice rather than a
+new idea — separate version numbers for things that move at different rates, and a refusal to ship what no
+example exercises.
+
+**A consequence of the implementation half, worth recording before it is designed.** K15 puts "a base
+rule-set a project may vary as it runs" in the implementation. If the rules can change mid-project, then a
+check result is only meaningful against the rule-set that produced it, and **a baseline (K12) has to name
+the implementation package and version it was cut under** — otherwise a baseline validated last month cannot
+be told apart from one validated under different rules. The date and identifier K12 asks for are not enough
+on their own.
 
 ## 5. Findings worth keeping
 
@@ -246,9 +274,12 @@ something, and an infrastructure block that satisfies nothing is a fair question
 
 ## 7. Resume here
 
-**OQ6 first**, because it decides whether the others are answered here or in another repository. Then OQ1
-and OQ2, the two that were put and left unanswered; OQ3, the problem this record was asked to capture; OQ4,
-recommended but never confirmed; OQ5 last, waiting for the other five on purpose.
+**OQ7 first**, because a 1.0 that cannot be verified is not a release and K15 has just made that the live
+risk. Then what remains of OQ6 — the starting tag, and whether v0.5's subject moves or is deferred. Then
+OQ1, which K15 partly reshapes: the value-state model splits along the same seam, and the states are
+portable where progressive wrapping is notation and is not, so the conformance-level question is less about
+what a binding can take and more about what a notation can carry. Then OQ2, OQ3 — the problem this record
+was asked to capture — and OQ4. OQ5 last, waiting for the others on purpose.
 
 Nothing in §3 has been checked against a release plan. §6 bears on `eventml-core` whatever OQ6 decides,
 since rule 9 is already released and its recategorisation needs no kernel.
