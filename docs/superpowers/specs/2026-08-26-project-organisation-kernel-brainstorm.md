@@ -3,11 +3,11 @@
 **Status: brainstorm only.** This is not a design and not a plan. No decision below has been weighed against
 a release, and several of them would change constructs that are already tagged and shipped.
 
-**Scope: an MVP project of its own, probably in a separate repository.** Revised during the session. The
-constraint stated at the outset was "after `eventml-core` 1.0"; it was withdrawn, on the reading that
-`eventml-core`'s own roadmap is about to spend five releases building kernel material inside EventML. **The
-shape of that MVP is not settled** — see OQ6. Nothing here is scheduled against an EventML release, and
-nothing here changes `spec/` as it stands.
+**Scope: a repository of its own, carried to its own 1.0 before `eventml-core` resumes.** Revised twice
+during the session. The constraint stated at the outset was "after `eventml-core` 1.0"; it was withdrawn, on
+the reading that EventML's own roadmap is about to spend five releases building kernel material inside
+EventML, and then replaced by K14 — serialised work rather than an MVP running alongside. **What that 1.0
+contains is not settled** — see OQ6. Nothing here changes `spec/` as it stands.
 
 **Date:** 2026-08-26
 **Branch at time of writing:** `eventml-core-v0.5`
@@ -71,6 +71,7 @@ step 4's questions by rules 1 and 2. Steps 3b, 4a and 5 have nothing.
 | K11 | **The requirement model changes only through sources.** Every outcome of a review — a meeting, a telephone call, the team's own decision — enters as a source | What makes traceability total rather than merely well-intentioned. It is also what makes K10 tractable: no finding can go stale unnoticed, because nothing moves beneath it without a source accounting for the move |
 | K12 | The cycle ends in a **baseline**: a dated, identified cut of the requirements in force. A design language binds to a *named* baseline, not to "the requirements" | ISO/IEC/IEEE 29148's term, adopted under house rule 8 rather than coined. Without it the implementing team designs against a set that moves under them, which is the experience that makes engineers distrust requirement models. The cost is an identifier and a date |
 | K13 | The baseline is a simplification for a different audience, not a model that must pass the kernel's checks. Its condition is losslessness and recoverability: everything in force is present, nothing in force was dropped, and everything dropped stays in the working model | The baseline drops the need layer, so need-coverage rules cannot apply to it — running them on it is a category error. People building the thing do not need to know what the candidate requirements were |
+| K14 | **The work is serialised, not parallel.** The kernel gets its own repository, built from what exists today and carried to its own 1.0 with `eventml-core` frozen for the duration. EventML resumes afterwards, as the kernel's first consumer | The five releases on EventML's own roadmap are kernel work, so serialising does that work once instead of twice. It also dissolves the moving-target risk by decree rather than by mitigation: nothing can fork underneath a specification that is not moving. And a specification resumed against a finished kernel is a far better test of K2 than two that co-evolve and quietly accommodate each other |
 
 ## 4. Open questions
 
@@ -128,8 +129,11 @@ recommended**, on the ground that the process is the part most likely to collide
 organisation's own way of working, and therefore the least portable thing the kernel could make normative.
 K5, K6 and K10 all point that way without settling it.
 
-**OQ5 — What is the kernel called?** Never discussed. Deliberately: naming a language before its scope is
-settled fixes the scope by accident.
+**OQ5 — What is the kernel called?** **ProjectML** was put forward, with a question mark. It reads well and
+it is the obvious parallel to EventML. One reservation is worth recording before a repository fixes it:
+*project* claims the whole of project management — schedule, budget, resources, people — while the language
+does requirements engineering and nothing else. A name that overclaims invites the wrong first question from
+everybody who reads it, and a repository name is cheap to change this week and expensive in a year.
 
 **OQ6 — What is the MVP, and where does it live?** The session opened under an "after 1.0" constraint and
 withdrew it: the extraction should be an MVP project of its own, probably in a separate repository.
@@ -157,25 +161,36 @@ non-AV binding decides it.
 - the non-AV example needs a concept L0/L1 does not have — the cut is in the wrong place
 - the domain leaks in §5 turn out to number thirty rather than three
 
-Three shapes were put:
+Three MVP shapes were put — a thin snapshot, a thick one absorbing v0.5, and one with no repository at all —
+and a fourth was chosen instead: **build the repository and carry it to its own 1.0 before resuming
+EventML.** That is K14, and it is not an MVP. What remains open is what its 1.0 contains.
 
-- **Thin.** Snapshot L0/L1 from the `v0.4.0` tag — released and stable, rather than the moving v0.5 branch —
-  write the two bindings and one non-AV example, and leave EventML untouched. Accepts temporary duplication
-  as the price of not disturbing v0.5.
-- **Thick.** The kernel repository becomes where the v0.5 requirement-kinds work happens, and EventML
-  consumes it from there. Stops the duplicated effort immediately, at the cost of making an EventML release
-  depend on an unproven repository.
-- **No repository yet.** Write the two binding documents against L0/L1 as it stands. If K2 holds, create the
-  repository knowing it does; if not, nothing was built on a false premise.
+**Three things the decision leaves unsettled.**
 
-**Recommended: thin, with the SysML binding written first as the gate.** This sequences the third shape into
-the first rather than choosing between them. The decisive uncertainty is whether a SysML binding can be
-written against L0/L1 unchanged, and that is answerable in one document with no repository at all. If it
-cannot be, the repository should not exist.
+*What "what exists today" means.* v0.5's requirement-kinds work is brainstormed and **not implemented** —
+the branch carries two records and no specification change. So the starting point is `v0.4.0` plus two
+brainstorm records, which is a clean line, but only until somebody implements something. It should be named
+as a tag rather than as a date.
 
-A related question follows the answer and is not settled either: how EventML eventually relates to the
-kernel — a hard fork, a citation with the kernel authoritative, or a parallel copy until the MVP proves
-itself. Only the third is compatible with an MVP; the second is what a successful MVP graduates into.
+*What happens to v0.5.* Its subject — a library declares the kinds of requirement it handles — is kernel
+material entire. **The recommendation is that it moves to the kernel rather than being deferred**, and that
+`eventml-core` v0.5 as currently conceived does not happen at all. Deferring it would leave a designed
+release pointing at material that no longer lives in the repository.
+
+*What 1.0 means.* Undefined, and the plan rests on it. A 1.0 defined as a feature list is a horizon, not a
+release. **The recommendation is to define it by the procedure in §2: 1.0 is reached when the loop runs end
+to end and terminates in a baseline** — which makes it walkable, in the sense CLAUDE.md §5 already requires,
+rather than countable.
+
+**One constraint to fix now, because schedule pressure will take it first.** A 1.0 whose only worked
+examples are events has not proved neutrality; it is EventML's L0/L1 under a new name. **A non-AV worked
+example, and a SysML binding, are release criteria and not extras.** The gate recommended earlier survives
+K14 in a weaker but still useful form: write the SysML binding *early* in the kernel's life rather than as a
+precondition for the repository, so that a false K2 is discovered in week two instead of at 1.0.
+
+The question that follows 1.0, and is not settled: how EventML then relates to the kernel — a citation with
+the kernel authoritative, or a copy. K14 makes the first much more likely, since a frozen EventML resuming
+against a finished kernel has no reason to keep a copy.
 
 ## 5. Findings worth keeping
 
