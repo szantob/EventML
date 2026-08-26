@@ -8,9 +8,10 @@ during the session. The constraint stated at the outset was "after `eventml-core
 the reading that EventML's own roadmap is about to spend five releases building kernel material inside
 EventML, and then replaced by K14 — serialised work rather than an MVP running alongside. K15 settles what
 that 1.0 is: the metamodel, described in text and diagrams, with no notation and no filled-in definitions.
-OQ7 settles how a metamodel that exercises nothing on its own is verified, and **its answer turns out to be
-circular with K14's freeze** — see OQ8, which blocks starting and is the first thing to resolve. Version
-numbers are ceremony at this stage; see the note opening §4. Nothing here changes `spec/` as it stands.
+OQ7 settles how a metamodel that exercises nothing on its own is verified; its answer proved circular with
+K14's freeze, and **§7 resolves that by ordering the work into four phases**. Version numbers are ceremony at
+this stage — see the note opening §4 — and §7 says where the 1.0 label lands once they are not. Nothing here
+changes `spec/` as it stands.
 
 **Date:** 2026-08-26
 **Branch at time of writing:** `eventml-core-v0.5`
@@ -30,6 +31,16 @@ The argument for the cut is already in the specification, written for a differen
 the value states, the question derivation, the L2 product-name rule, and the recording criterion. **Three of
 the four live at L0/L1.** The language being lifted out is therefore not a competitor to SysML: it is the
 front end SysML declines to have, and it ends exactly where SysML begins.
+
+**It also stands on its own**, without any design language beneath it — a project can run the §2 loop and
+stop at a baseline, having attached nothing. That is worth stating, and worth stating precisely, because the
+obvious phrase for it overclaims. General-purpose project management means schedule, tasks, dependencies,
+resources, budget and milestones, and the kernel has none of them and is not going to. What it covers is the
+**evidence-and-decision half**: what was said, by whom, what it obliges, what is still open, what was
+decided and why, and what changed since. Those are standard project-management artefacts — a decision log,
+an issue log, a requirements register — with traceability holding them together, which is what the usual
+versions lack. Claiming that half is a strong claim. Claiming the other half by implication is how a
+specification acquires a first question it cannot answer, and it bears on OQ5.
 
 ## 2. The procedure the kernel serves
 
@@ -248,11 +259,10 @@ Three ways out:
 - **Weaken the done-test** to the paper binding alone, which is OQ7's first option with the exercise
   removed — and then nothing runs the loop before the kernel is declared finished.
 
-**Recommended: the first.** It is a clarification of what the freeze covers rather than a change to any
-decision, and the overlap it describes is not a compromise: an implementation built against a metamodel that
-is still settling is exactly the pressure that finds the metamodel's mistakes. The third is the one to
-refuse — a kernel finished without anything having run the loop is precisely the unexercised release OQ7
-exists to prevent.
+**Answered by the four phases in §7**, which resolve the circularity by ordering the work rather than by
+qualifying the freeze. One adjustment goes with them, recorded there: the phases are a work order, so the
+1.0 label belongs at the end of the fourth rather than the first, or the metamodel is declared finished
+before the thing that exercises it exists — which is the third option above, the one to refuse.
 
 **A consequence of the implementation half, worth recording before it is designed.** K15 puts "a base
 rule-set a project may vary as it runs" in the implementation. If the rules can change mid-project, then a
@@ -313,14 +323,40 @@ up, and the symmetry is exact." If rule 9 moves and rule 6 does not, the symmetr
 sentence needs correcting. Rule 6 should not move with it: no invariant says every L2 part satisfies
 something, and an infrastructure block that satisfies nothing is a fair question rather than an error.
 
-## 7. Resume here
+## 7. The order of work
 
-**OQ8 first**, because it is a circularity between decisions already taken rather than a question about what
-to build, and it blocks starting. Then what remains of OQ6 — the starting tag, and whether v0.5's subject
-moves or is deferred. Then OQ1, which K15 partly reshapes: the value-state model splits along the same seam,
-and the states are portable where progressive wrapping is notation and is not — so the conformance-level
-question is less about what a binding can take and more about what a notation can carry. Then OQ2, OQ3 — the problem this record
-was asked to capture — and OQ4. OQ5 last, waiting for the others on purpose.
+Four phases, settled in the session, resolving OQ8 by ordering the work rather than by qualifying the
+freeze:
 
-Nothing in §3 has been checked against a release plan. §6 bears on `eventml-core` whatever OQ6 decides,
-since rule 9 is already released and its recategorisation needs no kernel.
+1. **Bring the ProjectML metamodel to a complete draft.** Types, edges, states, rules, the binding contract.
+   Text and diagrams; no notation, no filled definitions.
+2. **The SysML implementation** — the paper binding of K18, kept in the ProjectML repository under K17. This
+   is where a false K2 shows up, and it is early on purpose.
+3. **Take the ProjectML elements out of EventML.** Spec surgery: the L0/L1 sections of `spec/01-layers.md`,
+   the four kernel entities in `spec/02-metamodel.md`, `spec/04-uncertainty.md`, the kernel relations in
+   `spec/03-relationships.md`, and `decisions.yaml`.
+4. **Build EventML’s ProjectML implementation**, in the EventML repository under K17.
+
+**Where the 1.0 label goes.** The phases are a work order, and 1.0 is a claim about verification, so the two
+do not coincide. Under OQ7 the metamodel is finished when an implementation has run the loop and the SysML
+binding exists — the end of phase 4, not the end of phase 1. Read phase 1 as *complete draft* and the four
+phases hold together; read it as *released* and the metamodel is declared finished two phases before
+anything exercises it.
+
+**Phases 3 and 4 are one piece of work, not two.** Between them EventML has no L0/L1 and nothing to replace
+it, so every example fails the rule that verifies it. Survivable inside a branch, not survivable across a
+tag: nothing should be released from EventML between them.
+
+**Phase 4 is smaller than its name.** EventML already holds most of an implementation —
+`spec/05-concrete-syntax.md` is the notation, and `examples/lib/*/requirements.yaml` is 22 filled
+`RequirementDef`s. Much of phase 4 is declaring what exists as a ProjectML implementation. The genuinely new
+work is what the kernel adds that EventML never had: the kind list, the need disposition of OQ3, the model
+above, and the baseline.
+
+**What still has to be answered, and when.** OQ2 blocks phase 1 directly — phase 1 defines what a
+`RequirementDef` is, which is exactly what OQ2 asks. OQ3 and OQ4 are phase 1 as well. OQ1 belongs to phase
+2, where a binding first has to state what it cannot take; K15 reshapes it, since the value states are
+portable where progressive wrapping is notation and is not. What remains of OQ6 is settled enough by K15 and
+K16 to act on — the slot is metamodel, the list is implementation. OQ5 waits for the rest on purpose.
+
+§6 sits outside all four phases. Rule 9 is already released and its recategorisation needs no kernel.
